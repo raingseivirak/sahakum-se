@@ -1,7 +1,7 @@
-# Sahakum Khmer CMS Structure (Ghost)
+# Sahakum Khmer CMS Structure
 
 This document outlines the proposed site structure, menu, multilingual
-setup, and content guidelines for Sahakum Khmer's CMS built with Ghost.
+setup, and content guidelines for Sahakum Khmer's CMS.
 
 ## Main Menu Structure
 
@@ -41,7 +41,7 @@ setup, and content guidelines for Sahakum Khmer's CMS built with Ghost.
 
 ## Multilingual Strategy
 
-Ghost supports multilingual content through collections and theme i18n.
+ supports multilingual content through collections and theme i18n.
 The following approach is recommended:
 
 -   \- Use language-specific collections (/en/, /sv/, /km/)
