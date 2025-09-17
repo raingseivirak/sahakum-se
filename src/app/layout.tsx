@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google';
 import { Noto_Sans_Khmer } from 'next/font/google';
 import { Providers } from '@/components/providers/session-provider';
-import './[locale]/globals-simple.css';
+import './[locale]/globals.css';
 
 const inter = Inter({
   subsets: ['latin'],
