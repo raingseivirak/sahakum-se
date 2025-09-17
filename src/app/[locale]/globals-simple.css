@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simplified CSS for production stability */
+
+:root {
+  /* Official Sweden Brand Colors */
+  --color-sweden-blue-primary: #006AA7;
+  --color-sweden-blue-light: #0093BD;
+  --color-sweden-blue-navy: #003366;
+  --color-sweden-blue-soft: #E6F4FB;
+  --color-sweden-yellow-primary: #FECC02;
+  --color-sweden-yellow-soft: #FFF5CC;
+
+  /* Neutrals */
+  --color-sweden-neutral-white: #FAFAFA;
+  --color-sweden-neutral-100: #F3F4F6;
+  --color-sweden-neutral-200: #E5E7EB;
+  --color-sweden-neutral-300: #D1D5DB;
+  --color-sweden-neutral-400: #9CA3AF;
+  --color-sweden-neutral-500: #6B7280;
+  --color-sweden-neutral-600: #4B5563;
+  --color-sweden-neutral-700: #374151;
+  --color-sweden-neutral-800: #1F2937;
+  --color-sweden-neutral-900: #142638;
+
+  /* Sahakum Colors */
+  --sahakum-gold: #D4932F;
+  --sahakum-navy: #0D1931;
+
+  /* Design System Variables */
+  --background: white;
+  --foreground: var(--color-sweden-neutral-900);
+  --primary: var(--color-sweden-blue-primary);
+  --primary-foreground: white;
+  --secondary: var(--color-sweden-neutral-100);
+  --secondary-foreground: var(--color-sweden-neutral-900);
+  --muted: var(--color-sweden-neutral-100);
+  --muted-foreground: var(--color-sweden-neutral-500);
+  --accent: var(--color-sweden-yellow-primary);
+  --accent-foreground: var(--color-sweden-neutral-900);
+  --border: var(--color-sweden-neutral-200);
+  --input: var(--color-sweden-neutral-200);
+  --ring: var(--color-sweden-blue-primary);
+  --destructive: #EF4444;
+  --destructive-foreground: white;
+  --radius: 0.375rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+  }
+
+  /* Simplified heading styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--foreground);
+  }
+
+  /* Remove problematic animations */
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@layer utilities {
+  /* Essential utilities only */
+  .font-sweden {
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  }
+
+  .font-khmer {
+    font-family: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif;
+  }
+
+  .text-sweden-body {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .text-sweden-heading {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  /* Container utilities */
+  .container-fixed {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+  }
+
+  /* Override problematic Tailwind classes */
+  .bg-background {
+    background-color: white !important;
+  }
+
+  .border-border {
+    border-color: var(--border) !important;
+  }
+}
+
+/* Critical component fixes */
+.prose {
+  max-width: none;
+  color: var(--foreground);
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.prose p {
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+
+/* Admin layout fixes */
+.sidebar {
+  background-color: white !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Button fixes */
+.btn-primary {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-secondary {
+  background-color: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Form fixes */
+.form-input {
+  background-color: white !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+/* Hero section fixes */
+.hero-section {
+  background: linear-gradient(135deg, var(--color-sweden-blue-primary) 0%, var(--color-sweden-blue-navy) 100%) !important;
+  color: white !important;
+}
+
+/* Remove all transitions and animations for stability */
+*, *::before, *::after {
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
+}
