@@ -146,16 +146,6 @@ export default function SignIn() {
               </Button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-6 p-4 bg-sweden-neutral-100 rounded-md">
-              <p className={`text-sm font-medium text-sweden-neutral-700 mb-2 ${fontClass}`}>
-                Demo Credentials:
-              </p>
-              <div className={`text-xs text-sweden-neutral-600 space-y-1 ${fontClass}`}>
-                <p>Email: admin@sahakumkhmer.se</p>
-                <p>Password: admin123</p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
