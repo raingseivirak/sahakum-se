@@ -1,0 +1,208 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { Container, Grid } from '@/components/layout/grid';
+import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card';
+import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
+import { SwedenH1, SwedenH2, SwedenLead, SwedenBody } from '@/components/ui/sweden-typography';
+import { SwedenButton } from '@/components/ui/sweden-motion';
+import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
+import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid';
+import { ServicesSection } from '@/components/homepage/services-section';
+import { MembershipSection } from '@/components/homepage/membership-section';
+import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { type Language } from '@/lib/constants';
+
+const translations = {
+  sv: {
+    "home.title": "Välkommen till vår gemenskap",
+    "home.subtitle": "Gemenskap • Kultur • Integration",
+    "home.hero_description": "Vi hjälper kambodjaner att integreras i det svenska samhället genom gemenskapsaktiviteter, kulturutbyte och stöd.",
+    "common.join_us": "Bli medlem",
+    "common.learn_more": "Läs mer",
+    "common.contact_us": "Kontakta oss",
+    "nav.cambodia": "Kambodja",
+    "nav.living_in_sweden": "Leva i Sverige",
+    "nav.community": "Gemenskap",
+    "nav.blog": "Blogg",
+    "services.title": "Våra tjänster",
+    "services.description": "Vi erbjuder stöd och gemenskap för att hjälpa dig att trivas i Sverige",
+    "cambodia.description": "Lär dig om kambodjansk historia, kultur, mat och traditioner.",
+    "living_sweden.description": "Praktisk guide för nyanlända - boende, vård, transport och mer.",
+    "community.description": "Gemenskap genom matlagning, evenemang och kulturella aktiviteter.",
+    "blog.description": "Läs de senaste nyheterna, berättelser och insikter från vår gemenskap.",
+    "footer.copyright": "© 2025 Sahakum Khmer. Alla rättigheter förbehållna."
+  },
+  en: {
+    "home.title": "Welcome to our community",
+    "home.subtitle": "Community • Culture • Integration",
+    "home.hero_description": "We help Cambodians integrate into Swedish society through community activities, cultural exchange and support.",
+    "common.join_us": "Join Sahakum Khmer",
+    "common.learn_more": "Learn more",
+    "common.contact_us": "Contact us",
+    "nav.cambodia": "Cambodia",
+    "nav.living_in_sweden": "Living in Sweden",
+    "nav.community": "Community",
+    "nav.blog": "Blog",
+    "services.title": "Our services",
+    "services.description": "We offer support and community to help you thrive in Sweden",
+    "cambodia.description": "Learn about Cambodian history, culture, food and traditions.",
+    "living_sweden.description": "Practical guide for newcomers - housing, healthcare, transport and more.",
+    "community.description": "Community through cooking, events and cultural activities.",
+    "blog.description": "Read the latest news, stories and insights from our community.",
+    "footer.copyright": "© 2025 Sahakum Khmer. All rights reserved."
+  },
+  km: {
+    "home.title": "សូមស្វាគមន៍មកកាន់សហគមន៍របស់យើង",
+    "home.subtitle": "សហគមន៍ • វប្បធម៌ • ការសន្សំចូល",
+    "home.hero_description": "យើងជួយជនជាតិកម្ពុជាចូលរួមក្នុងសង្គមស៊ុយអែតតាមរយៈសកម្មភាពសហគមន៍ ការផ្លាស់ប្តូរវប្បធម៌ និងការគាំទ្រ។",
+    "common.join_us": "ចូលរួមជាមួយសហគមន៍ខ្មែរ",
+    "common.learn_more": "អានបន្ថែម",
+    "common.contact_us": "ទាក់ទងយើង",
+    "nav.cambodia": "កម្ពុជា",
+    "nav.living_in_sweden": "រស់នៅក្នុងស៊ុយអែត",
+    "nav.community": "សហគមន៍",
+    "nav.blog": "ប្លុក",
+    "services.title": "សេវាកម្មរបស់យើង",
+    "services.description": "យើងផ្តល់ការគាំទ្រ និងសហគមន៍ដើម្បីជួយអ្នកទទួលបានជោគជ័យនៅស៊ុយអែត",
+    "cambodia.description": "ស្វែងយល់អំពីប្រវត្តិសាស្ត្រ វប្បធម៌ អាហារ និងប្រពៃណីកម្ពុជា។",
+    "living_sweden.description": "ការណែនាំដ៏ជាក់ស្តែងសម្រាប់អ្នកទាំងនោះដែលទើបមកដល់ - លំនៅដ្ឋាន សុខភាព ការធ្វើដំណើរ និងច្រើនទៀត។",
+    "community.description": "សហគមន៍តាមរយៈការចម្អិនបាយ ព្រឹត្តិការណ៍ និងសកម្មភាពវប្បធម៌។",
+    "blog.description": "អានព័ត៌មានថ្មីៗ រឿងរ៉ាវ និងការយល់ដឹងពីសហគមន៍របស់យើង។",
+    "footer.copyright": "© ២០២៥ សហគមន៍ខ្មែរ។ រក្សាសិទ្ធិគ្រប់យ៉ាង។"
+  }
+};
+
+interface Props {
+  params: { locale: keyof typeof translations };
+}
+
+export default function HomePage({ params }: Props) {
+  const t = (key: string) => translations[params.locale]?.[key] || translations.sv[key] || key;
+
+  // Determine font class based on locale
+  const getFontClass = () => {
+    switch (params.locale) {
+      case 'km':
+        return 'font-khmer';
+      case 'sv':
+      case 'en':
+        return 'font-sweden';
+      default:
+        return 'font-multilingual';
+    }
+  };
+
+  return (
+    <div className={`min-h-screen bg-swedenBrand-neutral-white ${getFontClass()}`}>
+      {/* Official Sweden Brand Skip Navigation */}
+      <SwedenSkipNav locale={params.locale} />
+
+      {/* Sophisticated Header with Sahakum Colors */}
+      <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
+        <Container size="wide">
+          <nav className="flex items-center justify-between py-4 lg:py-6">
+            {/* Swedish Brand Logo */}
+            <SwedenBrandLogo
+              locale={params.locale}
+              size="md"
+              variant="horizontal"
+              className="hover:opacity-90 transition-opacity duration-200"
+            />
+
+            {/* Language Switcher */}
+            <LanguageSwitcher
+              currentLocale={params.locale as Language}
+              variant="compact"
+            />
+          </nav>
+        </Container>
+      </header>
+
+      {/* Main Content */}
+      <main id="main-content">
+        {/* Hero Section - Enhanced Sophisticated Sahakum style */}
+        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--sweden-blue-700)] text-white overflow-hidden">
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--sahakum-gold)]/5 via-transparent to-[var(--sahakum-gold)]/5 animate-pulse"></div>
+
+          {/* Subtle geometric pattern */}
+          <div className="absolute inset-0 opacity-10" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FECB00' fill-opacity='0.6'%3E%3Cpath d='M30 10 L40 25 L30 40 L20 25 Z'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }}></div>
+
+          {/* Floating geometric accents */}
+          <div className="absolute top-1/4 right-1/4 w-16 h-16 border border-[var(--sahakum-gold)]/20 rotate-45 animate-bounce" style={{ animationDuration: '3s' }}></div>
+          <div className="absolute bottom-1/3 left-1/4 w-8 h-8 bg-[var(--sahakum-gold)]/10 rotate-12 animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 right-1/6 w-4 h-4 bg-[var(--sahakum-gold)]/15 rotate-45 animate-ping" style={{ animationDelay: '2s' }}></div>
+
+          <Container size="wide" className="py-12 lg:py-16 relative">
+            <div className="max-w-sweden-content">
+              {/* Enhanced animated welcome message */}
+              <div className="animate-fade-in-up">
+                <SwedenH1 className="text-white mb-4 text-4xl lg:text-5xl" locale={params.locale}>
+                  <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    {t('home.title')}
+                  </span>
+                </SwedenH1>
+              </div>
+
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <SwedenLead className="text-[var(--sahakum-gold)] mb-4 text-lg lg:text-xl font-medium" locale={params.locale}>
+                  {t('home.subtitle')}
+                </SwedenLead>
+              </div>
+
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+                <SwedenBody className="text-white/90 mb-6 max-w-3xl text-base lg:text-lg leading-relaxed" locale={params.locale}>
+                  {t('home.hero_description')}
+                </SwedenBody>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+                <Link href={`/${params.locale}/join`}>
+                  <SwedenButton
+                    variant="primary"
+                    size="lg"
+                    className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                  >
+                    {t('common.join_us')}
+                  </SwedenButton>
+                </Link>
+                <Link href={`/${params.locale}/contact`}>
+                  <SwedenButton
+                    variant="secondary"
+                    size="lg"
+                    className="border-[var(--sahakum-gold)] text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)] hover:text-[var(--sahakum-navy)] transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"
+                  >
+                    {t('common.contact_us')}
+                  </SwedenButton>
+                </Link>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Featured Content Section - Dynamic pages grid */}
+        <FeaturedContentGrid locale={params.locale} />
+
+        {/* Dynamic Services Section */}
+        <ServicesSection locale={params.locale} />
+
+        {/* Membership Section - Call to Action */}
+        <MembershipSection locale={params.locale} />
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-[var(--sahakum-navy)] text-white py-12 border-t border-[var(--sahakum-gold)]/20">
+        <Container size="wide">
+          <div className="text-center">
+            <SwedenBody className="text-[var(--sahakum-gold)] mb-0" locale={params.locale}>
+              {t('footer.copyright')}
+            </SwedenBody>
+          </div>
+        </Container>
+      </footer>
+    </div>
+  );
+}

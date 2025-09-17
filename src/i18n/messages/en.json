@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "cambodia": "Cambodia",
+    "living_in_sweden": "Living in Sweden",
+    "community": "Community",
+    "membership": "Membership",
+    "news": "News & Blog",
+    "admin": "Admin"
+  },
+  "common": {
+    "welcome": "Welcome",
+    "learn_more": "Learn more",
+    "contact": "Contact",
+    "language": "Language",
+    "search": "Search",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "publish": "Publish"
+  },
+  "home": {
+    "title": "Sahakum Khmer",
+    "subtitle": "Community • Culture • Integration",
+    "hero_description": "We help Cambodians integrate into Swedish society through community activities, cultural exchange and support."
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "content": "Content",
+    "pages": "Pages",
+    "posts": "Posts",
+    "events": "Events",
+    "users": "Users",
+    "settings": "Settings"
+  }
+}

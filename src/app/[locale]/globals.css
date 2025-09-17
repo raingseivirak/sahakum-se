@@ -1,0 +1,948 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Official Sweden Sans font declarations - LOAD FIRST! */
+@font-face {
+  font-family: 'Sweden Sans';
+  src: url('/fonts/sweden-sans/SwedenSans-Book.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sweden Sans';
+  src: url('/fonts/sweden-sans/SwedenSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sweden Sans';
+  src: url('/fonts/sweden-sans/SwedenSans-Semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sweden Sans';
+  src: url('/fonts/sweden-sans/SwedenSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Official Sweden Brand Typography - Sweden Sans */
+
+/* Khmer Typography - Next.js optimized Noto Sans Khmer */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Official Sweden Brand Design Tokens */
+  --color-sweden-blue-primary: #006AA7;
+  --color-sweden-blue-light: #0093BD;
+  --color-sweden-blue-navy: #003366;
+  --color-sweden-blue-soft: #E6F4FB;
+  --color-sweden-yellow-primary: #FECC02;
+  --color-sweden-yellow-soft: #FFF5CC;
+
+  /* Sweden Brand Extended Palette */
+  --color-sweden-neutral-white: #FAFAFA;
+  --color-sweden-neutral-50: #F9FAFB;
+  --color-sweden-neutral-100: #F3F4F6;
+  --color-sweden-neutral-200: #E5E7EB;
+  --color-sweden-neutral-300: #D1D5DB;
+  --color-sweden-neutral-400: #9CA3AF;
+  --color-sweden-neutral-500: #6B7280;
+  --color-sweden-neutral-600: #4B5563;
+  --color-sweden-neutral-700: #374151;
+  --color-sweden-neutral-800: #1F2937;
+  --color-sweden-neutral-900: #142638;
+
+  /* Official Sweden Typography Scale */
+  --font-size-sweden-xs: 0.8125rem;     /* 13px */
+  --font-size-sweden-sm: 0.875rem;      /* 14px */
+  --font-size-sweden-base: 1rem;        /* 16px - Base unit */
+  --font-size-sweden-lg: 1.125rem;      /* 18px */
+  --font-size-sweden-xl: 1.1875rem;     /* 19px - Sweden.se body */
+  --font-size-sweden-2xl: 1.5rem;       /* 24px */
+  --font-size-sweden-3xl: 2rem;         /* 32px */
+  --font-size-sweden-4xl: 2.5rem;       /* 40px */
+  --font-size-sweden-5xl: 3rem;         /* 48px */
+  --font-size-sweden-6xl: 4rem;         /* 64px */
+
+  /* Sweden Brand Line Heights */
+  --line-height-sweden-tight: 1.29;     /* For headings */
+  --line-height-sweden-base: 1.42;      /* For body text */
+  --line-height-sweden-relaxed: 1.5;    /* For long-form content */
+
+  /* Sweden Brand Letter Spacing */
+  --letter-spacing-sweden-tight: -0.36px;  /* For large headings */
+  --letter-spacing-sweden-normal: -0.28px; /* For body text */
+  --letter-spacing-sweden-wide: 0.05em;    /* For small caps */
+
+  /* Official Sweden Brand Grid System */
+  --grid-columns-sweden: 12;
+  --grid-gutter-sweden: 1.5rem;         /* 24px */
+  --grid-margin-sweden: 1rem;           /* 16px mobile */
+  --grid-margin-sweden-lg: 2rem;        /* 32px desktop */
+
+  /* Sweden Brand Spacing Scale (8px grid) */
+  --spacing-sweden-xs: 0.25rem;         /* 4px */
+  --spacing-sweden-sm: 0.5rem;          /* 8px */
+  --spacing-sweden-md: 1rem;            /* 16px */
+  --spacing-sweden-lg: 1.5rem;          /* 24px */
+  --spacing-sweden-xl: 2rem;            /* 32px */
+  --spacing-sweden-2xl: 3rem;           /* 48px */
+  --spacing-sweden-3xl: 4rem;           /* 64px */
+  --spacing-sweden-4xl: 6rem;           /* 96px */
+
+  /* Sweden Brand Motion Design */
+  --duration-sweden-fast: 150ms;
+  --duration-sweden-base: 200ms;
+  --duration-sweden-slow: 300ms;
+  --duration-sweden-slower: 500ms;
+
+  --easing-sweden-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --easing-sweden-enter: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --easing-sweden-exit: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+
+  /* Tailwind CSS Design Tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Official Sweden Brand Typography Stack (with Next.js optimized Inter fallback) */
+  --font-sweden: 'Sweden Sans', var(--font-inter), system-ui, sans-serif;
+  --font-sweden-bold: 'Sweden Sans', var(--font-inter), system-ui, sans-serif;
+  --font-sans: 'Sweden Sans', var(--font-inter), system-ui, sans-serif;
+  --font-khmer: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif;
+  --font-mono: var(--font-geist-mono);
+
+  /* Multilingual Font Fallback Stack */
+  --font-multilingual: 'Sweden Sans', var(--font-inter), 'Noto Sans Khmer', system-ui, sans-serif;
+  --color-primary: var(--color-sweden-blue-primary);
+  --color-primary-foreground: var(--sweden-neutral-white);
+  --color-secondary: var(--color-sweden-neutral-100);
+  --color-secondary-foreground: var(--color-sweden-neutral-900);
+  --color-accent: var(--color-sweden-yellow-primary);
+  --color-accent-foreground: var(--color-sweden-neutral-900);
+  --color-muted: var(--color-sweden-neutral-100);
+  --color-muted-foreground: var(--color-sweden-neutral-500);
+  --color-card: var(--sweden-neutral-white);
+  --color-card-foreground: var(--color-sweden-neutral-900);
+  --color-popover: var(--sweden-neutral-white);
+  --color-popover-foreground: var(--color-sweden-neutral-900);
+  --color-border: var(--color-sweden-neutral-200);
+  --color-input: var(--color-sweden-neutral-200);
+  --color-ring: var(--color-sweden-blue-primary);
+  --color-destructive: #EF4444;
+  --radius: 0.25rem;                    /* 4px - Sweden brand standard */
+  --radius-sm: 0.125rem;                /* 2px */
+  --radius-md: 0.375rem;                /* 6px */
+  --radius-lg: 0.5rem;                  /* 8px */
+  --radius-xl: 0.75rem;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);                 /* 12px */
+}
+
+:root {
+  /* Official Sweden Brand Colors - Primary Palette */
+  --background: var(--color-sweden-neutral-white);
+  --foreground: var(--color-sweden-neutral-900);
+  --card: var(--color-sweden-neutral-white);
+  --card-foreground: var(--color-sweden-neutral-900);
+  --popover: var(--color-sweden-neutral-white);
+  --popover-foreground: var(--color-sweden-neutral-900);
+
+  /* Sweden Blue (#006AA7) as primary */
+  --primary: var(--color-sweden-blue-primary);
+  --primary-foreground: var(--color-sweden-neutral-white);
+
+  /* Secondary using Sweden neutral palette */
+  --secondary: var(--color-sweden-neutral-100);
+  --secondary-foreground: var(--color-sweden-neutral-900);
+
+  /* Muted using Sweden neutral palette */
+  --muted: var(--color-sweden-neutral-100);
+  --muted-foreground: var(--color-sweden-neutral-500);
+
+  /* Sweden Yellow (#FECC02) as accent */
+  --accent: var(--color-sweden-yellow-primary);
+  --accent-foreground: var(--color-sweden-neutral-900);
+
+  /* Border and input using Sweden neutral palette */
+  --border: var(--color-sweden-neutral-200);
+  --input: var(--color-sweden-neutral-200);
+  --ring: var(--color-sweden-blue-primary);
+
+  /* Destructive state */
+  --destructive: #EF4444;
+  --destructive-foreground: var(--color-sweden-neutral-white);
+
+  /* Chart colors using Sweden-inspired palette */
+  --chart-1: var(--color-sweden-blue-primary);
+  --chart-2: var(--color-sweden-yellow-primary);
+  --chart-3: var(--color-sweden-blue-light);
+  --chart-4: var(--sahakum-gold);
+  --chart-5: var(--color-sweden-neutral-600);
+
+  /* Sidebar using Sweden brand colors */
+  --sidebar: var(--color-sweden-neutral-white);
+  --sidebar-foreground: var(--color-sweden-neutral-900);
+  --sidebar-primary: var(--color-sweden-blue-primary);
+  --sidebar-primary-foreground: var(--color-sweden-neutral-white);
+  --sidebar-accent: var(--color-sweden-neutral-100);
+  --sidebar-accent-foreground: var(--color-sweden-neutral-900);
+  --sidebar-border: var(--color-sweden-neutral-200);
+  --sidebar-ring: var(--color-sweden-neutral-500);
+
+  /* Sweden Brand Typography Variables */
+  --font-size-xs: var(--font-size-sweden-xs);
+  --font-size-sm: var(--font-size-sweden-sm);
+  --font-size-base: var(--font-size-sweden-base);
+  --font-size-lg: var(--font-size-sweden-lg);
+  --font-size-xl: var(--font-size-sweden-xl);
+  --font-size-2xl: var(--font-size-sweden-2xl);
+  --font-size-3xl: var(--font-size-sweden-3xl);
+  --font-size-4xl: var(--font-size-sweden-4xl);
+
+  /* Line heights following Sweden brand */
+  --line-height-tight: var(--line-height-sweden-tight);
+  --line-height-base: var(--line-height-sweden-base);
+  --line-height-relaxed: var(--line-height-sweden-relaxed);
+
+  /* Letter spacing following Sweden brand */
+  --letter-spacing-tight: var(--letter-spacing-sweden-tight);
+  --letter-spacing-normal: var(--letter-spacing-sweden-normal);
+  --letter-spacing-wide: var(--letter-spacing-sweden-wide);
+
+  /* Custom Sahakum Khmer Brand Colors */
+  --sahakum-gold: #D4932F;        /* Warm golden orange */
+  --sahakum-gold-50: #fef7ed;
+  --sahakum-gold-100: #fdedd3;
+  --sahakum-gold-200: #fbd6a5;
+  --sahakum-gold-300: #f8b96d;
+  --sahakum-gold-400: #f59e42;
+  --sahakum-gold-500: #D4932F;    /* Primary */
+  --sahakum-gold-600: #c27f26;
+  --sahakum-gold-700: #a16621;
+  --sahakum-gold-800: #835420;
+  --sahakum-gold-900: #6c451d;
+
+  --sahakum-navy: #0D1931;        /* Deep navy blue */
+  --sahakum-navy-50: #f1f3f7;
+  --sahakum-navy-100: #e1e7ee;
+  --sahakum-navy-200: #c7d2e0;
+  --sahakum-navy-300: #a1b4ca;
+  --sahakum-navy-400: #7591b0;
+  --sahakum-navy-500: #557298;
+  --sahakum-navy-600: #445c7f;
+  --sahakum-navy-700: #394a67;
+  --sahakum-navy-800: #323f56;
+  --sahakum-navy-900: #0D1931;    /* Primary */
+
+  /* Legacy support for existing code */
+  --sweden-blue: var(--color-sweden-blue-primary);
+  --sweden-blue-light: var(--color-sweden-blue-light);
+  --sweden-yellow: var(--color-sweden-yellow-primary);
+  --cambodian-gold: var(--sahakum-gold);
+  --cambodian-navy: var(--sahakum-navy);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-multilingual) !important;
+  }
+
+  /* Force Sweden Sans to load with highest priority */
+  .font-sweden,
+  .font-sweden *,
+  h1.font-sweden,
+  h2.font-sweden,
+  h3.font-sweden,
+  h4.font-sweden,
+  h5.font-sweden,
+  h6.font-sweden,
+  p.font-sweden,
+  span.font-sweden,
+  div.font-sweden {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Next.js optimized Noto Sans Khmer to load with highest priority for Khmer text */
+  .font-khmer,
+  .font-khmer *,
+  h1.font-khmer,
+  h2.font-khmer,
+  h3.font-khmer,
+  h4.font-khmer,
+  h5.font-khmer,
+  h6.font-khmer,
+  p.font-khmer,
+  span.font-khmer,
+  div.font-khmer {
+    font-family: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif !important;
+  }
+}
+
+@layer utilities {
+  /* Official Sweden Brand Typography (with Next.js optimized Inter fallback) */
+  .text-sweden-hierarchy {
+    font-family: var(--font-sweden) !important;
+    font-size: 1.1875rem; /* 19px - per Brand Guidelines */
+    font-weight: 400; /* Sweden Sans Regular / Inter Regular */
+    line-height: 1.42; /* per Brand Guidelines */
+    letter-spacing: -.36px; /* per Brand Guidelines */
+  }
+
+  .text-sweden-heading {
+    font-family: var(--font-sweden) !important;
+    font-weight: 600; /* Sweden Sans Semibold / Inter Semibold for headings */
+    line-height: var(--line-height-sweden-tight);
+    letter-spacing: var(--letter-spacing-sweden-tight);
+  }
+
+  .text-sweden-body {
+    font-family: var(--font-sweden) !important;
+    font-weight: 400; /* Sweden Sans Regular / Inter Regular */
+    font-size: 1.1875rem; /* 19px - per Brand Guidelines */
+    line-height: 1.42; /* per Brand Guidelines */
+    letter-spacing: -.36px; /* per Brand Guidelines */
+  }
+
+  /* Language-specific Typography Utilities */
+  .font-sweden {
+    font-family: var(--font-sweden) !important;
+  }
+
+  .font-khmer {
+    font-family: var(--font-khmer) !important;
+  }
+
+  .font-multilingual {
+    font-family: var(--font-multilingual) !important;
+  }
+
+  /* Khmer Typography Specific Styles */
+  .text-khmer-body {
+    font-family: var(--font-khmer) !important;
+    font-weight: 400;
+    line-height: 1.6; /* Khmer needs more line height */
+    letter-spacing: 0.02em; /* Khmer spacing */
+    font-size: var(--font-size-sweden-xl);
+  }
+
+  .text-khmer-heading {
+    font-family: var(--font-khmer) !important;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .text-sweden-small {
+    font-size: var(--font-size-sweden-sm);
+    line-height: var(--line-height-sweden-base);
+    letter-spacing: var(--letter-spacing-sweden-normal);
+  }
+
+  .text-sweden-caption {
+    font-size: var(--font-size-sweden-xs);
+    line-height: var(--line-height-sweden-base);
+    letter-spacing: var(--letter-spacing-sweden-wide);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Official Sweden Government Focus States */
+  .focus-sweden {
+    outline: 2px solid var(--color-sweden-yellow-primary);
+    outline-offset: 2px;
+  }
+
+  .focus-visible {
+    outline: 2px solid var(--color-sweden-yellow-primary);
+    outline-offset: 2px;
+  }
+
+  /* Skip links for accessibility - Sweden.se standard */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--color-sweden-blue-primary);
+    color: var(--color-sweden-neutral-white);
+    padding: var(--spacing-sweden-sm) var(--spacing-sweden-md);
+    text-decoration: none;
+    z-index: 1000;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: var(--font-size-sweden-sm);
+  }
+
+  .skip-link:focus {
+    top: 6px;
+  }
+
+  /* Official Sweden Card Component */
+  .card-sweden {
+    background-color: var(--color-sweden-neutral-white);
+    border: 1px solid var(--color-sweden-neutral-200);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+    transition: all var(--duration-sweden-base) var(--easing-sweden-standard);
+  }
+
+  .card-sweden:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-sweden-blue-primary) 20%, transparent);
+  }
+
+  /* Official Sweden Brand WYSIWYG Editor Styles */
+  .sweden-editor-content {
+    font-family: var(--font-sweden) !important;
+  }
+
+  .sweden-editor-content[data-language="km"] {
+    font-family: var(--font-khmer) !important;
+  }
+
+  .sweden-editor-wrapper .ProseMirror {
+    outline: none;
+    font-family: inherit;
+  }
+
+  /* Sweden Brand Prose Styles for TipTap Editor */
+  .prose-sweden {
+    color: var(--color-sweden-neutral-900);
+    max-width: none;
+  }
+
+  .prose-sweden h1 {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-2xl); /* 24px mobile */
+    font-weight: 600;
+    line-height: var(--line-height-sweden-tight);
+    letter-spacing: var(--letter-spacing-sweden-tight);
+    color: var(--color-sweden-neutral-900);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .prose-sweden h1 {
+      font-size: var(--font-size-sweden-3xl); /* 32px tablet */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .prose-sweden h1 {
+      font-size: var(--font-size-sweden-4xl); /* 40px desktop */
+    }
+  }
+
+  .prose-sweden h2 {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-xl); /* 19px mobile */
+    font-weight: 600;
+    line-height: var(--line-height-sweden-tight);
+    letter-spacing: var(--letter-spacing-sweden-tight);
+    color: var(--color-sweden-neutral-900);
+    margin-top: 1.75rem;
+    margin-bottom: 0.875rem;
+  }
+
+  @media (min-width: 768px) {
+    .prose-sweden h2 {
+      font-size: var(--font-size-sweden-2xl); /* 24px tablet */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .prose-sweden h2 {
+      font-size: var(--font-size-sweden-3xl); /* 32px desktop */
+    }
+  }
+
+  .prose-sweden h3 {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-xl); /* 19px */
+    font-weight: 600;
+    line-height: var(--line-height-sweden-tight);
+    letter-spacing: var(--letter-spacing-sweden-tight);
+    color: var(--color-sweden-neutral-900);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose-sweden h4 {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-lg); /* 18px */
+    font-weight: 600;
+    line-height: var(--line-height-sweden-tight);
+    letter-spacing: var(--letter-spacing-sweden-tight);
+    color: var(--color-sweden-neutral-900);
+    margin-top: 1.25rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .prose-sweden p {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-base); /* 16px mobile */
+    font-weight: 400;
+    line-height: var(--line-height-sweden-base);
+    letter-spacing: var(--letter-spacing-sweden-normal);
+    color: var(--color-sweden-neutral-900);
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .prose-sweden p {
+      font-size: var(--font-size-sweden-lg); /* 18px tablet */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .prose-sweden p {
+      font-size: var(--font-size-sweden-xl); /* 19px desktop - Official Sweden.se body size */
+    }
+  }
+
+  .prose-sweden a {
+    color: var(--color-sweden-blue-primary);
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color var(--duration-sweden-base) var(--easing-sweden-standard);
+  }
+
+  .prose-sweden a:hover {
+    color: var(--color-sweden-blue-navy);
+  }
+
+  .prose-sweden strong {
+    font-weight: 600;
+    color: var(--color-sweden-neutral-900);
+  }
+
+  .prose-sweden em {
+    font-style: italic;
+  }
+
+  .prose-sweden code {
+    background-color: var(--color-sweden-neutral-100);
+    padding: 0.125rem 0.25rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-sweden-neutral-800);
+  }
+
+  .prose-sweden pre {
+    background-color: var(--color-sweden-neutral-100);
+    padding: 1rem;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .prose-sweden pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .prose-sweden blockquote {
+    border-left: 4px solid var(--color-sweden-blue-primary);
+    padding-left: 1rem;
+    font-style: italic;
+    margin: 1.5rem 0;
+    color: var(--color-sweden-neutral-700);
+  }
+
+  .prose-sweden ul,
+  .prose-sweden ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .prose-sweden li {
+    font-family: var(--font-sweden) !important;
+    font-size: var(--font-size-sweden-base); /* 16px mobile */
+    line-height: var(--line-height-sweden-base);
+    margin: 0.5rem 0;
+  }
+
+  @media (min-width: 768px) {
+    .prose-sweden li {
+      font-size: var(--font-size-sweden-lg); /* 18px tablet */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .prose-sweden li {
+      font-size: var(--font-size-sweden-xl); /* 19px desktop */
+    }
+  }
+
+  .prose-sweden ul > li {
+    list-style-type: disc;
+  }
+
+  .prose-sweden ol > li {
+    list-style-type: decimal;
+  }
+
+  .prose-sweden hr {
+    border: none;
+    height: 1px;
+    background-color: var(--color-sweden-neutral-200);
+    margin: 2rem 0;
+  }
+
+  .prose-sweden img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* TipTap Editor Image Selection Styles */
+  .ProseMirror img.ProseMirror-selectednode {
+    outline: 3px solid var(--color-sweden-blue-primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 106, 167, 0.2);
+  }
+
+  .ProseMirror img:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Sweden Editor Wrapper Styles */
+  .sweden-editor-wrapper .ProseMirror {
+    outline: none;
+  }
+
+  .sweden-editor-wrapper .ProseMirror img {
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .sweden-editor-wrapper .ProseMirror img:hover {
+    border-color: var(--color-sweden-blue-light);
+  }
+
+  .prose-sweden mark {
+    background-color: var(--color-sweden-yellow-soft);
+    padding: 0.125rem 0.25rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Khmer-specific typography adjustments in editor */
+  .prose-sweden[data-language="km"] h1,
+  .prose-sweden[data-language="km"] h2,
+  .prose-sweden[data-language="km"] h3,
+  .prose-sweden[data-language="km"] h4 {
+    font-family: var(--font-khmer) !important;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .prose-sweden[data-language="km"] p,
+  .prose-sweden[data-language="km"] li {
+    font-family: var(--font-khmer) !important;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    font-size: var(--font-size-sweden-lg) !important; /* Khmer needs slightly larger base size */
+  }
+
+  @media (min-width: 768px) {
+    .prose-sweden[data-language="km"] p,
+    .prose-sweden[data-language="km"] li {
+      font-size: var(--font-size-sweden-xl) !important; /* 19px tablet+ for Khmer */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .prose-sweden[data-language="km"] p,
+    .prose-sweden[data-language="km"] li {
+      font-size: var(--font-size-sweden-xl) !important; /* 19px desktop for Khmer readability */
+    }
+  }
+
+  /* Editor focus styles with Sweden brand colors */
+  .sweden-editor-wrapper .ProseMirror:focus {
+    outline: 2px solid var(--color-sweden-yellow-primary);
+    outline-offset: 2px;
+  }
+
+  /* Selection styles */
+  .sweden-editor-wrapper .ProseMirror::selection {
+    background-color: var(--color-sweden-blue-soft);
+  }
+
+  .sweden-editor-wrapper .ProseMirror ::-moz-selection {
+    background-color: var(--color-sweden-blue-soft);
+  }
+
+  /* Placeholder styling */
+  .sweden-editor-wrapper .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--color-sweden-neutral-400);
+    pointer-events: none;
+    height: 0;
+  }
+
+  /* Container utilities following Sweden.se patterns */
+  .container-sweden {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--grid-margin-sweden);
+    padding-right: var(--grid-margin-sweden);
+  }
+
+  @media (min-width: 1024px) {
+    .container-sweden {
+      padding-left: var(--grid-margin-sweden-lg);
+      padding-right: var(--grid-margin-sweden-lg);
+    }
+  }
+
+  .container-sweden-sm {
+    max-width: 640px;
+  }
+
+  .container-sweden-md {
+    max-width: 768px;
+  }
+
+  .container-sweden-lg {
+    max-width: 1024px;
+  }
+
+  .container-sweden-xl {
+    max-width: 1280px;
+  }
+
+  .container-sweden-xxl {
+    max-width: 1440px; /* Wider Sweden.se page width */
+  }
+
+  .container-sweden-content {
+    max-width: 896px; /* Sweden.se content width */
+  }
+
+  .container-sweden-wide {
+    max-width: 1200px; /* Sweden.se article page width */
+  }
+
+  .container-sweden-reading {
+    max-width: 672px; /* Optimal reading width */
+  }
+
+  /* Sweden Grid System */
+  .grid-sweden {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns-sweden), minmax(0, 1fr));
+    gap: var(--grid-gutter-sweden);
+  }
+
+  .grid-sweden-responsive {
+    display: grid;
+    gap: var(--grid-gutter-sweden);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .grid-sweden-responsive {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-sweden-responsive {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Button utilities following Sweden design system */
+  .btn-sweden-primary {
+    background-color: var(--color-sweden-blue-primary);
+    color: var(--color-sweden-neutral-white);
+    padding: var(--spacing-sweden-sm) var(--spacing-sweden-lg);
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: var(--font-size-sweden-sm);
+    line-height: var(--line-height-sweden-base);
+    letter-spacing: var(--letter-spacing-sweden-normal);
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-sweden-base) var(--easing-sweden-standard);
+  }
+
+  .btn-sweden-primary:hover {
+    background-color: var(--color-sweden-blue-navy);
+    transform: translateY(-1px);
+  }
+
+  .btn-sweden-primary:focus {
+    outline: 2px solid var(--color-sweden-yellow-primary);
+    outline-offset: 2px;
+  }
+
+  .btn-sweden-secondary {
+    background-color: transparent;
+    color: var(--color-sweden-blue-primary);
+    padding: var(--spacing-sweden-sm) var(--spacing-sweden-lg);
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: var(--font-size-sweden-sm);
+    line-height: var(--line-height-sweden-base);
+    letter-spacing: var(--letter-spacing-sweden-normal);
+    border: 1px solid var(--color-sweden-blue-primary);
+    cursor: pointer;
+    transition: all var(--duration-sweden-base) var(--easing-sweden-standard);
+  }
+
+  .btn-sweden-secondary:hover {
+    background-color: var(--color-sweden-blue-primary);
+    color: var(--color-sweden-neutral-white);
+  }
+
+  .btn-sweden-secondary:focus {
+    outline: 2px solid var(--color-sweden-yellow-primary);
+    outline-offset: 2px;
+  }
+
+  /* Text truncation utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Hero section animations */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Sticky header slide down animation */
+  @keyframes slide-down {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out forwards;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --sweden-blue-500: #004080;
+    --sweden-yellow-400: #ffd700;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .swedish-card {
+    transition: none;
+  }
+
+  .swedish-card:hover {
+    transform: none;
+  }
+}

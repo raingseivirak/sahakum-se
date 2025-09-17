@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "home": "Hem",
+    "about": "Om oss",
+    "cambodia": "Kambodja",
+    "living_in_sweden": "Leva i Sverige",
+    "community": "Gemenskap",
+    "membership": "Medlemskap",
+    "news": "Nyheter & Blogg",
+    "admin": "Admin"
+  },
+  "common": {
+    "welcome": "Välkommen",
+    "learn_more": "Läs mer",
+    "contact": "Kontakt",
+    "language": "Språk",
+    "search": "Sök",
+    "loading": "Laddar...",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "publish": "Publicera"
+  },
+  "home": {
+    "title": "Sahakum Khmer",
+    "subtitle": "Gemenskap • Kultur • Integration",
+    "hero_description": "Vi hjälper kambodjaner att integreras i det svenska samhället genom gemenskapsaktiviteter, kulturutbyte och stöd."
+  },
+  "admin": {
+    "dashboard": "Instrumentpanel",
+    "content": "Innehåll",
+    "pages": "Sidor",
+    "posts": "Inlägg",
+    "events": "Evenemang",
+    "users": "Användare",
+    "settings": "Inställningar"
+  }
+}
