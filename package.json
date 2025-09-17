@@ -9,21 +9,17 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "sync-media": "npx tsx scripts/sync-media.ts",
-
     "db:generate": "node scripts/setup-schema.js && prisma generate",
     "db:studio": "prisma studio",
     "db:push": "node scripts/setup-schema.js && prisma db push",
     "db:reset": "node scripts/setup-schema.js && prisma db push --force-reset",
     "db:seed": "tsx scripts/seed-admin.ts",
     "db:migrate": "node scripts/setup-schema.js && prisma migrate deploy",
-
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f postgres",
-
     "setup": "npm run docker:up && sleep 3 && npm run db:push && npm run db:seed",
     "reset": "npm run db:reset && npm run db:seed",
-
     "deploy:preview": "vercel",
     "deploy:production": "vercel --prod",
     "postinstall": "node scripts/setup-schema.js && prisma generate"
@@ -83,13 +79,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^24.3.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5"

@@ -35,16 +35,11 @@
   font-display: swap;
 }
 
-@import "tailwindcss";
-@import "tw-animate-css";
-
 /* Official Sweden Brand Typography - Sweden Sans */
 
 /* Khmer Typography - Next.js optimized Noto Sans Khmer */
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
+:root {
   /* Official Sweden Brand Design Tokens */
   --color-sweden-blue-primary: #006AA7;
   --color-sweden-blue-light: #0093BD;
@@ -156,9 +151,8 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);                 /* 12px */
-}
 
-:root {
+  /* Additional Sweden Brand styling */
   /* Official Sweden Brand Colors - Primary Palette */
   --background: var(--color-sweden-neutral-white);
   --foreground: var(--color-sweden-neutral-900);
@@ -297,11 +291,9 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-multilingual) !important;
   }
 
