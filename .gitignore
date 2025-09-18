@@ -120,7 +120,6 @@ typings/
 *.sqlite3
 
 # Prisma
-/prisma/migrations/*
 !/prisma/migrations/migration_lock.toml
 /prisma/data/
 
