@@ -100,10 +100,11 @@ export async function POST(
           city: membershipRequest.city,
           postalCode: membershipRequest.postalCode,
           country: membershipRequest.country,
-          memberType: membershipRequest.requestedMemberType as any,
-          joinedDate: new Date(),
-          isActive: true,
-          notes: `Created from membership request ${membershipRequest.requestNumber}`,
+          membershipType: membershipRequest.requestedMemberType,
+          residenceStatus: membershipRequest.residenceStatus,
+          joinedAt: new Date(),
+          active: true,
+          bio: `Created from membership request ${membershipRequest.requestNumber}`,
         }
       })
 

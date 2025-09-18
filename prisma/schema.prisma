@@ -25,6 +25,7 @@ model User {
   contentItems               ContentItem[]
   uploadedFiles              MediaFile[]         @relation("MediaFileUploader")
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
+  approvedMembershipRequests MembershipRequest[] @relation("MembershipRequestApprover")
   sessions                   Session[]
 
   @@map("users")
@@ -213,52 +214,69 @@ model ServiceTranslation {
 }
 
 model Member {
-  id               String           @id @default(cuid())
-  firstName        String
-  lastName         String
-  firstNameKhmer   String?
-  lastNameKhmer    String?
-  email            String           @unique
-  phone            String?
-  address          String?
-  city             String?
-  postalCode       String?
-  membershipType   MembershipType   @default(REGULAR)
-  residenceStatus  ResidenceStatus?
-  joinedAt         DateTime         @default(now())
-  active           Boolean          @default(true)
-  profileImage     String?
-  bio              String?          @db.Text
-  skills           String[]
-  interests        String[]
-  emergencyContact String?
-  emergencyPhone   String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  id                 String              @id @default(cuid())
+  memberNumber       String              @unique
+  firstName          String
+  lastName           String
+  firstNameKhmer     String?
+  lastNameKhmer      String?
+  email              String              @unique
+  phone              String?
+  address            String?
+  city               String?
+  postalCode         String?
+  country            String?             @default("Sweden")
+  membershipType     MembershipType      @default(REGULAR)
+  residenceStatus    ResidenceStatus?
+  joinedAt           DateTime            @default(now())
+  active             Boolean             @default(true)
+  profileImage       String?
+  bio                String?             @db.Text
+  skills             String[]
+  interests          String[]
+  emergencyContact   String?
+  emergencyPhone     String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  membershipRequests MembershipRequest[]
 
   @@map("members")
 }
 
 model MembershipRequest {
-  id              String           @id @default(cuid())
-  firstName       String
-  lastName        String
-  firstNameKhmer  String?
-  lastNameKhmer   String?
-  email           String
-  phone           String?
-  address         String?
-  city            String?
-  postalCode      String?
-  residenceStatus ResidenceStatus?
-  motivation      String           @db.Text
-  status          RequestStatus    @default(PENDING)
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  reviewNotes     String?          @db.Text
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  reviewer        User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+  id                  String           @id @default(cuid())
+  requestNumber       String           @unique
+  firstName           String
+  lastName            String
+  firstNameKhmer      String?
+  lastNameKhmer       String?
+  dateOfBirth         DateTime?
+  email               String
+  phone               String?
+  address             String?
+  city                String?
+  postalCode          String?
+  country             String           @default("Sweden")
+  residenceStatus     ResidenceStatus?
+  residenceSince      DateTime?
+  motivation          String           @db.Text
+  hearAboutUs         String?
+  interests           String?
+  skills              String?
+  requestedMemberType MembershipType   @default(REGULAR)
+  status              RequestStatus    @default(PENDING)
+  submittedAt         DateTime         @default(now())
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  reviewNotes         String?          @db.Text
+  approvedBy          String?
+  approvedAt          DateTime?
+  createdMemberId     String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+  approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
+  createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
 
   @@map("membership_requests")
 }
@@ -290,6 +308,7 @@ enum MembershipType {
 enum ResidenceStatus {
   CITIZEN
   PERMANENT_RESIDENT
+  EU_CITIZEN
   STUDENT
   WORK_PERMIT
   ASYLUM_SEEKER

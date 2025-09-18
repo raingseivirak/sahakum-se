@@ -20,7 +20,7 @@ const membershipRequestSchema = z.object({
   country: z.string().default("Sweden"),
 
   // Residence Information
-  residenceStatus: z.enum(["STUDENT", "WORK_PERMIT", "PERMANENT_RESIDENT", "CITIZEN", "EU_CITIZEN", "OTHER"]),
+  residenceStatus: z.enum(["STUDENT", "WORK_PERMIT", "PERMANENT_RESIDENT", "CITIZEN", "EU_CITIZEN", "ASYLUM_SEEKER", "OTHER"]),
   residenceSince: z.string().optional().transform((str) => str ? new Date(str) : null),
 
   // Application Details
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
             select: { id: true, memberNumber: true, firstName: true, lastName: true }
           }
         },
-        orderBy: { submittedAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit
       }),
