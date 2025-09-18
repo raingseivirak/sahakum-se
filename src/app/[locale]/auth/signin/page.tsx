@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
-import { LogIn, Eye, EyeOff } from 'lucide-react'
+import { LogIn, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 
 interface SignInPageProps {
   params: { locale: string }
@@ -57,6 +58,17 @@ export default function SignInPage({ params }: SignInPageProps) {
     <div className="min-h-screen flex bg-gray-50">
       {/* Left side - Creative background */}
       <div className="hidden lg:flex lg:flex-1 relative bg-gradient-to-br from-sahakum-navy-900 via-sahakum-navy-800 to-sahakum-navy-700">
+        {/* Subtle corner home link - desktop only */}
+        <div className="absolute top-4 right-4 z-10">
+          <Link
+            href={`/${locale}`}
+            className="group p-3 text-white/60 hover:text-sahakum-gold-400 transition-colors duration-200"
+            title="Go to Homepage"
+          >
+            <ArrowLeft className="h-5 w-5 transform rotate-45 group-hover:rotate-0 transition-transform duration-200" />
+          </Link>
+        </div>
+
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-32 h-32 border-2 border-sahakum-gold-500"></div>
@@ -67,6 +79,7 @@ export default function SignInPage({ params }: SignInPageProps) {
 
         {/* Content overlay */}
         <div className="relative flex flex-col justify-center px-12 text-white">
+
           <h2 className="text-4xl font-sweden font-bold mb-6 text-sahakum-gold-500">
             Welcome to
           </h2>
@@ -86,14 +99,25 @@ export default function SignInPage({ params }: SignInPageProps) {
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-sm w-full mx-auto space-y-8">
           {/* Header */}
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
+          <div className="relative">
+            <div className="flex justify-start mb-6">
               <SwedenBrandLogo
                 locale={locale}
                 size="sm"
                 variant="horizontal"
                 colorScheme="light"
               />
+            </div>
+
+            {/* Mobile home link - only visible on small screens */}
+            <div className="absolute top-0 right-0 lg:hidden">
+              <Link
+                href={`/${locale}`}
+                className="group p-2 text-gray-500 hover:text-sahakum-gold-500 transition-colors duration-200"
+                title="Go to Homepage"
+              >
+                <ArrowLeft className="h-4 w-4 transform rotate-45 group-hover:rotate-0 transition-transform duration-200" />
+              </Link>
             </div>
           </div>
 
