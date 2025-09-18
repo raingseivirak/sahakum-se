@@ -297,6 +297,65 @@
     font-family: var(--font-multilingual) !important;
   }
 
+  /* Force Sweden Sans font for sidebar navigation elements */
+  [data-sidebar="sidebar"] * {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Sweden Sans font for buttons and links in admin interface only */
+  [data-sidebar] button,
+  [data-sidebar] a,
+  .admin-interface button,
+  .admin-interface a {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Sweden Sans font for input elements and forms - ULTRA SPECIFIC */
+  input.font-sweden,
+  input[data-slot="input"],
+  input[class*="font-sweden"],
+  input[id="email"],
+  input[id="password"],
+  input[type="email"],
+  input[type="password"],
+  textarea.font-sweden,
+  textarea[data-slot="input"],
+  select.font-sweden,
+  select[data-slot="input"],
+  .font-sweden input,
+  .font-sweden textarea,
+  .font-sweden select,
+  form input,
+  form textarea,
+  form select {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Sweden Sans font for buttons - ULTRA SPECIFIC */
+  button.font-sweden,
+  button[data-slot="button"],
+  button[class*="font-sweden"],
+  button[type="submit"],
+  button[type="button"],
+  .font-sweden button,
+  form button,
+  [data-slot="card-content"] button,
+  [data-slot="button"] {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Sweden Sans font for labels - ULTRA SPECIFIC */
+  label.font-sweden,
+  label[data-slot="label"],
+  label[class*="font-sweden"],
+  label[for="email"],
+  label[for="password"],
+  .font-sweden label,
+  form label,
+  [data-slot="card-content"] label {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
   /* Force Sweden Sans to load with highest priority */
   .font-sweden,
   .font-sweden *,

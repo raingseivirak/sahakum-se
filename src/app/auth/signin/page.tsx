@@ -50,17 +50,17 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-sweden-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" style={{backgroundColor: '#F3F4F6'}}>
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-sahakum-gold rounded-sm flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 rounded-sm flex items-center justify-center" style={{backgroundColor: '#D4932F'}}>
             <span className="text-white font-bold text-lg">SK</span>
           </div>
-          <h2 className={`mt-6 text-3xl font-bold text-sahakum-navy ${fontClass}`}>
+          <h2 className={`mt-6 text-3xl font-bold ${fontClass}`} style={{color: '#0D1931'}}>
             Sahakum Khmer CMS
           </h2>
-          <p className={`mt-2 text-sm text-sweden-neutral-600 ${fontClass}`}>
+          <p className={`mt-2 text-sm ${fontClass}`} style={{color: '#4B5563'}}>
             Sign in to your admin account
           </p>
         </div>
@@ -132,7 +132,10 @@ export default function SignIn() {
 
               <Button
                 type="submit"
-                className={`w-full ${fontClass}`}
+                className={`w-full text-white font-semibold ${fontClass}`}
+                style={{backgroundColor: '#D4932F'}}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#c27f26'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#D4932F'}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -151,7 +154,7 @@ export default function SignIn() {
 
         {/* Footer */}
         <div className="text-center">
-          <p className={`text-xs text-sweden-neutral-500 ${fontClass}`}>
+          <p className={`text-xs ${fontClass}`} style={{color: '#6B7280'}}>
             © 2024 Sahakum Khmer. Built with Next.js and Sweden Brand Guidelines.
           </p>
         </div>

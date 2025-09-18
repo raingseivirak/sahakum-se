@@ -366,7 +366,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href={`/${locale}`}
-                  className="text-xs text-sweden-neutral-500 hover:text-sweden-blue-primary font-sweden"
+                  className="text-xs text-sweden-neutral-500 hover:text-sweden-blue-primary !font-sweden"
                 >
                   View Site
                 </Link>
@@ -377,7 +377,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
                     callbackUrl: "/en/auth/signin",
                     redirect: true
                   })}
-                  className="h-6 px-2 text-xs text-sweden-neutral-500 hover:text-destructive"
+                  className="h-6 px-2 text-xs text-sweden-neutral-500 hover:text-destructive !font-sweden"
                 >
                   <LogOut className="h-3 w-3 mr-1" />
                   Logout
