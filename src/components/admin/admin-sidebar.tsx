@@ -224,8 +224,8 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
   }
 
   return (
-    <Sidebar variant="floating" className="border-r border-sweden-neutral-200">
-      <SidebarHeader className="border-b border-sweden-neutral-200 p-4">
+    <Sidebar variant="floating" className="border-r border-sweden-neutral-200 bg-white">
+      <SidebarHeader className="border-b border-sweden-neutral-200 p-4 bg-white">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-sahakum-gold rounded-sm flex items-center justify-center">
             <span className="text-white font-bold text-sm">SK</span>
@@ -241,9 +241,9 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="bg-white">
         {/* Main Navigation */}
-        <SidebarGroup>
+        <SidebarGroup className="bg-white">
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.main.map((item) => (
@@ -261,11 +261,11 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
         </SidebarGroup>
 
         {/* Content Management */}
-        <SidebarGroup>
+        <SidebarGroup className="bg-white">
           <SidebarGroupLabel className="font-sweden">
             {locale === 'km' ? 'គ្រប់គ្រងមាតិកា' : locale === 'sv' ? 'Innehållshantering' : 'Content Management'}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="bg-white">
             <SidebarMenu>
               {navItems.content.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -295,11 +295,11 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
         </SidebarGroup>
 
         {/* Organization */}
-        <SidebarGroup>
+        <SidebarGroup className="bg-white">
           <SidebarGroupLabel className="font-sweden">
             {locale === 'km' ? 'ការរៀបចំ' : locale === 'sv' ? 'Organisation' : 'Organization'}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="bg-white">
             <SidebarMenu>
               {navItems.organization.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -316,11 +316,11 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
         </SidebarGroup>
 
         {/* System */}
-        <SidebarGroup>
+        <SidebarGroup className="bg-white">
           <SidebarGroupLabel className="font-sweden">
             {locale === 'km' ? 'ប្រព័ន្ធ' : locale === 'sv' ? 'System' : 'System'}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="bg-white">
             <SidebarMenu>
               {navItems.system.map((item) => (
                 <SidebarMenuItem key={item.title}>
