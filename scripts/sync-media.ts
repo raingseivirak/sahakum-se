@@ -81,7 +81,7 @@ async function syncMedia(): Promise<SyncResults> {
                   mimeType: getMimeType(filename),
                   fileSize: stats.size,
                   category,
-                  uploadedBy: adminUser.id
+                  uploaderId: adminUser.id
                 }
               })
 
