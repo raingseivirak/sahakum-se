@@ -279,7 +279,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
                     <SidebarMenuSub>
                       {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                          <SidebarMenuSubButton asChild isActive={isActive(subItem.url)} className="font-sweden">
                             <Link href={subItem.url} className="font-sweden text-sm">
                               {subItem.title}
                             </Link>

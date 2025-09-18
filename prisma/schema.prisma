@@ -10,37 +10,26 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
-// User model for authentication and authorization
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      Role @default(ADMIN)
-  password  String?  // For email/password auth
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  contentItems ContentItem[]
-  accounts     Account[]
-  sessions     Session[]
-  uploadedFiles MediaFile[] @relation("MediaFileUploader")
+  id                         String              @id @default(cuid())
+  email                      String              @unique
+  name                       String?
+  role                       Role                @default(USER)
+  password                   String?
+  active                     Boolean             @default(true)
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  accounts                   Account[]
+  contentItems               ContentItem[]
+  uploadedFiles              MediaFile[]         @relation("MediaFileUploader")
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
+  sessions                   Session[]
 
   @@map("users")
 }
 
-enum Role {
-  USER
-  ADMIN
-  EDITOR
-}
-
-// NextAuth.js models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -54,8 +43,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -80,55 +68,39 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-// Content Management models
 model ContentItem {
-  id          String      @id @default(cuid())
-  slug        String      @unique
-  type        ContentType @default(PAGE)
-  status      Status      @default(DRAFT)
-  featuredImg String?
-  authorId    String
-  publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  // Relations
-  author       User                    @relation(fields: [authorId], references: [id])
-  translations ContentTranslation[]
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  type         ContentType           @default(PAGE)
+  status       Status                @default(DRAFT)
+  featuredImg  String?
+  authorId     String
+  publishedAt  DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
   categories   ContentItemCategory[]
   tags         ContentItemTag[]
+  author       User                  @relation(fields: [authorId], references: [id])
+  translations ContentTranslation[]
 
   @@map("content_items")
 }
 
 model ContentTranslation {
-  id              String @id @default(cuid())
+  id              String      @id @default(cuid())
   contentItemId   String
   language        String
   title           String
-  content         String @db.Text
-  excerpt         String @db.Text
+  content         String      @db.Text
+  excerpt         String      @db.Text
   seoTitle        String?
   metaDescription String?
-
-  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  contentItem     ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
 
   @@unique([contentItemId, language])
   @@map("content_translations")
 }
 
-enum ContentType {
-  PAGE
-  POST
-}
-
-enum Status {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-// Category system
 model Category {
   id           String                @id @default(cuid())
   slug         String                @unique
@@ -141,13 +113,12 @@ model Category {
 }
 
 model CategoryTranslation {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   categoryId  String
   language    String
   name        String
   description String?
-
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([categoryId, language])
   @@map("category_translations")
@@ -156,22 +127,20 @@ model CategoryTranslation {
 model ContentItemCategory {
   contentItemId String
   categoryId    String
-
-  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
-  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
 
   @@id([contentItemId, categoryId])
   @@map("content_item_categories")
 }
 
-// Tag system
 model Tag {
-  id           String              @id @default(cuid())
-  slug         String              @unique
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  translations TagTranslation[]
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
   contentItems ContentItemTag[]
+  translations TagTranslation[]
 
   @@map("tags")
 }
@@ -181,8 +150,7 @@ model TagTranslation {
   tagId    String
   language String
   name     String
-
-  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([tagId, language])
   @@map("tag_translations")
@@ -191,90 +159,125 @@ model TagTranslation {
 model ContentItemTag {
   contentItemId String
   tagId         String
-
-  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
-  tag         Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  tag           Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([contentItemId, tagId])
   @@map("content_item_tags")
 }
 
-// Media management
 model MediaFile {
-  id           String    @id @default(cuid())
-  filename     String    @unique
+  id           String   @id @default(cuid())
+  filename     String   @unique
   originalName String
   url          String
   altText      String?
   caption      String?
   mimeType     String
   fileSize     Int?
-  category     String    @default("images")
+  category     String   @default("images")
   uploaderId   String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  uploader User? @relation("MediaFileUploader", fields: [uploaderId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  uploader     User?    @relation("MediaFileUploader", fields: [uploaderId], references: [id])
 
   @@map("media_files")
 }
 
-// Services management
 model Service {
   id           String               @id @default(cuid())
   slug         String               @unique
   icon         String?
-  featuredImg  String?
-  colorTheme   String?              @default("navy")
   order        Int                  @default(0)
   active       Boolean              @default(true)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
+  colorTheme   String?              @default("navy")
+  featuredImg  String?
   translations ServiceTranslation[]
 
   @@map("services")
 }
 
 model ServiceTranslation {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   serviceId   String
   language    String
   title       String
-  description String @db.Text
-  buttonText  String @default("Learn More")
-
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  description String  @db.Text
+  buttonText  String  @default("Learn More")
+  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([serviceId, language])
   @@map("service_translations")
 }
 
-// Membership management
 model Member {
-  id                String            @id @default(cuid())
-  firstName         String
-  lastName          String
-  firstNameKhmer    String?
-  lastNameKhmer     String?
-  email             String            @unique
-  phone             String?
-  address           String?
-  city              String?
-  postalCode        String?
-  membershipType    MembershipType    @default(REGULAR)
-  residenceStatus   ResidenceStatus?
-  joinedAt          DateTime          @default(now())
-  active            Boolean           @default(true)
-  profileImage      String?
-  bio               String?           @db.Text
-  skills            String[]
-  interests         String[]
-  emergencyContact  String?
-  emergencyPhone    String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id               String           @id @default(cuid())
+  firstName        String
+  lastName         String
+  firstNameKhmer   String?
+  lastNameKhmer    String?
+  email            String           @unique
+  phone            String?
+  address          String?
+  city             String?
+  postalCode       String?
+  membershipType   MembershipType   @default(REGULAR)
+  residenceStatus  ResidenceStatus?
+  joinedAt         DateTime         @default(now())
+  active           Boolean          @default(true)
+  profileImage     String?
+  bio              String?          @db.Text
+  skills           String[]
+  interests        String[]
+  emergencyContact String?
+  emergencyPhone   String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@map("members")
+}
+
+model MembershipRequest {
+  id              String           @id @default(cuid())
+  firstName       String
+  lastName        String
+  firstNameKhmer  String?
+  lastNameKhmer   String?
+  email           String
+  phone           String?
+  address         String?
+  city            String?
+  postalCode      String?
+  residenceStatus ResidenceStatus?
+  motivation      String           @db.Text
+  status          RequestStatus    @default(PENDING)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewNotes     String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  reviewer        User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+
+  @@map("membership_requests")
+}
+
+enum Role {
+  USER
+  ADMIN
+  EDITOR
+}
+
+enum ContentType {
+  PAGE
+  POST
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 enum MembershipType {
@@ -291,32 +294,6 @@ enum ResidenceStatus {
   WORK_PERMIT
   ASYLUM_SEEKER
   OTHER
-}
-
-// Membership requests
-model MembershipRequest {
-  id                String            @id @default(cuid())
-  firstName         String
-  lastName          String
-  firstNameKhmer    String?
-  lastNameKhmer     String?
-  email             String
-  phone             String?
-  address           String?
-  city              String?
-  postalCode        String?
-  residenceStatus   ResidenceStatus?
-  motivation        String            @db.Text
-  status            RequestStatus     @default(PENDING)
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  reviewNotes       String?           @db.Text
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-
-  reviewer User? @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
-
-  @@map("membership_requests")
 }
 
 enum RequestStatus {

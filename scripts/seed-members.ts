@@ -91,14 +91,26 @@ async function main() {
   // Create members
   for (const member of members) {
     const createdMember = await prisma.member.upsert({
-      where: {
-        memberNumber: member.memberNumber || `TEMP_${member.firstName}_${member.lastName}`
-      },
+      where: { email: member.email },
       update: {},
-      create: member
+      create: {
+        firstName: member.firstName,
+        lastName: member.lastName,
+        email: member.email,
+        phone: member.phone,
+        address: member.address,
+        city: member.city,
+        postalCode: member.postalCode,
+        membershipType: 'REGULAR',
+        residenceStatus: 'CITIZEN',
+        joinedAt: member.joinedDate,
+        active: member.isActive,
+        bio: member.notes,
+        emergencyContact: member.emergencyContact
+      }
     })
 
-    console.log(`✅ Created member: ${createdMember.firstName} ${createdMember.lastName} (${createdMember.memberType})`)
+    console.log(`✅ Created member: ${createdMember.firstName} ${createdMember.lastName}`)
   }
 
   console.log('🎉 Member seeding completed!')

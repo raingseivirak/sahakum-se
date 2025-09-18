@@ -326,6 +326,19 @@
   div.font-khmer {
     font-family: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif !important;
   }
+
+  /* Sidebar specific font overrides */
+  [data-sidebar="menu-sub-button"],
+  [data-sidebar="menu-sub-button"] *,
+  [data-slot="sidebar-menu-sub-button"],
+  [data-slot="sidebar-menu-sub-button"] *,
+  [data-sidebar="menu-sub"] a,
+  [data-sidebar="menu-sub"] span,
+  [data-sidebar="menu-sub"] *,
+  .sidebar-menu-sub *,
+  .sidebar-menu-sub-button * {
+    font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
 }
 
 @layer utilities {
