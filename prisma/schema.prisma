@@ -1,9 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
-  // Enable binary targets for Vercel deployment
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
@@ -24,8 +20,8 @@ model User {
   accounts                   Account[]
   contentItems               ContentItem[]
   uploadedFiles              MediaFile[]         @relation("MediaFileUploader")
-  reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
   approvedMembershipRequests MembershipRequest[] @relation("MembershipRequestApprover")
+  reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
   sessions                   Session[]
 
   @@map("users")
@@ -37,12 +33,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -92,8 +88,8 @@ model ContentTranslation {
   contentItemId   String
   language        String
   title           String
-  content         String      @db.Text
-  excerpt         String      @db.Text
+  content         String
+  excerpt         String
   seoTitle        String?
   metaDescription String?
   contentItem     ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
@@ -205,7 +201,7 @@ model ServiceTranslation {
   serviceId   String
   language    String
   title       String
-  description String  @db.Text
+  description String
   buttonText  String  @default("Learn More")
   service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
@@ -215,7 +211,6 @@ model ServiceTranslation {
 
 model Member {
   id                 String              @id @default(cuid())
-  memberNumber       String              @unique
   firstName          String
   lastName           String
   firstNameKhmer     String?
@@ -231,13 +226,14 @@ model Member {
   joinedAt           DateTime            @default(now())
   active             Boolean             @default(true)
   profileImage       String?
-  bio                String?             @db.Text
+  bio                String?
   skills             String[]
   interests          String[]
   emergencyContact   String?
   emergencyPhone     String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+  memberNumber       String              @unique
   membershipRequests MembershipRequest[]
 
   @@map("members")
@@ -245,38 +241,38 @@ model Member {
 
 model MembershipRequest {
   id                  String           @id @default(cuid())
-  requestNumber       String           @unique
   firstName           String
   lastName            String
   firstNameKhmer      String?
   lastNameKhmer       String?
-  dateOfBirth         DateTime?
   email               String
   phone               String?
   address             String?
   city                String?
   postalCode          String?
-  country             String           @default("Sweden")
   residenceStatus     ResidenceStatus?
-  residenceSince      DateTime?
-  motivation          String           @db.Text
-  hearAboutUs         String?
-  interests           String?
-  skills              String?
-  requestedMemberType MembershipType   @default(REGULAR)
+  motivation          String
   status              RequestStatus    @default(PENDING)
-  submittedAt         DateTime         @default(now())
   reviewedBy          String?
   reviewedAt          DateTime?
-  reviewNotes         String?          @db.Text
-  approvedBy          String?
-  approvedAt          DateTime?
-  createdMemberId     String?
+  reviewNotes         String?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
-  reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+  approvedAt          DateTime?
+  approvedBy          String?
+  country             String           @default("Sweden")
+  createdMemberId     String?
+  dateOfBirth         DateTime?
+  hearAboutUs         String?
+  interests           String?
+  requestNumber       String           @unique
+  requestedMemberType MembershipType   @default(REGULAR)
+  residenceSince      DateTime?
+  skills              String?
+  submittedAt         DateTime         @default(now())
   approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
   createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
+  reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
 
   @@map("membership_requests")
 }
@@ -308,11 +304,11 @@ enum MembershipType {
 enum ResidenceStatus {
   CITIZEN
   PERMANENT_RESIDENT
-  EU_CITIZEN
   STUDENT
   WORK_PERMIT
   ASYLUM_SEEKER
   OTHER
+  EU_CITIZEN
 }
 
 enum RequestStatus {
