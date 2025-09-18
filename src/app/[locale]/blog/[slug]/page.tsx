@@ -201,20 +201,8 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
 
       {/* Main Content */}
       <main id="main-content">
-        {/* Enhanced Hero Section */}
-        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--sweden-blue-700)] text-white overflow-hidden">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--sahakum-gold)]/5 via-transparent to-[var(--sahakum-gold)]/5 animate-pulse"></div>
-
-          {/* Subtle geometric pattern */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FECB00' fill-opacity='0.6'%3E%3Cpath d='M30 10 L40 25 L30 40 L20 25 Z'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }}></div>
-
-          {/* Floating geometric accents */}
-          <div className="absolute top-1/4 right-1/4 w-16 h-16 border border-[var(--sahakum-gold)]/20 rotate-45 animate-bounce" style={{ animationDuration: '3s' }}></div>
-          <div className="absolute bottom-1/3 left-1/4 w-8 h-8 bg-[var(--sahakum-gold)]/10 rotate-12 animate-pulse" style={{ animationDelay: '1s' }}></div>
+        {/* Clean Hero Section */}
+        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">
 
           <Container size="wide" className="py-8 lg:py-12 relative">
             <div className="relative">

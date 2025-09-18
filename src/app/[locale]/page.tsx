@@ -120,22 +120,8 @@ export default function HomePage({ params }: Props) {
 
       {/* Main Content */}
       <main id="main-content">
-        {/* Hero Section - Enhanced Sophisticated Sahakum style */}
-        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--sweden-blue-700)] text-white overflow-hidden">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--sahakum-gold)]/5 via-transparent to-[var(--sahakum-gold)]/5 animate-pulse"></div>
-
-          {/* Subtle geometric pattern */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FECB00' fill-opacity='0.6'%3E%3Cpath d='M30 10 L40 25 L30 40 L20 25 Z'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }}></div>
-
-          {/* Floating geometric accents */}
-          <div className="absolute top-1/4 right-1/4 w-16 h-16 border border-[var(--sahakum-gold)]/20 rotate-45 animate-bounce" style={{ animationDuration: '3s' }}></div>
-          <div className="absolute bottom-1/3 left-1/4 w-8 h-8 bg-[var(--sahakum-gold)]/10 rotate-12 animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 right-1/6 w-4 h-4 bg-[var(--sahakum-gold)]/15 rotate-45 animate-ping" style={{ animationDelay: '2s' }}></div>
-
+        {/* Hero Section - Clean Sophisticated Sahakum style */}
+        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">
           <Container size="wide" className="py-12 lg:py-16 relative">
             <div className="max-w-sweden-content">
               {/* Enhanced animated welcome message */}
@@ -164,7 +150,7 @@ export default function HomePage({ params }: Props) {
                   <SwedenButton
                     variant="primary"
                     size="lg"
-                    className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                    className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                   >
                     {t('common.join_us')}
                   </SwedenButton>
@@ -173,7 +159,7 @@ export default function HomePage({ params }: Props) {
                   <SwedenButton
                     variant="secondary"
                     size="lg"
-                    className="border-[var(--sahakum-gold)] text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)] hover:text-[var(--sahakum-navy)] transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"
+                    className="border-[var(--sahakum-gold)] text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)] hover:text-[var(--sahakum-navy)] transition-colors duration-200 w-full sm:w-auto"
                   >
                     {t('common.contact_us')}
                   </SwedenButton>
