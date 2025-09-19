@@ -15,6 +15,17 @@ async function middleware(request: NextRequest) {
   // Handle internationalization first for all routes
   const intlResponse = intlMiddleware(request)
 
+  // Add security headers for all responses
+  const response = intlResponse || NextResponse.next()
+
+  // Anti-bot and privacy headers
+  if (pathname.includes("/admin") || pathname.includes("/auth") || pathname.includes("/api")) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, nocache, nosnippet, noimageindex')
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+  }
+
   // For admin routes, check authentication
   if (pathname.includes("/admin")) {
     return withAuth(
@@ -33,7 +44,7 @@ async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL("/", req.url))
         }
 
-        return intlResponse
+        return response
       },
       {
         callbacks: {
@@ -43,8 +54,8 @@ async function middleware(request: NextRequest) {
     )(request)
   }
 
-  // For all other routes, just return the intl response
-  return intlResponse
+  // For all other routes, return the response with headers
+  return response
 }
 
 export default middleware

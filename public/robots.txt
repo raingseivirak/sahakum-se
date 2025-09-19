@@ -1,0 +1,44 @@
+# Robots.txt for Sahakum Khmer CMS
+# Block all bots from admin areas and sensitive paths
+
+User-agent: *
+# Block admin panel completely
+Disallow: /*/admin/
+Disallow: /admin/
+Disallow: /en/admin/
+Disallow: /sv/admin/
+Disallow: /km/admin/
+
+# Block API endpoints
+Disallow: /api/
+
+# Block authentication pages
+Disallow: /*/auth/
+Disallow: /auth/
+Disallow: /en/auth/
+Disallow: /sv/auth/
+Disallow: /km/auth/
+
+# Block user profile pages (if they exist)
+Disallow: /*/profile/
+Disallow: /profile/
+
+# Block preview pages
+Disallow: /*?preview=*
+
+# Block media management
+Disallow: /*/admin/media/
+Disallow: /*/admin/users/
+Disallow: /*/admin/posts/
+Disallow: /*/admin/pages/
+
+# Allow public pages
+Allow: /
+Allow: /*/
+Allow: /en/
+Allow: /sv/
+Allow: /km/
+Allow: /media/images/
+
+# Sitemap location (optional)
+# Sitemap: https://yourdomain.com/sitemap.xml
