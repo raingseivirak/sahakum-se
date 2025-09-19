@@ -52,6 +52,9 @@ interface SyncResult {
   updated: number
   removed: number
   errors: string[]
+  environment?: string
+  hybridMode?: boolean
+  syncedSources?: string[]
 }
 
 interface MediaPageProps {
@@ -94,7 +97,11 @@ export default function MediaPage({ params }: MediaPageProps) {
     setError(null)
 
     try {
-      const response = await fetch('/api/media/sync', {
+      // In production, use hybrid mode to sync from both local filesystem and Google Cloud Storage
+      const isProduction = process.env.NODE_ENV === 'production'
+      const syncUrl = isProduction ? '/api/media/sync?hybrid=true' : '/api/media/sync'
+
+      const response = await fetch(syncUrl, {
         method: 'POST'
       })
 
@@ -207,6 +214,11 @@ export default function MediaPage({ params }: MediaPageProps) {
             <CheckCircle className="h-4 w-4" />
             <AlertDescription className={fontClass}>
               <strong>Sync completed:</strong> {syncResult.added} files added, {syncResult.updated} updated, {syncResult.removed} removed
+              {syncResult.hybridMode && (
+                <div className="mt-1 text-sm text-muted-foreground">
+                  <strong>Hybrid mode:</strong> Synced from {syncResult.syncedSources?.join(' and ') || 'multiple sources'}
+                </div>
+              )}
               {syncResult.errors.length > 0 && (
                 <div className="mt-2">
                   <strong>Errors:</strong>
