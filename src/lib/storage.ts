@@ -441,18 +441,24 @@ export class StorageService {
   /**
    * Sync files between storage and database
    * Works with both local filesystem and Google Cloud Storage
+   * Can sync from both sources in production (hybrid mode)
    */
-  async syncFiles(categories: string[] = ['images', 'documents', 'videos', 'avatars']): Promise<{
+  async syncFiles(
+    categories: string[] = ['images', 'documents', 'videos', 'avatars'],
+    hybridMode: boolean = false
+  ): Promise<{
     added: number
     updated: number
     removed: number
     errors: string[]
+    sources: string[]
   }> {
     const syncResults = {
       added: 0,
       updated: 0,
       removed: 0,
-      errors: [] as string[]
+      errors: [] as string[],
+      sources: [] as string[]
     }
 
     try {
@@ -461,15 +467,32 @@ export class StorageService {
       const existingByUrl = new Map(existingFiles.map(f => [f.url, f]))
       const foundUrls = new Set<string>()
 
-      if (this.isProduction && this.bucket) {
-        // Production: Sync from Google Cloud Storage
-        await this.syncFromGoogleCloud(categories, foundUrls, existingByUrl, syncResults)
-      } else {
-        // Development: Sync from local filesystem
-        await this.syncFromLocal(categories, foundUrls, existingByUrl, syncResults)
+      // Determine sync strategy
+      const hasCloudStorage = this.isProduction && this.bucket
+      const shouldSyncLocal = !this.isProduction || hybridMode
+      const shouldSyncCloud = hasCloudStorage
+
+      // Sync from local filesystem (development or hybrid mode)
+      if (shouldSyncLocal) {
+        try {
+          await this.syncFromLocal(categories, foundUrls, existingByUrl, syncResults)
+          syncResults.sources.push('Local Filesystem')
+        } catch (localError) {
+          syncResults.errors.push(`Local filesystem sync failed: ${localError}`)
+        }
       }
 
-      // Remove orphaned database records (files that no longer exist)
+      // Sync from Google Cloud Storage (production or hybrid mode)
+      if (shouldSyncCloud) {
+        try {
+          await this.syncFromGoogleCloud(categories, foundUrls, existingByUrl, syncResults)
+          syncResults.sources.push('Google Cloud Storage')
+        } catch (cloudError) {
+          syncResults.errors.push(`Google Cloud Storage sync failed: ${cloudError}`)
+        }
+      }
+
+      // Remove orphaned database records (files that no longer exist in any source)
       const orphanedFiles = existingFiles.filter(file => !foundUrls.has(file.url))
 
       for (const orphan of orphanedFiles) {
