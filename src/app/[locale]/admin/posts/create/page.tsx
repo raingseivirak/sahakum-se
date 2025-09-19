@@ -30,12 +30,16 @@ import {
   Globe,
   Calendar,
   User,
+  Search,
+  X,
 } from "lucide-react"
 import Link from "next/link"
 import { SwedenEditor } from "@/components/editor/sweden-editor"
 import { MediaSelector } from "@/components/ui/media-selector"
 import { usePosts } from "@/hooks/use-posts"
-import { useState } from "react"
+import { useCategories } from "@/hooks/use-categories"
+import { useTags } from "@/hooks/use-tags"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 
 interface CreatePostProps {
@@ -46,12 +50,16 @@ export default function CreatePost({ params }: CreatePostProps) {
   const fontClass = 'font-sweden'
   const router = useRouter()
   const { createPost, loading, error } = usePosts()
+  const { categories, loading: categoriesLoading } = useCategories()
+  const { tags, loading: tagsLoading } = useTags()
 
   const [formData, setFormData] = useState({
     slug: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
     publishedAt: '',
     featuredImg: '',
+    categoryIds: [] as string[],
+    tagIds: [] as string[],
     translations: {
       sv: { language: 'sv', title: '', content: '', excerpt: '', metaDescription: '', seoTitle: '' },
       en: { language: 'en', title: '', content: '', excerpt: '', metaDescription: '', seoTitle: '' },
@@ -61,6 +69,7 @@ export default function CreatePost({ params }: CreatePostProps) {
 
   const [activeTab, setActiveTab] = useState('sv')
   const [isSaving, setIsSaving] = useState(false)
+  const [tagSearch, setTagSearch] = useState('')
 
   const handleSubmit = async () => {
     setIsSaving(true)
@@ -82,6 +91,8 @@ export default function CreatePost({ params }: CreatePostProps) {
         status: formData.status,
         publishedAt: formData.publishedAt || undefined,
         featuredImg: formData.featuredImg || undefined,
+        categoryIds: formData.categoryIds,
+        tagIds: formData.tagIds,
         translations
       }
 
@@ -113,16 +124,36 @@ export default function CreatePost({ params }: CreatePostProps) {
     { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
   ]
 
-  const categories = [
-    'Community',
-    'Culture',
-    'Education',
-    'Events',
-    'Food',
-    'Integration',
-    'News',
-    'Projects',
-  ]
+  // Helper function to get category name in current locale
+  const getCategoryName = (category: any, locale: string) => {
+    const translation = category.translations.find((t: any) => t.language === locale)
+    return translation?.name || category.slug
+  }
+
+  // Helper function to get tag name in current locale
+  const getTagName = (tag: any, locale: string) => {
+    const translation = tag.translations.find((t: any) => t.language === locale)
+    return translation?.name || tag.slug
+  }
+
+  // Filter tags based on search
+  const filteredTags = useMemo(() => {
+    if (!tagSearch.trim()) return tags
+    return tags.filter(tag =>
+      getTagName(tag, params.locale).toLowerCase().includes(tagSearch.toLowerCase()) ||
+      tag.slug.toLowerCase().includes(tagSearch.toLowerCase())
+    )
+  }, [tags, tagSearch, params.locale])
+
+  // Helper to toggle tag selection
+  const toggleTag = (tagId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter(id => id !== tagId)
+        : [...prev.tagIds, tagId]
+    }))
+  }
 
   return (
     <div className={`space-y-4 ${fontClass}`}>
@@ -172,7 +203,7 @@ export default function CreatePost({ params }: CreatePostProps) {
               </Link>
             </Button>
             <Button
-              className={fontClass}
+              className={`bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}
               onClick={handleSubmit}
               disabled={isSaving}
             >
@@ -345,29 +376,101 @@ export default function CreatePost({ params }: CreatePostProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label className={fontClass}>Category</Label>
-                  <Select>
+                  <Label className={fontClass}>Categories</Label>
+                  <Select
+                    value={formData.categoryIds[0] || ""}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, categoryIds: value ? [value] : [] }))}
+                    disabled={categoriesLoading}
+                  >
                     <SelectTrigger className={fontClass}>
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select category"} />
                     </SelectTrigger>
                     <SelectContent className={`bg-white border border-input shadow-lg ${fontClass}`}>
                       {categories.map((category) => (
-                        <SelectItem key={category} value={category.toLowerCase()} className={fontClass}>
-                          {category}
+                        <SelectItem key={category.id} value={category.id} className={fontClass}>
+                          {getCategoryName(category, params.locale)} ({category.type})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className={fontClass}>Tags</Label>
-                  <Input
-                    placeholder="community, culture, integration..."
-                    className={fontClass}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Separate tags with commas
+                  <p className="text-xs text-muted-foreground">
+                    {categories.length} categories available
                   </p>
+                </div>
+                <div className="space-y-3">
+                  <Label className={fontClass}>Tags</Label>
+                  {tagsLoading ? (
+                    <div className="text-sm text-muted-foreground">Loading tags...</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Selected Tags Display */}
+                      {formData.tagIds.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">Selected tags:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {formData.tagIds.map((tagId) => {
+                              const tag = tags.find(t => t.id === tagId)
+                              if (!tag) return null
+                              return (
+                                <Badge
+                                  key={tagId}
+                                  variant="default"
+                                  className="flex items-center gap-1 cursor-pointer hover:bg-sahakum-navy/80"
+                                  onClick={() => toggleTag(tagId)}
+                                >
+                                  {getTagName(tag, params.locale)}
+                                  <X className="h-3 w-3" />
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search Input */}
+                      <div className="relative">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search tags..."
+                          className={`pl-8 ${fontClass}`}
+                          value={tagSearch}
+                          onChange={(e) => setTagSearch(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Available Tags */}
+                      <div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-1">
+                        {filteredTags.length === 0 ? (
+                          <div className="text-sm text-muted-foreground text-center py-2">
+                            {tagSearch ? 'No tags found' : 'No tags available'}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {filteredTags.map((tag) => {
+                              const isSelected = formData.tagIds.includes(tag.id)
+                              return (
+                                <Badge
+                                  key={tag.id}
+                                  variant={isSelected ? "default" : "outline"}
+                                  className={`cursor-pointer hover:bg-sahakum-navy/10 transition-colors ${fontClass} ${
+                                    isSelected ? 'bg-sahakum-navy hover:bg-sahakum-navy/80' : ''
+                                  }`}
+                                  onClick={() => toggleTag(tag.id)}
+                                >
+                                  {getTagName(tag, params.locale)}
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        {formData.tagIds.length} selected • {filteredTags.length} available
+                        {tagSearch && ` • filtering "${tagSearch}"`}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

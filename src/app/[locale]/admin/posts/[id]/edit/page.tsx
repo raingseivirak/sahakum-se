@@ -39,12 +39,16 @@ import {
   Calendar,
   Tag,
   User,
+  Search,
+  X,
 } from "lucide-react"
 import Link from "next/link"
 import { SwedenEditor } from "@/components/editor/sweden-editor"
 import { MediaSelector } from "@/components/ui/media-selector"
 import { usePosts } from "@/hooks/use-posts"
-import { useState, useEffect } from "react"
+import { useCategories } from "@/hooks/use-categories"
+import { useTags } from "@/hooks/use-tags"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 
 interface EditPostProps {
@@ -54,13 +58,17 @@ interface EditPostProps {
 export default function EditPost({ params }: EditPostProps) {
   const fontClass = 'font-sweden'
   const router = useRouter()
-  const { getPost, updatePost, loading, error } = usePosts()
+  const { updatePost, loading, error } = usePosts()
+  const { categories, loading: categoriesLoading } = useCategories()
+  const { tags, loading: tagsLoading } = useTags()
 
   const [formData, setFormData] = useState({
     slug: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
     publishedAt: '',
     featuredImg: '',
+    categoryIds: [] as string[],
+    tagIds: [] as string[],
     translations: {
       sv: { language: 'sv', title: '', content: '', excerpt: '', metaDescription: '', seoTitle: '' },
       en: { language: 'en', title: '', content: '', excerpt: '', metaDescription: '', seoTitle: '' },
@@ -71,6 +79,7 @@ export default function EditPost({ params }: EditPostProps) {
   const [activeTab, setActiveTab] = useState('sv')
   const [isSaving, setIsSaving] = useState(false)
   const [postLoading, setPostLoading] = useState(true)
+  const [tagSearch, setTagSearch] = useState('')
 
   // Load post data
   useEffect(() => {
@@ -109,11 +118,17 @@ export default function EditPost({ params }: EditPostProps) {
             }
           })
 
+          // Extract category and tag IDs
+          const categoryIds = post.categories?.map((cat: any) => cat.category.id) || []
+          const tagIds = post.tags?.map((tag: any) => tag.tag.id) || []
+
           setFormData({
             slug: post.slug || '',
             status: post.status || 'DRAFT',
             publishedAt: post.publishedAt ? new Date(post.publishedAt).toISOString().slice(0, 16) : '',
             featuredImg: post.featuredImg || '',
+            categoryIds,
+            tagIds,
             translations
           })
         }
@@ -153,6 +168,8 @@ export default function EditPost({ params }: EditPostProps) {
         status: formData.status,
         publishedAt: formData.publishedAt || undefined,
         featuredImg: formData.featuredImg || undefined,
+        categoryIds: formData.categoryIds,
+        tagIds: formData.tagIds,
         translations
       }
 
@@ -192,16 +209,36 @@ export default function EditPost({ params }: EditPostProps) {
     { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
   ]
 
-  const categories = [
-    'Community',
-    'Culture',
-    'Education',
-    'Events',
-    'Food',
-    'Integration',
-    'News',
-    'Projects',
-  ]
+  // Helper function to get category name in current locale
+  const getCategoryName = (category: any, locale: string) => {
+    const translation = category.translations.find((t: any) => t.language === locale)
+    return translation?.name || category.slug
+  }
+
+  // Helper function to get tag name in current locale
+  const getTagName = (tag: any, locale: string) => {
+    const translation = tag.translations.find((t: any) => t.language === locale)
+    return translation?.name || tag.slug
+  }
+
+  // Filter tags based on search
+  const filteredTags = useMemo(() => {
+    if (!tagSearch.trim()) return tags
+    return tags.filter(tag =>
+      getTagName(tag, params.locale).toLowerCase().includes(tagSearch.toLowerCase()) ||
+      tag.slug.toLowerCase().includes(tagSearch.toLowerCase())
+    )
+  }, [tags, tagSearch, params.locale])
+
+  // Helper to toggle tag selection
+  const toggleTag = (tagId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter(id => id !== tagId)
+        : [...prev.tagIds, tagId]
+    }))
+  }
 
   if (postLoading) {
     return (
@@ -261,63 +298,6 @@ export default function EditPost({ params }: EditPostProps) {
                 Back to Posts
               </Link>
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className={fontClass} disabled={isSaving} type="button">
-                  <Eye className="mr-2 h-4 w-4" />
-                  Preview
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className={fontClass}>Post Preview</DialogTitle>
-                  <DialogDescription className={fontClass}>
-                    This is how your blog post will look when published
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4">
-                  <Tabs defaultValue="sv" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      {languages.map((lang) => (
-                        <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                          <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
-                          {lang.name}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                    {languages.map((lang) => {
-                      const translation = formData.translations[lang.code as keyof typeof formData.translations]
-                      return (
-                        <TabsContent key={lang.code} value={lang.code} className="mt-4">
-                          <div className={`prose prose-sweden prose-lg max-w-none ${lang.code === 'km' ? 'font-khmer' : fontClass}`}>
-                            <h1 className={`text-3xl font-bold mb-4 ${lang.code === 'km' ? 'font-khmer' : fontClass}`}>
-                              {translation?.title || `No title in ${lang.name}`}
-                            </h1>
-                            {translation?.excerpt && (
-                              <p className={`text-xl text-gray-600 mb-6 ${lang.code === 'km' ? 'font-khmer' : fontClass}`}>
-                                {translation.excerpt}
-                              </p>
-                            )}
-                            <div
-                              className={`prose prose-sweden prose-lg max-w-none ${lang.code === 'km' ? 'font-khmer' : fontClass}`}
-                              dangerouslySetInnerHTML={{ __html: translation?.content || `<p>No content in ${lang.name}</p>` }}
-                            />
-                          </div>
-                        </TabsContent>
-                      )
-                    })}
-                  </Tabs>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Button
-              className={fontClass}
-              onClick={handleSubmit}
-              disabled={isSaving}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? 'Saving...' : 'Update Post'}
-            </Button>
           </div>
         </div>
 
@@ -362,34 +342,6 @@ export default function EditPost({ params }: EditPostProps) {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="category" className={fontClass}>Category</Label>
-                    <Select>
-                      <SelectTrigger className={fontClass}>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent className={`bg-white border border-input shadow-lg ${fontClass}`}>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category.toLowerCase()} className={fontClass}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tags" className={fontClass}>Tags</Label>
-                    <Input
-                      id="tags"
-                      placeholder="tag1, tag2, tag3"
-                      className={fontClass}
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Separate tags with commas
-                    </p>
-                  </div>
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="publish-date" className={fontClass}>Publish Date</Label>
@@ -419,62 +371,92 @@ export default function EditPost({ params }: EditPostProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
-                    {languages.map((lang) => (
-                      <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                        <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
-                        {lang.name}
-                      </TabsTrigger>
-                    ))}
+                    {languages.map((lang) => {
+                      const translation = formData.translations[lang.code as keyof typeof formData.translations]
+                      const hasContent = translation?.title?.trim() || translation?.content?.trim()
+                      const isActive = activeTab === lang.code
+
+                      return (
+                        <TabsTrigger
+                          key={lang.code}
+                          value={lang.code}
+                          className={fontClass}
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={lang.flag}
+                              alt={`${lang.name} flag`}
+                              className="w-4 h-3 object-cover rounded-sm"
+                            />
+                            <span className="font-medium">{lang.name}</span>
+                            {hasContent && isActive && (
+                              <div className="w-2 h-2 bg-[var(--sahakum-gold)] rounded-full"></div>
+                            )}
+                          </div>
+                        </TabsTrigger>
+                      )
+                    })}
                   </TabsList>
 
-                  {languages.map((lang) => (
-                    <TabsContent key={lang.code} value={lang.code} className="space-y-4">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor={`title-${lang.code}`} className={fontClass}>
-                            Title ({lang.name})
-                          </Label>
-                          <Input
-                            id={`title-${lang.code}`}
-                            placeholder={`Enter title in ${lang.name}`}
-                            className={lang.code === 'km' ? 'font-khmer' : fontClass}
-                            value={formData.translations[lang.code as keyof typeof formData.translations]?.title || ''}
-                            onChange={(e) => updateTranslation(lang.code, 'title', e.target.value)}
-                          />
-                        </div>
+                  {languages.map((lang) => {
+                    const translation = formData.translations[lang.code as keyof typeof formData.translations]
+                    const hasContent = translation?.title?.trim() || translation?.content?.trim()
 
-                        <div className="space-y-2">
-                          <Label htmlFor={`excerpt-${lang.code}`} className={fontClass}>
-                            Excerpt ({lang.name})
-                          </Label>
-                          <Textarea
-                            id={`excerpt-${lang.code}`}
-                            placeholder={`Enter post excerpt in ${lang.name}`}
-                            className={lang.code === 'km' ? 'font-khmer' : fontClass}
-                            value={formData.translations[lang.code as keyof typeof formData.translations]?.excerpt || ''}
-                            onChange={(e) => updateTranslation(lang.code, 'excerpt', e.target.value)}
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            Brief summary for previews and SEO
-                          </p>
-                        </div>
+                    return (
+                      <TabsContent
+                        key={lang.code}
+                        value={lang.code}
+                        className="space-y-4 mt-4"
+                      >
 
-                        <div className="space-y-2">
-                          <Label htmlFor={`content-${lang.code}`} className={fontClass}>
-                            Content ({lang.name})
-                          </Label>
-                          <SwedenEditor
-                            content={formData.translations[lang.code as keyof typeof formData.translations]?.content || ''}
-                            onChange={(content) => updateTranslation(lang.code, 'content', content)}
-                            language={lang.code as 'sv' | 'en' | 'km'}
-                            placeholder={`Enter post content in ${lang.name}`}
-                          />
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`title-${lang.code}`} className={fontClass}>
+                              Title ({lang.name})
+                            </Label>
+                            <Input
+                              id={`title-${lang.code}`}
+                              placeholder={`Enter title in ${lang.name}`}
+                              className={lang.code === 'km' ? 'font-khmer' : fontClass}
+                              value={formData.translations[lang.code as keyof typeof formData.translations]?.title || ''}
+                              onChange={(e) => updateTranslation(lang.code, 'title', e.target.value)}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`excerpt-${lang.code}`} className={fontClass}>
+                              Excerpt ({lang.name})
+                            </Label>
+                            <Textarea
+                              id={`excerpt-${lang.code}`}
+                              placeholder={`Enter post excerpt in ${lang.name}`}
+                              className={lang.code === 'km' ? 'font-khmer' : fontClass}
+                              value={formData.translations[lang.code as keyof typeof formData.translations]?.excerpt || ''}
+                              onChange={(e) => updateTranslation(lang.code, 'excerpt', e.target.value)}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              Brief summary for previews and SEO
+                            </p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`content-${lang.code}`} className={fontClass}>
+                              Content ({lang.name})
+                            </Label>
+                            <SwedenEditor
+                              content={formData.translations[lang.code as keyof typeof formData.translations]?.content || ''}
+                              onChange={(content) => updateTranslation(lang.code, 'content', content)}
+                              language={lang.code as 'sv' | 'en' | 'km'}
+                              placeholder={`Enter post content in ${lang.name}`}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    </TabsContent>
-                  ))}
+                      </TabsContent>
+                    )
+                  })}
                 </Tabs>
               </CardContent>
             </Card>
@@ -505,7 +487,7 @@ export default function EditPost({ params }: EditPostProps) {
                 <Separator />
                 <div className="space-y-2">
                   <Button
-                    className={`w-full ${fontClass}`}
+                    className={`w-full bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}
                     onClick={handleSubmit}
                     disabled={isSaving}
                   >
@@ -527,30 +509,101 @@ export default function EditPost({ params }: EditPostProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label className={fontClass}>Category</Label>
-                  <Select>
+                  <Label className={fontClass}>Categories</Label>
+                  <Select
+                    value={formData.categoryIds[0] || ""}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, categoryIds: value ? [value] : [] }))}
+                    disabled={categoriesLoading}
+                  >
                     <SelectTrigger className={fontClass}>
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select category"} />
                     </SelectTrigger>
                     <SelectContent className={`bg-white border border-input shadow-lg ${fontClass}`}>
                       {categories.map((category) => (
-                        <SelectItem key={category} value={category.toLowerCase()} className={fontClass}>
-                          {category}
+                        <SelectItem key={category.id} value={category.id} className={fontClass}>
+                          {getCategoryName(category, params.locale)} ({category.type})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {categories.length} categories available
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <Label className={fontClass}>Popular Tags</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {['community', 'culture', 'integration', 'food', 'education'].map((tag) => (
-                      <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
-                        <Tag className="w-2 h-2 mr-1" />
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="space-y-3">
+                  <Label className={fontClass}>Tags</Label>
+                  {tagsLoading ? (
+                    <div className="text-sm text-muted-foreground">Loading tags...</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Selected Tags Display */}
+                      {formData.tagIds.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">Selected tags:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {formData.tagIds.map((tagId) => {
+                              const tag = tags.find(t => t.id === tagId)
+                              if (!tag) return null
+                              return (
+                                <Badge
+                                  key={tagId}
+                                  variant="default"
+                                  className="flex items-center gap-1 cursor-pointer hover:bg-sahakum-navy/80"
+                                  onClick={() => toggleTag(tagId)}
+                                >
+                                  {getTagName(tag, params.locale)}
+                                  <X className="h-3 w-3" />
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search Input */}
+                      <div className="relative">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search tags..."
+                          className={`pl-8 ${fontClass}`}
+                          value={tagSearch}
+                          onChange={(e) => setTagSearch(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Available Tags */}
+                      <div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-1">
+                        {filteredTags.length === 0 ? (
+                          <div className="text-sm text-muted-foreground text-center py-2">
+                            {tagSearch ? 'No tags found' : 'No tags available'}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {filteredTags.map((tag) => {
+                              const isSelected = formData.tagIds.includes(tag.id)
+                              return (
+                                <Badge
+                                  key={tag.id}
+                                  variant={isSelected ? "default" : "outline"}
+                                  className={`cursor-pointer hover:bg-sahakum-navy/10 transition-colors ${fontClass} ${
+                                    isSelected ? 'bg-sahakum-navy hover:bg-sahakum-navy/80' : ''
+                                  }`}
+                                  onClick={() => toggleTag(tag.id)}
+                                >
+                                  {getTagName(tag, params.locale)}
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        {formData.tagIds.length} selected • {filteredTags.length} available
+                        {tagSearch && ` • filtering "${tagSearch}"`}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

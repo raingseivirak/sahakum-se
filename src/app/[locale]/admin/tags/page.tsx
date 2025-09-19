@@ -360,7 +360,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                 Create Tag
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl bg-white">
               <DialogHeader>
                 <DialogTitle className={fontClass}>Create New Tag</DialogTitle>
                 <DialogDescription className={fontClass}>
@@ -410,7 +410,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className={fontClass}>
                   Cancel
                 </Button>
-                <Button onClick={createTag} className={fontClass}>
+                <Button onClick={createTag} className={`bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}>
                   <Save className="mr-2 h-4 w-4" />
                   Create Tag
                 </Button>
@@ -426,7 +426,7 @@ export default function TagsPage({ params }: TagsPageProps) {
               resetForm()
             }
           }}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl bg-white">
               <DialogHeader>
                 <DialogTitle className={fontClass}>Edit Tag</DialogTitle>
                 <DialogDescription className={fontClass}>
@@ -476,7 +476,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className={fontClass}>
                   Cancel
                 </Button>
-                <Button onClick={updateTag} className={fontClass}>
+                <Button onClick={updateTag} className={`bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}>
                   <Save className="mr-2 h-4 w-4" />
                   Update Tag
                 </Button>

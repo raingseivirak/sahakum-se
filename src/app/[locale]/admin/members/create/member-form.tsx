@@ -511,7 +511,7 @@ export function MemberForm({ locale }: MemberFormProps) {
               <CardContent className="space-y-4">
                 <Button
                   type="submit"
-                  className={`w-full ${fontClass}`}
+                  className={`w-full bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

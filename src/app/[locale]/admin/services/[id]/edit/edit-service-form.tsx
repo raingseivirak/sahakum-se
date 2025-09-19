@@ -44,8 +44,8 @@ const serviceSchema = z.object({
   type: z.enum(["INTERNAL", "BLOG", "EXTERNAL", "CUSTOM"]),
   featuredImg: z.string().optional(),
   colorTheme: z.string().optional(),
-  isActive: z.boolean().default(true),
-  sortOrder: z.coerce.number().default(0),
+  active: z.boolean().default(true),
+  order: z.coerce.number().default(0),
   translations: z.object({
     sv: z.object({
       title: z.string().min(1, "Swedish title is required"),
@@ -87,8 +87,8 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
       type: "INTERNAL",
       featuredImg: "",
       colorTheme: "navy",
-      isActive: true,
-      sortOrder: 0,
+      active: true,
+      order: 0,
       translations: {
         sv: {
           title: "",
@@ -135,8 +135,8 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
           type: service.type,
           featuredImg: service.featuredImg || "",
           colorTheme: service.colorTheme || "navy",
-          isActive: service.isActive,
-          sortOrder: service.sortOrder,
+          active: service.active,
+          order: service.order,
           translations: translationsObject,
         })
       } catch (err) {
@@ -161,8 +161,8 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
         type: data.type,
         featuredImg: data.featuredImg || null,
         colorTheme: data.colorTheme || null,
-        isActive: data.isActive,
-        sortOrder: data.sortOrder,
+        active: data.active,
+        order: data.order,
         translations: [
           {
             language: "sv" as const,
@@ -326,7 +326,7 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
 
                   <FormField
                     control={form.control}
-                    name="sortOrder"
+                    name="order"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className={fontClass}>Sort Order</FormLabel>
@@ -564,6 +564,40 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
               </CardContent>
             </Card>
 
+            {/* Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className={fontClass}>Status</CardTitle>
+                <CardDescription className={fontClass}>
+                  Service visibility and status settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className={`text-base ${fontClass}`}>Active Service</FormLabel>
+                        <div className={`text-sm text-muted-foreground ${fontClass}`}>
+                          Enable this service to show it on the homepage
+                        </div>
+                      </div>
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="h-4 w-4 rounded border-gray-300 text-[var(--sahakum-navy)] focus:ring-[var(--sahakum-navy)]"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
             {/* Actions */}
             <Card>
               <CardHeader>
@@ -572,7 +606,7 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
               <CardContent className="space-y-4">
                 <Button
                   type="submit"
-                  className={`w-full ${fontClass}`}
+                  className={`w-full bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

@@ -463,7 +463,7 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
               </div>
             </DialogContent>
           </Dialog>
-          <Button type="submit" className={fontClass} disabled={isLoading}>
+          <Button type="submit" className={`bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`} disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
             {isLoading ? "Updating..." : "Update Page"}
           </Button>

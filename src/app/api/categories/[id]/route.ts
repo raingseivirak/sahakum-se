@@ -41,9 +41,9 @@ export async function GET(
             translations: true
           }
         },
-        content: {
+        contentItems: {
           include: {
-            content: {
+            contentItem: {
               include: {
                 translations: true
               }
@@ -185,7 +185,7 @@ export async function DELETE(
       where: { id: params.id },
       include: {
         children: true,
-        content: true
+        contentItems: true
       }
     })
 
@@ -201,7 +201,7 @@ export async function DELETE(
     }
 
     // Check if category is used by content
-    if (existingCategory.content.length > 0) {
+    if (existingCategory.contentItems.length > 0) {
       return NextResponse.json({
         error: "Cannot delete category that is assigned to content. Please remove category from content first."
       }, { status: 400 })

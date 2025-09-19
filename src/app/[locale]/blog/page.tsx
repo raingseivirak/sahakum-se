@@ -10,7 +10,7 @@ import { prisma } from '@/lib/prisma'
 
 interface BlogPageProps {
   params: { locale: string }
-  searchParams: { page?: string; category?: string }
+  searchParams: { page?: string; category?: string; tag?: string }
 }
 
 // Translations for blog
@@ -47,38 +47,20 @@ const blogTranslations = {
   }
 }
 
-// Predefined community categories - matches admin categories
-const COMMUNITY_CATEGORIES = {
-  'living-sweden': {
-    sv: { name: 'Bo i Sverige', icon: '🏠', description: 'Boende, vård, byråkrati' },
-    en: { name: 'Living in Sweden', icon: '🏠', description: 'Housing, healthcare, bureaucracy' },
-    km: { name: 'រស់នៅស៊ុយអែត', icon: '🏠', description: 'លំនៅដ្ឋាន សុខភាព អាជ្ញាធរ' }
-  },
-  'culture-heritage': {
-    sv: { name: 'Kultur & Arv', icon: '🎭', description: 'Festivaler, traditioner, språk' },
-    en: { name: 'Culture & Heritage', icon: '🎭', description: 'Festivals, traditions, language' },
-    km: { name: 'វប្បធម៌ និងបេតិកភណ្ឌ', icon: '🎭', description: 'ពិធីបុណ្យ ប្រពៃណី ភាសា' }
-  },
-  'work-business': {
-    sv: { name: 'Arbete & Företag', icon: '💼', description: 'Jobb, entreprenörskap, nätverk' },
-    en: { name: 'Work & Business', icon: '💼', description: 'Jobs, entrepreneurship, networking' },
-    km: { name: 'ការងារ និងអាជីវកម្ម', icon: '💼', description: 'ការងារ សហគ្រិនភាព បណ្តាញ' }
-  },
-  'community': {
-    sv: { name: 'Gemenskapsberättelser', icon: '👨‍👩‍👧‍👦', description: 'Personliga resor, intervjuer' },
-    en: { name: 'Community Stories', icon: '👨‍👩‍👧‍👦', description: 'Personal journeys, interviews' },
-    km: { name: 'រឿងរ៉ាវសហគមន៍', icon: '👨‍👩‍👧‍👦', description: 'ដំណើរជីវិត បទសម្ភាសន៍' }
-  },
-  'news': {
-    sv: { name: 'Nyheter & Uppdateringar', icon: '📰', description: 'Evenemang, policyändringar' },
-    en: { name: 'News & Updates', icon: '📰', description: 'Events, policy changes' },
-    km: { name: 'ព័ត៌មាន និងការអាប់ដេត', icon: '📰', description: 'ព្រឹត្តិការណ៍ ការផ្លាស់ប្តូរគោលនយោបាយ' }
-  },
-  'guides': {
-    sv: { name: 'Guider & Resurser', icon: '📚', description: 'Hur-till artiklar, användbara länkar' },
-    en: { name: 'Guides & Resources', icon: '📚', description: 'How-to articles, useful links' },
-    km: { name: 'មគ្គុទេសក៍ និងធនធាន', icon: '📚', description: 'អត្ថបទណែនាំ តំណភ្ជាប់មានប្រយោជន៍' }
-  }
+// Helper function to build filter URL
+function buildFilterUrl(locale: string, currentParams: URLSearchParams, newCategory?: string, newTag?: string, newPage?: number) {
+  const params = new URLSearchParams()
+
+  if (newCategory) params.set('category', newCategory)
+  else if (currentParams.get('category') && !newTag) params.set('category', currentParams.get('category')!)
+
+  if (newTag) params.set('tag', newTag)
+  else if (currentParams.get('tag') && !newCategory) params.set('tag', currentParams.get('tag')!)
+
+  if (newPage && newPage > 1) params.set('page', newPage.toString())
+
+  const queryString = params.toString()
+  return `/${locale}/blog${queryString ? `?${queryString}` : ''}`
 }
 
 function calculateReadingTime(content: string): number {
@@ -87,7 +69,7 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(words / wordsPerMinute)
 }
 
-async function getPosts(locale: string, page: number = 1, category?: string) {
+async function getPosts(locale: string, page: number = 1, category?: string, tag?: string) {
   try {
     const limit = 12 // Increased for better layout
     const skip = (page - 1) * limit
@@ -99,6 +81,28 @@ async function getPosts(locale: string, page: number = 1, category?: string) {
       translations: {
         some: {
           language: locale
+        }
+      }
+    }
+
+    // Add category filter
+    if (category) {
+      where.categories = {
+        some: {
+          category: {
+            slug: category
+          }
+        }
+      }
+    }
+
+    // Add tag filter
+    if (tag) {
+      where.tags = {
+        some: {
+          tag: {
+            slug: tag
+          }
         }
       }
     }
@@ -152,11 +156,12 @@ async function getPosts(locale: string, page: number = 1, category?: string) {
       translation: post.translations[0] || null,
       categories: post.categories.map(c => ({
         slug: c.category.slug,
-        name: c.category.translations[0]?.title || c.category.slug
+        type: c.category.type,
+        name: c.category.translations[0]?.name || c.category.slug
       })),
       tags: post.tags.map(t => ({
         slug: t.tag.slug,
-        name: t.tag.translations[0]?.title || t.tag.slug
+        name: t.tag.translations[0]?.name || t.tag.slug
       })),
       readingTime: calculateReadingTime(post.translations[0]?.content || ''),
       excerpt: post.translations[0]?.excerpt || post.translations[0]?.content?.substring(0, 150) + '...' || ''
@@ -188,6 +193,82 @@ async function getPosts(locale: string, page: number = 1, category?: string) {
   }
 }
 
+// Fetch available categories for filtering
+async function getCategories(locale: string) {
+  try {
+    const categories = await prisma.category.findMany({
+      include: {
+        translations: {
+          where: { language: locale }
+        },
+        _count: {
+          select: {
+            contentItems: {
+              where: {
+                contentItem: {
+                  type: 'POST',
+                  status: 'PUBLISHED'
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: [
+        { type: 'asc' },
+        { slug: 'asc' }
+      ]
+    })
+
+    return categories.filter(cat => cat._count.contentItems > 0).map(cat => ({
+      slug: cat.slug,
+      type: cat.type,
+      name: cat.translations[0]?.name || cat.slug,
+      count: cat._count.contentItems
+    }))
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
+}
+
+// Fetch available tags for filtering
+async function getTags(locale: string) {
+  try {
+    const tags = await prisma.tag.findMany({
+      include: {
+        translations: {
+          where: { language: locale }
+        },
+        _count: {
+          select: {
+            contentItems: {
+              where: {
+                contentItem: {
+                  type: 'POST',
+                  status: 'PUBLISHED'
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        slug: 'asc'
+      }
+    })
+
+    return tags.filter(tag => tag._count.contentItems > 0).map(tag => ({
+      slug: tag.slug,
+      name: tag.translations[0]?.name || tag.slug,
+      count: tag._count.contentItems
+    }))
+  } catch (error) {
+    console.error('Error fetching tags:', error)
+    return []
+  }
+}
+
 function formatDate(dateString: string, locale: string): string {
   const date = new Date(dateString)
 
@@ -205,8 +286,14 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
 
   const page = parseInt(searchParams.page || '1')
   const category = searchParams.category
+  const tag = searchParams.tag
 
-  const { posts, pagination } = await getPosts(params.locale, page, category)
+  // Fetch data in parallel
+  const [{ posts, pagination }, categories, tags] = await Promise.all([
+    getPosts(params.locale, page, category, tag),
+    getCategories(params.locale),
+    getTags(params.locale)
+  ])
 
   // Determine font class based on locale
   const fontClass = params.locale === 'km' ? 'font-khmer' : 'font-sweden'
@@ -333,24 +420,104 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
           </section>
         )}
 
-        {/* Category Filter Tabs */}
-        <section className="py-6 bg-white border-b border-[var(--sahakum-gold)]/20">
+        {/* Swedish Design Filter Section */}
+        <section className="py-8 bg-gradient-to-br from-[var(--sahakum-gold)]/5 to-white border-b border-[var(--sahakum-gold)]/20">
           <Container size="wide">
-            <div className="flex flex-wrap gap-2 justify-center">
-              <button className={`px-4 py-2 transition-colors duration-200 ${!category ? 'bg-[var(--sahakum-gold)] text-[var(--sahakum-navy)]' : 'bg-gray-100 text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-gold)]/20'} ${fontClass}`}>
-                {params.locale === 'sv' ? 'Alla' : params.locale === 'km' ? 'ទាំងអស់' : 'All'}
-              </button>
-              {Object.entries(COMMUNITY_CATEGORIES).map(([slug, categoryData]) => {
-                const localizedCategory = categoryData[params.locale as keyof typeof categoryData] || categoryData.en
-                return (
-                  <button
-                    key={slug}
-                    className={`px-4 py-2 transition-colors duration-200 ${category === slug ? 'bg-[var(--sahakum-gold)] text-[var(--sahakum-navy)]' : 'bg-gray-100 text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-gold)]/20'} ${fontClass}`}
+            <div className="space-y-6">
+              {/* Filter Header */}
+              <div className="text-center">
+                <h2 className={`text-xl font-medium text-[var(--sahakum-navy)] mb-2 ${fontClass}`}>
+                  {params.locale === 'sv' ? 'Filtrera artiklar' :
+                   params.locale === 'km' ? 'ច្រោះអត្ថបទ' : 'Filter Articles'}
+                </h2>
+                {(category || tag) && (
+                  <p className={`text-sm text-[var(--sahakum-navy)]/70 ${fontClass}`}>
+                    {params.locale === 'sv' ? 'Visar filtrerade resultat' :
+                     params.locale === 'km' ? 'បង្ហាញលទ្ធផលច្រោះ' : 'Showing filtered results'}
+                    {category && ` • ${categories.find(c => c.slug === category)?.name}`}
+                    {tag && ` • ${tags.find(t => t.slug === tag)?.name}`}
+                  </p>
+                )}
+              </div>
+
+              {/* Categories Filter */}
+              <div className="space-y-3">
+                <h3 className={`text-sm font-medium text-[var(--sahakum-navy)] uppercase tracking-wider ${fontClass}`}>
+                  {params.locale === 'sv' ? 'Kategorier' :
+                   params.locale === 'km' ? 'ប្រភេទ' : 'Categories'}
+                </h3>
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                  {/* All Categories Button */}
+                  <a
+                    href={buildFilterUrl(params.locale, new URLSearchParams(Object.entries(searchParams).map(([k, v]) => [k, v!])))}
+                    className={`inline-block px-4 py-2 text-sm font-medium transition-all duration-200 border ${
+                      !category && !tag
+                        ? 'bg-[var(--sahakum-navy)] text-white border-[var(--sahakum-navy)] shadow-sm'
+                        : 'bg-white text-[var(--sahakum-navy)] border-[var(--sahakum-navy)]/20 hover:border-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/10'
+                    } ${fontClass}`}
                   >
-                    {localizedCategory.name}
-                  </button>
-                )
-              })}
+                    {params.locale === 'sv' ? 'Alla' : params.locale === 'km' ? 'ទាំងអស់' : 'All'} ({posts.length + (pagination.totalPages - 1) * 12})
+                  </a>
+
+                  {/* Category Buttons */}
+                  {categories.map((cat) => (
+                    <a
+                      key={cat.slug}
+                      href={buildFilterUrl(params.locale, new URLSearchParams(), cat.slug)}
+                      className={`inline-block px-4 py-2 text-sm font-medium transition-all duration-200 border ${
+                        category === cat.slug
+                          ? 'bg-[var(--sahakum-navy)] text-white border-[var(--sahakum-navy)] shadow-sm'
+                          : 'bg-white text-[var(--sahakum-navy)] border-[var(--sahakum-navy)]/20 hover:border-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/10'
+                      } ${fontClass}`}
+                    >
+                      {cat.name} ({cat.count})
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tags Filter */}
+              {tags.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className={`text-sm font-medium text-[var(--sahakum-navy)] uppercase tracking-wider ${fontClass}`}>
+                    {params.locale === 'sv' ? 'Taggar' :
+                     params.locale === 'km' ? 'ស្លាក' : 'Tags'}
+                  </h3>
+                  <div className="flex flex-wrap gap-1 justify-center lg:justify-start">
+                    {tags.slice(0, 12).map((tagItem) => (
+                      <a
+                        key={tagItem.slug}
+                        href={buildFilterUrl(params.locale, new URLSearchParams(), undefined, tagItem.slug)}
+                        className={`inline-block px-3 py-1 text-xs font-medium transition-all duration-200 border rounded-full ${
+                          tag === tagItem.slug
+                            ? 'bg-[var(--sahakum-gold)] text-[var(--sahakum-navy)] border-[var(--sahakum-gold)] shadow-sm'
+                            : 'bg-white text-[var(--sahakum-navy)]/80 border-[var(--sahakum-navy)]/20 hover:border-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/10'
+                        } ${fontClass}`}
+                      >
+                        {tagItem.name} ({tagItem.count})
+                      </a>
+                    ))}
+                    {tags.length > 12 && (
+                      <span className={`text-xs text-[var(--sahakum-navy)]/60 px-2 py-1 ${fontClass}`}>
+                        +{tags.length - 12} {params.locale === 'sv' ? 'fler' : params.locale === 'km' ? 'ច្រើនទៀត' : 'more'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Clear Filters */}
+              {(category || tag) && (
+                <div className="text-center">
+                  <a
+                    href={`/${params.locale}/blog`}
+                    className={`inline-flex items-center text-sm text-[var(--sahakum-navy)]/70 hover:text-[var(--sahakum-gold)] transition-colors duration-200 ${fontClass}`}
+                  >
+                    ✕ {params.locale === 'sv' ? 'Rensa filter' :
+                         params.locale === 'km' ? 'លុបការច្រោះ' : 'Clear filters'}
+                  </a>
+                </div>
+              )}
             </div>
           </Container>
         </section>
@@ -406,18 +573,37 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                               {post.translation.excerpt}
                             </p>
                           )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-wrap gap-1">
-                              {post.categories?.slice(0, 1).map((category: any) => (
-                                <span
-                                  key={category.slug}
-                                  className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1"
-                                >
-                                  {category.name}
-                                </span>
-                              ))}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-wrap gap-1">
+                                {post.categories?.slice(0, 1).map((category: any) => (
+                                  <a
+                                    key={category.slug}
+                                    href={buildFilterUrl(params.locale, new URLSearchParams(), category.slug)}
+                                    className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1 hover:bg-[var(--sahakum-gold)]/30 transition-colors"
+                                  >
+                                    {category.name}
+                                  </a>
+                                ))}
+                              </div>
+                              <span className="text-xs text-[var(--sahakum-navy)]/60">{t('by')} {post.author.name}</span>
                             </div>
-                            <span className="text-xs text-[var(--sahakum-navy)]/60">{t('by')} {post.author.name}</span>
+                            {post.tags?.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {post.tags.slice(0, 3).map((tagItem: any) => (
+                                  <a
+                                    key={tagItem.slug}
+                                    href={buildFilterUrl(params.locale, new URLSearchParams(), undefined, tagItem.slug)}
+                                    className="text-xs bg-[var(--sahakum-navy)]/10 text-[var(--sahakum-navy)]/80 px-2 py-1 rounded-full hover:bg-[var(--sahakum-navy)]/20 transition-colors"
+                                  >
+                                    #{tagItem.name}
+                                  </a>
+                                ))}
+                                {post.tags.length > 3 && (
+                                  <span className="text-xs text-[var(--sahakum-navy)]/60">+{post.tags.length - 3}</span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </SwedishCardContent>
                       </SwedishCard>
@@ -455,18 +641,37 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                               {post.translation.excerpt}
                             </p>
                           )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-wrap gap-1">
-                              {post.categories?.slice(0, 1).map((category: any) => (
-                                <span
-                                  key={category.slug}
-                                  className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1"
-                                >
-                                  {category.name}
-                                </span>
-                              ))}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-wrap gap-1">
+                                {post.categories?.slice(0, 1).map((category: any) => (
+                                  <a
+                                    key={category.slug}
+                                    href={buildFilterUrl(params.locale, new URLSearchParams(), category.slug)}
+                                    className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1 hover:bg-[var(--sahakum-gold)]/30 transition-colors"
+                                  >
+                                    {category.name}
+                                  </a>
+                                ))}
+                              </div>
+                              <span className="text-xs text-[var(--sahakum-navy)]/60">{t('by')} {post.author.name}</span>
                             </div>
-                            <span className="text-xs text-[var(--sahakum-navy)]/60">{t('by')} {post.author.name}</span>
+                            {post.tags?.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {post.tags.slice(0, 3).map((tagItem: any) => (
+                                  <a
+                                    key={tagItem.slug}
+                                    href={buildFilterUrl(params.locale, new URLSearchParams(), undefined, tagItem.slug)}
+                                    className="text-xs bg-[var(--sahakum-navy)]/10 text-[var(--sahakum-navy)]/80 px-2 py-1 rounded-full hover:bg-[var(--sahakum-navy)]/20 transition-colors"
+                                  >
+                                    #{tagItem.name}
+                                  </a>
+                                ))}
+                                {post.tags.length > 3 && (
+                                  <span className="text-xs text-[var(--sahakum-navy)]/60">+{post.tags.length - 3}</span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </SwedishCardContent>
                       </SwedishCard>
@@ -480,7 +685,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
             {pagination.hasNext && (
               <div className="text-center mt-12">
                 <a
-                  href={`/${params.locale}/blog?page=${pagination.page + 1}${category ? `&category=${category}` : ''}`}
+                  href={buildFilterUrl(params.locale, new URLSearchParams(Object.entries(searchParams).map(([k, v]) => [k, v!])), category, tag, pagination.page + 1)}
                   className={`inline-flex items-center px-8 py-3 bg-[var(--sahakum-gold)] text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-gold)]/90 transition-colors duration-200 font-medium ${fontClass}`}
                 >
                   {params.locale === 'sv' ? 'Ladda fler artiklar' :
@@ -493,13 +698,13 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
             {pagination.totalPages > 1 && (
               <nav aria-label="Blog pagination" className="sr-only">
                 {pagination.hasPrev && (
-                  <a href={`/${params.locale}/blog?page=${pagination.page - 1}${category ? `&category=${category}` : ''}`}>
+                  <a href={buildFilterUrl(params.locale, new URLSearchParams(Object.entries(searchParams).map(([k, v]) => [k, v!])), category, tag, pagination.page - 1)}>
                     Previous page
                   </a>
                 )}
                 <span>Page {pagination.page} of {pagination.totalPages}</span>
                 {pagination.hasNext && (
-                  <a href={`/${params.locale}/blog?page=${pagination.page + 1}${category ? `&category=${category}` : ''}`}>
+                  <a href={buildFilterUrl(params.locale, new URLSearchParams(Object.entries(searchParams).map(([k, v]) => [k, v!])), category, tag, pagination.page + 1)}>
                     Next page
                   </a>
                 )}

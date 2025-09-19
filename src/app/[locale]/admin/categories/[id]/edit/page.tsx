@@ -391,7 +391,7 @@ export default function CategoryEditPage({ params }: CategoryEditPageProps) {
 
             {/* Save Button */}
             <div className="flex justify-end pt-4">
-              <Button onClick={handleSave} disabled={saving} className={fontClass}>
+              <Button onClick={handleSave} disabled={saving} className={`bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}>
                 <Save className="mr-2 h-4 w-4" />
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>

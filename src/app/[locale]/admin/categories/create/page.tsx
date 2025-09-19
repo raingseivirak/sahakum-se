@@ -187,14 +187,6 @@ export default function CreateCategory({ params }: CreateCategoryProps) {
                 Back to Categories
               </Link>
             </Button>
-            <Button
-              className={fontClass}
-              onClick={handleSubmit}
-              disabled={isSaving}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? 'Creating...' : 'Create Category'}
-            </Button>
           </div>
         </div>
 
@@ -341,7 +333,7 @@ export default function CreateCategory({ params }: CreateCategoryProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
-                  className={`w-full ${fontClass}`}
+                  className={`w-full bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white ${fontClass}`}
                   onClick={handleSubmit}
                   disabled={isSaving}
                 >
