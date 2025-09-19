@@ -34,18 +34,18 @@ export const SwedenCard = forwardRef<HTMLDivElement | HTMLAnchorElement, SwedenC
     };
 
     const cardClasses = cn(
-      'rounded-sweden overflow-hidden',
+      'overflow-hidden',
       'transition-all duration-sweden-base ease-sweden-standard',
       variants[variant],
       shadows[shadow],
       hover && [
         'hover:shadow-sweden-md hover:-translate-y-0.5',
-        'hover:border-sweden-blue-500/30',
+        variant !== 'borderless' && 'hover:border-sweden-blue-500/30',
         variant === 'featured' && 'hover:border-sweden-blue-600',
         variant === 'outline' && 'hover:border-sweden-blue-500'
       ],
-      // Focus states for accessibility
-      href && 'focus-sweden',
+      // Focus states for accessibility - but not for borderless cards
+      href && variant !== 'borderless' && 'focus-sweden',
       className
     );
 
