@@ -201,24 +201,23 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
 
       {/* Main Content */}
       <main id="main-content">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--sweden-blue-700)] text-white overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--sahakum-gold)]/5 via-transparent to-[var(--sahakum-gold)]/5"></div>
-          <Container size="wide">
-            <div className="py-16 lg:py-24 relative">
-              <div className="max-w-sweden-content">
-                <div className="animate-fade-in-up">
-                  <SwedenH1 className="text-white mb-6" locale={params.locale}>
-                    <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      {t('title')}
-                    </span>
-                  </SwedenH1>
-                </div>
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <SwedenBody className="text-white/90 mb-6 max-w-3xl" locale={params.locale}>
-                    {t('subtitle')}
-                  </SwedenBody>
-                </div>
+        {/* Hero Section - Clean Sophisticated Sahakum style */}
+        <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">
+          <Container size="wide" className="py-12 lg:py-16 relative">
+            <div className="max-w-sweden-content">
+              {/* Enhanced animated welcome message */}
+              <div className="animate-fade-in-up">
+                <SwedenH1 className="text-white mb-4 text-4xl lg:text-5xl" locale={params.locale}>
+                  <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    {t('title')}
+                  </span>
+                </SwedenH1>
+              </div>
+
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <SwedenBody className="text-white/90 mb-6 max-w-3xl text-base lg:text-lg leading-relaxed" locale={params.locale}>
+                  {t('subtitle')}
+                </SwedenBody>
               </div>
             </div>
           </Container>

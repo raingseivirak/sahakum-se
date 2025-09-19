@@ -3,6 +3,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card'
+import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -84,35 +85,23 @@ export default async function PagesListPage({ params }: PagesListProps) {
         }}
       />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--sweden-blue-700)] text-white overflow-hidden">
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--sahakum-gold)]/5 via-transparent to-[var(--sahakum-gold)]/5 animate-pulse"></div>
-
-        {/* Subtle geometric pattern */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FECB00' fill-opacity='0.6'%3E%3Cpath d='M30 10 L40 25 L30 40 L20 25 Z'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px'
-        }}></div>
-
-        <Container size="wide">
-          <div className="py-12 lg:py-16 relative">
-            <div className="max-w-sweden-content">
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h1 className={`text-white mb-4 text-4xl lg:text-5xl font-semibold leading-[1.29] tracking-[-0.36px] ${fontClass}`}>
+      {/* Hero Section - Clean Sophisticated Sahakum style */}
+      <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">
+        <Container size="wide" className="py-12 lg:py-16 relative">
+          <div className="max-w-sweden-content">
+            {/* Enhanced animated welcome message */}
+            <div className="animate-fade-in-up">
+              <SwedenH1 className="text-white mb-4 text-4xl lg:text-5xl" locale={params.locale}>
+                <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                   {t('pages.title')}
-                </h1>
-              </div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                <p className={`text-[var(--sahakum-gold)] mb-4 text-lg lg:text-xl font-medium ${fontClass}`}>
-                  {t('pages.subtitle')}
-                </p>
-              </div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                <p className={`text-white/90 mb-6 text-base lg:text-lg leading-relaxed max-w-3xl ${fontClass}`}>
-                  {t('pages.description')}
-                </p>
-              </div>
+                </span>
+              </SwedenH1>
+            </div>
+
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <SwedenBody className="text-white/90 mb-6 max-w-3xl text-base lg:text-lg leading-relaxed" locale={params.locale}>
+                {t('pages.subtitle')}
+              </SwedenBody>
             </div>
           </div>
         </Container>
