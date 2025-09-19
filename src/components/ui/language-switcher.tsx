@@ -51,7 +51,11 @@ export function LanguageSwitcher({
       <DropdownMenu>
         <DropdownMenuTrigger className={`flex items-center space-x-1 px-2 py-1 text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/30 rounded-sm transition-colors font-sweden ${className}`}>
           <Languages className="w-3 h-3" />
-          <span className="font-medium">{currentLocale.toUpperCase()}</span>
+          <img
+            src={currentLanguage.flagImage}
+            alt={`${currentLanguage.name} flag`}
+            className="w-4 h-3 object-cover rounded-sm"
+          />
           <ChevronDown className="w-3 h-3" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -65,7 +69,14 @@ export function LanguageSwitcher({
               className="hover:bg-[var(--sahakum-gold)]/10 focus:bg-[var(--sahakum-gold)]/10 cursor-pointer"
             >
               <div className="flex items-center justify-between w-full text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] font-sweden text-xs">
-                <span className="font-medium">{code.toUpperCase()}</span>
+                <div className="flex items-center space-x-2">
+                  <img
+                    src={lang.flagImage}
+                    alt={`${lang.name} flag`}
+                    className="w-4 h-3 object-cover rounded-sm"
+                  />
+                  <span className="font-medium">{code.toUpperCase()}</span>
+                </div>
                 <span>{lang.name}</span>
               </div>
             </DropdownMenuItem>
@@ -80,7 +91,11 @@ export function LanguageSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger className={`flex items-center space-x-2 px-3 py-2 text-sm bg-[var(--sahakum-gold)]/10 text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/20 rounded-sm transition-colors font-sweden ${className}`}>
         <Globe className="w-4 h-4" />
-        <span className="font-medium">{currentLocale.toUpperCase()}</span>
+        <img
+          src={currentLanguage.flagImage}
+          alt={`${currentLanguage.name} flag`}
+          className="w-5 h-3 object-cover rounded-sm"
+        />
         <span className="hidden sm:inline">{currentLanguage.name}</span>
         <ChevronDown className="w-3 h-3" />
       </DropdownMenuTrigger>
@@ -96,7 +111,11 @@ export function LanguageSwitcher({
           >
             <div className="flex items-center justify-between w-full text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] font-sweden">
               <div className="flex items-center space-x-2">
-                <span className="text-lg">{lang.flag}</span>
+                <img
+                  src={lang.flagImage}
+                  alt={`${lang.name} flag`}
+                  className="w-5 h-3 object-cover rounded-sm"
+                />
                 <span className="font-medium">{code.toUpperCase()}</span>
               </div>
               <span className="text-sm">{lang.name}</span>

@@ -2,9 +2,9 @@
 
 // Supported languages
 export const LANGUAGES = {
-  sv: { name: 'Svenska', flag: '🇸🇪' },
-  en: { name: 'English', flag: '🇬🇧' },
-  km: { name: 'ខ្មែរ', flag: '🇰🇭' }
+  sv: { name: 'Svenska', flag: '🇸🇪', flagImage: '/media/images/sv_flag.png' },
+  en: { name: 'English', flag: '🇬🇧', flagImage: '/media/images/en_flag.png' },
+  km: { name: 'ខ្មែរ', flag: '🇰🇭', flagImage: '/media/images/km_flag.png' }
 } as const;
 
 export type Language = keyof typeof LANGUAGES;

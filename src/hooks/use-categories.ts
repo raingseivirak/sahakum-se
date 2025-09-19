@@ -22,7 +22,7 @@ interface Category {
   }
   children?: Category[]
   _count?: {
-    content: number
+    contentItems: number
   }
 }
 

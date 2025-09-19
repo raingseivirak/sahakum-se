@@ -119,7 +119,7 @@ export default function CategoriesPage({ params }: CategoriesPageProps) {
           </TableCell>
           <TableCell>
             <span className={`text-sm ${fontClass}`}>
-              {category._count?.content || 0}
+              {category._count?.contentItems || 0}
             </span>
           </TableCell>
           <TableCell>
@@ -314,7 +314,7 @@ export default function CategoriesPage({ params }: CategoriesPageProps) {
                         </TableCell>
                         <TableCell>
                           <span className={`text-sm ${fontClass}`}>
-                            {category._count?.content || 0}
+                            {category._count?.contentItems || 0}
                           </span>
                         </TableCell>
                         <TableCell>
