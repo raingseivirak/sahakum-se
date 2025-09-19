@@ -344,6 +344,19 @@
     font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
   }
 
+  /* Force Khmer font for buttons with font-khmer class - HIGHEST SPECIFICITY */
+  button.font-khmer,
+  button[class*="font-khmer"],
+  .font-khmer button,
+  a.font-khmer,
+  a[class*="font-khmer"],
+  .font-khmer a,
+  span.font-khmer,
+  div.font-khmer button,
+  div.font-khmer a {
+    font-family: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif !important;
+  }
+
   /* Force Sweden Sans font for labels - ULTRA SPECIFIC */
   label.font-sweden,
   label[data-slot="label"],

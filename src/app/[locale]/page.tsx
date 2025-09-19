@@ -150,6 +150,7 @@ export default function HomePage({ params }: Props) {
                   <SwedenButton
                     variant="primary"
                     size="lg"
+                    locale={params.locale}
                     className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                   >
                     {t('common.join_us')}
@@ -159,6 +160,7 @@ export default function HomePage({ params }: Props) {
                   <SwedenButton
                     variant="secondary"
                     size="lg"
+                    locale={params.locale}
                     className="border-[var(--sahakum-gold)] text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)] hover:text-[var(--sahakum-navy)] transition-colors duration-200 w-full sm:w-auto"
                   >
                     {t('common.contact_us')}

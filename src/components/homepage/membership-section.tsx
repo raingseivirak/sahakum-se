@@ -162,6 +162,7 @@ export function MembershipSection({ locale, className = '' }: MembershipSectionP
                 asChild
                 variant="primary"
                 size="lg"
+                locale={locale}
                 className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/40 focus:ring-4 shadow-lg text-[var(--sahakum-navy)] font-medium"
               >
                 <Link
@@ -178,7 +179,8 @@ export function MembershipSection({ locale, className = '' }: MembershipSectionP
                 asChild
                 variant="secondary"
                 size="lg"
-                className="border-[var(--sahakum-navy)]/30 text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/5 focus:ring-[var(--sahakum-navy)]/40 focus:ring-2"
+                locale={locale}
+                className="border-[var(--sahakum-navy)] text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)] hover:text-white focus:ring-[var(--sahakum-navy)]/40 focus:ring-2"
               >
                 <Link
                   href={`/${locale}/about-us`}

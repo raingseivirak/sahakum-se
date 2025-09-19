@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 // Official Sweden Brand Motion Components
@@ -70,6 +71,8 @@ interface SwedenButtonProps extends MotionProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
+  locale?: string;
+  asChild?: boolean;
 }
 
 export function SwedenButton({
@@ -79,8 +82,23 @@ export function SwedenButton({
   size = 'md',
   onClick,
   type = 'button',
-  disabled
+  disabled,
+  locale,
+  asChild = false
 }: SwedenButtonProps) {
+  // Get font class based on locale
+  const getFontClass = () => {
+    switch (locale) {
+      case 'km':
+        return 'font-khmer';
+      case 'sv':
+      case 'en':
+        return 'font-sweden';
+      default:
+        return 'font-sweden';
+    }
+  };
+
   const baseClasses = cn(
     'inline-flex items-center justify-center font-medium',
     'transition-all duration-sweden-base ease-sweden-ease',
@@ -113,17 +131,30 @@ export function SwedenButton({
     lg: 'px-8 py-4 text-lg'
   };
 
+  const finalClasses = cn(
+    baseClasses,
+    variants[variant],
+    sizes[size],
+    getFontClass(), // Apply font class after other classes for higher precedence
+    className
+  );
+
+  if (asChild) {
+    return React.cloneElement(children as React.ReactElement, {
+      className: cn(
+        finalClasses,
+        getFontClass(), // Ensure font class is applied to the child element
+        (children as React.ReactElement).props.className
+      )
+    });
+  }
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        baseClasses,
-        variants[variant],
-        sizes[size],
-        className
-      )}
+      className={finalClasses}
     >
       {children}
     </button>
