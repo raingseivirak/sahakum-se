@@ -33,9 +33,9 @@ interface Member {
   city: string | null
   postalCode: string | null
   country: string | null
-  memberType: 'REGULAR' | 'BOARD' | 'VOLUNTEER' | 'HONORARY' | 'LIFETIME'
-  joinedDate: string
-  isActive: boolean
+  membershipType: 'REGULAR' | 'BOARD' | 'VOLUNTEER' | 'HONORARY' | 'LIFETIME'
+  joinedAt: string
+  active: boolean
   notes: string | null
   emergencyContact: string | null
   createdAt: string
@@ -65,9 +65,11 @@ export function MemberEditForm({ member, locale }: MemberEditFormProps) {
     city: member.city || "",
     postalCode: member.postalCode || "",
     country: member.country || "Sweden",
-    memberType: member.memberType,
-    joinedDate: new Date(member.joinedDate).toISOString().split('T')[0],
-    isActive: member.isActive,
+    memberType: member.membershipType,
+    joinedDate: member.joinedAt ?
+      (new Date(member.joinedAt).getTime() ? new Date(member.joinedAt).toISOString().split('T')[0] : '')
+      : '',
+    isActive: member.active,
     notes: member.notes || "",
     emergencyContact: member.emergencyContact || "",
   })
@@ -415,12 +417,12 @@ export function MemberEditForm({ member, locale }: MemberEditFormProps) {
                   <SelectTrigger className={fontClass}>
                     <SelectValue placeholder="Select member type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="REGULAR">Regular Member</SelectItem>
-                    <SelectItem value="BOARD">Board Member</SelectItem>
-                    <SelectItem value="VOLUNTEER">Volunteer</SelectItem>
-                    <SelectItem value="HONORARY">Honorary Member</SelectItem>
-                    <SelectItem value="LIFETIME">Lifetime Member</SelectItem>
+                  <SelectContent className={`bg-white ${fontClass}`}>
+                    <SelectItem value="REGULAR" className={fontClass}>Regular Member</SelectItem>
+                    <SelectItem value="BOARD" className={fontClass}>Board Member</SelectItem>
+                    <SelectItem value="VOLUNTEER" className={fontClass}>Volunteer</SelectItem>
+                    <SelectItem value="HONORARY" className={fontClass}>Honorary Member</SelectItem>
+                    <SelectItem value="LIFETIME" className={fontClass}>Lifetime Member</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

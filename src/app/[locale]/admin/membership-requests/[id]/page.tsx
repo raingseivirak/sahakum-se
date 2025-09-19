@@ -31,6 +31,14 @@ async function getMembershipRequest(id: string) {
             lastName: true,
             email: true
           }
+        },
+        statusHistory: {
+          include: {
+            changedByUser: {
+              select: { id: true, name: true, email: true }
+            }
+          },
+          orderBy: { changedAt: 'desc' }
         }
       }
     })

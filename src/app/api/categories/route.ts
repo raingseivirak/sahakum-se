@@ -46,10 +46,9 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: [
-        { type: 'asc' },
-        { slug: 'asc' }
-      ]
+      orderBy: {
+        slug: 'asc'
+      }
     })
 
     return NextResponse.json(categories)

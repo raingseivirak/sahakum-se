@@ -82,8 +82,6 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         email: validatedData.email,
-        firstName: validatedData.firstName || null,
-        lastName: validatedData.lastName || null,
         role: validatedData.role,
         password: hashedPassword,
       },

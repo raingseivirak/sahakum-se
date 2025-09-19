@@ -26,6 +26,14 @@ export async function GET(
             lastName: true,
             email: true
           }
+        },
+        statusHistory: {
+          include: {
+            changedByUser: {
+              select: { id: true, name: true, email: true }
+            }
+          },
+          orderBy: { changedAt: 'asc' }
         }
       }
     })
@@ -63,9 +71,11 @@ export async function PUT(
     const { status, adminNotes, rejectionReason } = body
 
     // Validate status
-    const validStatuses = ['PENDING', 'UNDER_REVIEW', 'ADDITIONAL_INFO_REQUESTED', 'APPROVED', 'REJECTED', 'WITHDRAWN']
+    const validStatuses = ['PENDING', 'UNDER_REVIEW', 'ADDITIONAL_INFO_REQUESTED', 'APPROVED', 'REJECTED']
     if (status && !validStatuses.includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+      return NextResponse.json({
+        error: 'Invalid status'
+      }, { status: 400 })
     }
 
     // Check if request exists
@@ -77,6 +87,14 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Membership request not found' },
         { status: 404 }
+      )
+    }
+
+    // Prevent updating approved requests
+    if (existingRequest.status === 'APPROVED') {
+      return NextResponse.json(
+        { error: 'Cannot update an approved request' },
+        { status: 400 }
       )
     }
 
@@ -103,27 +121,51 @@ export async function PUT(
       updateData.rejectionReason = rejectionReason
     }
 
-    // Update the request
-    const updatedRequest = await prisma.membershipRequest.update({
-      where: { id: params.id },
-      data: updateData,
-      include: {
-        reviewer: {
-          select: { id: true, name: true, email: true }
-        },
-        approver: {
-          select: { id: true, name: true, email: true }
-        },
-        createdMember: {
-          select: {
-            id: true,
-            memberNumber: true,
-            firstName: true,
-            lastName: true,
-            email: true
+    // Update the request and create status history entry in a transaction
+    const updatedRequest = await prisma.$transaction(async (tx) => {
+      // Create status history entry if status is changing
+      if (status && status !== existingRequest.status) {
+        await tx.membershipRequestStatusHistory.create({
+          data: {
+            membershipRequestId: params.id,
+            fromStatus: existingRequest.status,
+            toStatus: status,
+            changedBy: session.user.id,
+            notes: adminNotes || null
+          }
+        })
+      }
+
+      // Update the request
+      return await tx.membershipRequest.update({
+        where: { id: params.id },
+        data: updateData,
+        include: {
+          reviewer: {
+            select: { id: true, name: true, email: true }
+          },
+          approver: {
+            select: { id: true, name: true, email: true }
+          },
+          createdMember: {
+            select: {
+              id: true,
+              memberNumber: true,
+              firstName: true,
+              lastName: true,
+              email: true
+            }
+          },
+          statusHistory: {
+            include: {
+              changedByUser: {
+                select: { id: true, name: true, email: true }
+              }
+            },
+            orderBy: { changedAt: 'asc' }
           }
         }
-      }
+      })
     })
 
     return NextResponse.json({

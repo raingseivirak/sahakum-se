@@ -356,32 +356,43 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-sweden-neutral-500" />
-                <Badge variant="outline" className="font-sweden text-xs">
-                  {locale.toUpperCase()}
-                </Badge>
-              </div>
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Link
-                  href={`/${locale}`}
-                  className="text-xs text-sweden-neutral-500 hover:text-sweden-blue-primary !font-sweden"
+                  href={`/${locale}/admin/profile`}
+                  className="flex items-center gap-2 text-xs text-sweden-neutral-600 hover:text-sweden-blue-primary !font-sweden px-2 py-1 rounded hover:bg-sweden-neutral-50"
                 >
-                  View Site
+                  <User className="h-3 w-3" />
+                  {locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : locale === 'sv' ? 'Min profil' : 'My Profile'}
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => signOut({
-                    callbackUrl: "/en/auth/signin",
-                    redirect: true
-                  })}
-                  className="h-6 px-2 text-xs text-sweden-neutral-500 hover:text-destructive !font-sweden"
-                >
-                  <LogOut className="h-3 w-3 mr-1" />
-                  Logout
-                </Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-sweden-neutral-500" />
+                  <Badge variant="outline" className="font-sweden text-xs">
+                    {locale.toUpperCase()}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/${locale}`}
+                    className="text-xs text-sweden-neutral-500 hover:text-sweden-blue-primary !font-sweden"
+                  >
+                    View Site
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => signOut({
+                      callbackUrl: "/en/auth/signin",
+                      redirect: true
+                    })}
+                    className="h-6 px-2 text-xs text-sweden-neutral-500 hover:text-destructive !font-sweden"
+                  >
+                    <LogOut className="h-3 w-3 mr-1" />
+                    Logout
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

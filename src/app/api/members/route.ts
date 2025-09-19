@@ -17,10 +17,10 @@ const memberSchema = z.object({
   city: z.string().optional(),
   postalCode: z.string().optional(),
   country: z.string().default("Sweden"),
-  memberType: z.enum(['REGULAR', 'BOARD', 'VOLUNTEER', 'HONORARY', 'LIFETIME']),
-  joinedDate: z.string().transform((str) => new Date(str)),
-  isActive: z.boolean().default(true),
-  notes: z.string().optional(),
+  membershipType: z.enum(['REGULAR', 'STUDENT', 'FAMILY', 'BOARD', 'VOLUNTEER', 'HONORARY', 'LIFETIME']),
+  joinedAt: z.string().transform((str) => new Date(str)),
+  active: z.boolean().default(true),
+  bio: z.string().optional(),
   emergencyContact: z.string().optional(),
 })
 
@@ -58,11 +58,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (memberType) {
-      where.memberType = memberType
+      where.membershipType = memberType
     }
 
     if (isActive !== null && isActive !== '') {
-      where.isActive = isActive === 'true'
+      where.active = isActive === 'true'
     }
 
     const [members, total] = await Promise.all([
@@ -143,10 +143,10 @@ export async function POST(request: NextRequest) {
         city: validatedData.city || null,
         postalCode: validatedData.postalCode || null,
         country: validatedData.country,
-        memberType: validatedData.memberType,
-        joinedDate: validatedData.joinedDate,
-        isActive: validatedData.isActive,
-        notes: validatedData.notes || null,
+        membershipType: validatedData.membershipType,
+        joinedAt: validatedData.joinedAt,
+        active: validatedData.active,
+        bio: validatedData.bio || null,
         emergencyContact: validatedData.emergencyContact || null,
       }
     })

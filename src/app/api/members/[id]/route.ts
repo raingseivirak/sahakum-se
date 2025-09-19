@@ -6,22 +6,22 @@ import { z } from 'zod'
 
 // Validation schema for Member update
 const memberUpdateSchema = z.object({
-  memberNumber: z.string().optional(),
+  memberNumber: z.string().optional().nullable(),
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
-  firstNameKhmer: z.string().optional(),
-  lastNameKhmer: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
+  firstNameKhmer: z.string().optional().nullable(),
+  lastNameKhmer: z.string().optional().nullable(),
+  email: z.string().email().optional().or(z.literal("")).nullable(),
+  phone: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  postalCode: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
   memberType: z.enum(['REGULAR', 'BOARD', 'VOLUNTEER', 'HONORARY', 'LIFETIME']).optional(),
-  joinedDate: z.string().transform((str) => new Date(str)).optional(),
+  joinedDate: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
-  notes: z.string().optional(),
-  emergencyContact: z.string().optional(),
+  notes: z.string().optional().nullable(),
+  emergencyContact: z.string().optional().nullable(),
 })
 
 // GET /api/members/[id] - Get specific member
@@ -118,10 +118,10 @@ export async function PUT(
         ...(validatedData.city !== undefined && { city: validatedData.city || null }),
         ...(validatedData.postalCode !== undefined && { postalCode: validatedData.postalCode || null }),
         ...(validatedData.country && { country: validatedData.country }),
-        ...(validatedData.memberType && { memberType: validatedData.memberType }),
-        ...(validatedData.joinedDate && { joinedDate: validatedData.joinedDate }),
-        ...(validatedData.isActive !== undefined && { isActive: validatedData.isActive }),
-        ...(validatedData.notes !== undefined && { notes: validatedData.notes || null }),
+        ...(validatedData.memberType && { membershipType: validatedData.memberType }),
+        ...(validatedData.joinedDate && { joinedAt: new Date(validatedData.joinedDate) }),
+        ...(validatedData.isActive !== undefined && { active: validatedData.isActive }),
+        ...(validatedData.notes !== undefined && { bio: validatedData.notes || null }),
         ...(validatedData.emergencyContact !== undefined && { emergencyContact: validatedData.emergencyContact || null }),
       }
     })

@@ -28,9 +28,9 @@ export async function GET(
       where: { id: params.id },
       include: {
         translations: true,
-        content: {
+        contentItems: {
           include: {
-            content: {
+            contentItem: {
               include: {
                 translations: true
               }
@@ -148,7 +148,7 @@ export async function DELETE(
     const existingTag = await prisma.tag.findUnique({
       where: { id: params.id },
       include: {
-        content: true
+        contentItems: true
       }
     })
 
@@ -157,7 +157,7 @@ export async function DELETE(
     }
 
     // Check if tag is used by content
-    if (existingTag.content.length > 0) {
+    if (existingTag.contentItems.length > 0) {
       return NextResponse.json({
         error: "Cannot delete tag that is assigned to content. Please remove tag from content first."
       }, { status: 400 })

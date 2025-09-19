@@ -64,10 +64,10 @@ interface Member {
   city: string | null
   postalCode: string | null
   country: string | null
-  memberType: 'REGULAR' | 'BOARD' | 'VOLUNTEER' | 'HONORARY' | 'LIFETIME'
-  joinedDate: string
-  isActive: boolean
-  notes: string | null
+  membershipType: 'REGULAR' | 'STUDENT' | 'FAMILY' | 'BOARD' | 'VOLUNTEER' | 'HONORARY' | 'LIFETIME'
+  joinedAt: string
+  active: boolean
+  bio: string | null
   emergencyContact: string | null
   createdAt: string
   updatedAt: string
@@ -112,8 +112,8 @@ export function MembersList({ locale }: MembersListProps) {
     }
   }
 
-  const getStatusBadge = (isActive: boolean) => {
-    return isActive ? (
+  const getStatusBadge = (active: boolean) => {
+    return active ? (
       <Badge variant="default" className="bg-green-500">Active</Badge>
     ) : (
       <Badge variant="secondary">Inactive</Badge>
@@ -123,6 +123,8 @@ export function MembersList({ locale }: MembersListProps) {
   const getMemberTypeBadge = (type: string) => {
     const typeMap = {
       'REGULAR': { label: 'Regular', className: 'bg-blue-500' },
+      'STUDENT': { label: 'Student', className: 'bg-cyan-500' },
+      'FAMILY': { label: 'Family', className: 'bg-orange-500' },
       'BOARD': { label: 'Board', className: 'bg-purple-500' },
       'VOLUNTEER': { label: 'Volunteer', className: 'bg-green-500' },
       'HONORARY': { label: 'Honorary', className: 'bg-yellow-500' },
@@ -139,7 +141,14 @@ export function MembersList({ locale }: MembersListProps) {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString()
+    if (!dateString) return 'Not set'
+
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date'
+    }
+
+    return date.toLocaleDateString()
   }
 
   const handleDelete = async (memberId: string) => {
@@ -170,7 +179,7 @@ export function MembersList({ locale }: MembersListProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ isActive: !currentStatus }),
+        body: JSON.stringify({ active: !currentStatus }),
       })
 
       if (!response.ok) {
@@ -181,7 +190,7 @@ export function MembersList({ locale }: MembersListProps) {
       // Update the member in the list
       setMembers(members.map(member =>
         member.id === memberId
-          ? { ...member, isActive: !currentStatus }
+          ? { ...member, active: !currentStatus }
           : member
       ))
     } catch (err) {
@@ -233,6 +242,8 @@ export function MembersList({ locale }: MembersListProps) {
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="REGULAR">Regular</SelectItem>
+            <SelectItem value="STUDENT">Student</SelectItem>
+            <SelectItem value="FAMILY">Family</SelectItem>
             <SelectItem value="BOARD">Board</SelectItem>
             <SelectItem value="VOLUNTEER">Volunteer</SelectItem>
             <SelectItem value="HONORARY">Honorary</SelectItem>
@@ -297,7 +308,7 @@ export function MembersList({ locale }: MembersListProps) {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{getMemberTypeBadge(member.memberType)}</TableCell>
+                <TableCell>{getMemberTypeBadge(member.membershipType)}</TableCell>
                 <TableCell>
                   <div className="space-y-1">
                     {member.email && (
@@ -314,11 +325,11 @@ export function MembersList({ locale }: MembersListProps) {
                     )}
                   </div>
                 </TableCell>
-                <TableCell>{getStatusBadge(member.isActive)}</TableCell>
+                <TableCell>{getStatusBadge(member.active)}</TableCell>
                 <TableCell className={fontClass}>
                   <div className="flex items-center space-x-2">
                     <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span>{formatDate(member.joinedDate)}</span>
+                    <span>{formatDate(member.joinedAt)}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
@@ -337,10 +348,10 @@ export function MembersList({ locale }: MembersListProps) {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className={`flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer ${fontClass}`}
-                        onClick={() => toggleActive(member.id, member.isActive)}
+                        onClick={() => toggleActive(member.id, member.active)}
                       >
                         <ToggleLeft className="mr-2 h-4 w-4" />
-                        {member.isActive ? 'Deactivate' : 'Activate'}
+                        {member.active ? 'Deactivate' : 'Activate'}
                       </DropdownMenuItem>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

@@ -12,9 +12,11 @@ model User {
   id                         String              @id @default(cuid())
   email                      String              @unique
   name                       String?
+  firstName                  String?
+  lastName                   String?
   role                       Role                @default(USER)
   password                   String?
-  active                     Boolean             @default(true)
+  isActive                   Boolean             @default(true)
   createdAt                  DateTime            @default(now())
   updatedAt                  DateTime            @updatedAt
   accounts                   Account[]
@@ -22,6 +24,7 @@ model User {
   uploadedFiles              MediaFile[]         @relation("MediaFileUploader")
   approvedMembershipRequests MembershipRequest[] @relation("MembershipRequestApprover")
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
+  statusHistoryChanges       MembershipRequestStatusHistory[]
   sessions                   Session[]
 
   @@map("users")
@@ -101,14 +104,14 @@ model ContentTranslation {
 model Category {
   id           String                @id @default(cuid())
   slug         String                @unique
-  type         String                @default("general")
-  parentId     String?
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
-  translations CategoryTranslation[]
-  contentItems ContentItemCategory[]
+  parentId     String?
+  type         String                @default("general")
   parent       Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children     Category[]            @relation("CategoryHierarchy")
+  translations CategoryTranslation[]
+  contentItems ContentItemCategory[]
 
   @@map("categories")
 }
@@ -271,15 +274,31 @@ model MembershipRequest {
   reviewNotes         String?
   approvedBy          String?
   approvedAt          DateTime?
-  adminNotes          String?
   createdMemberId     String?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
+  adminNotes          String?
+  rejectionReason     String?
   approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
   createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
   reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+  statusHistory       MembershipRequestStatusHistory[]
 
   @@map("membership_requests")
+}
+
+model MembershipRequestStatusHistory {
+  id                    String           @id @default(cuid())
+  membershipRequestId   String
+  fromStatus            RequestStatus?
+  toStatus              RequestStatus
+  changedBy             String?
+  changedAt             DateTime         @default(now())
+  notes                 String?
+  membershipRequest     MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
+  changedByUser         User?            @relation(fields: [changedBy], references: [id])
+
+  @@map("membership_request_status_history")
 }
 
 enum Role {
@@ -303,7 +322,10 @@ enum MembershipType {
   REGULAR
   STUDENT
   FAMILY
+  BOARD
+  VOLUNTEER
   HONORARY
+  LIFETIME
 }
 
 enum ResidenceStatus {
@@ -318,7 +340,8 @@ enum ResidenceStatus {
 
 enum RequestStatus {
   PENDING
+  UNDER_REVIEW
+  ADDITIONAL_INFO_REQUESTED
   APPROVED
   REJECTED
-  UNDER_REVIEW
 }

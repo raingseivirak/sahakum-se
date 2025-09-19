@@ -36,16 +36,16 @@ const scripts = [
     command: 'npx tsx scripts/seed-blog-articles.ts',
     description: 'Seeds 5 practical blog articles',
     status: '✅ Working'
+  },
+  {
+    name: 'Categories & Tags',
+    command: 'npx tsx scripts/seed-categories-tags.ts',
+    description: 'Seeds blog categories and tags for Cambodian Community',
+    status: '✅ Working'
   }
 ]
 
 const brokenScripts = [
-  {
-    name: 'Categories & Tags',
-    command: 'npx tsx scripts/seed-categories-tags.ts',
-    description: 'Blog categories and tags',
-    status: '❌ Broken - uses old field names'
-  },
   {
     name: 'Members',
     command: 'npx tsx scripts/seed-members.ts',
@@ -98,6 +98,8 @@ async function main() {
   console.log('   - Homepage with services section')
   console.log('   - About Us, Cambodia, Living in Sweden, Support Resources pages')
   console.log('   - 6 blog articles (1 detailed + 5 practical guides)')
+  console.log('   - 10 categories (News, Events, Culture, Integration, Community + subcategories)')
+  console.log('   - 24 tags (languages, festivals, culture, integration, community)')
   console.log('   - Multilingual support (EN/SV/KM)')
 }
 
