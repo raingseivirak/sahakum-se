@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import fs, { stat } from 'fs/promises'
 import path from 'path'
 import { Storage } from '@google-cloud/storage'
 import sharp from 'sharp'
@@ -173,7 +173,6 @@ export class StorageService {
       metadata: {
         contentType: mimeType,
       },
-      public: true,
     })
 
     // Return public URL
@@ -265,7 +264,6 @@ export class StorageService {
           metadata: {
             contentType: mimeType,
           },
-          public: true,
         })
 
         const sizeUrl = `https://storage.googleapis.com/${this.bucket.name}/${cloudPath}`
@@ -438,6 +436,242 @@ export class StorageService {
       fileSize: file.fileSize,
       category: file.category,
     }))
+  }
+
+  /**
+   * Sync files between storage and database
+   * Works with both local filesystem and Google Cloud Storage
+   */
+  async syncFiles(categories: string[] = ['images', 'documents', 'videos', 'avatars']): Promise<{
+    added: number
+    updated: number
+    removed: number
+    errors: string[]
+  }> {
+    const syncResults = {
+      added: 0,
+      updated: 0,
+      removed: 0,
+      errors: [] as string[]
+    }
+
+    try {
+      // Get all existing database records
+      const existingFiles = await prisma.mediaFile.findMany()
+      const existingByUrl = new Map(existingFiles.map(f => [f.url, f]))
+      const foundUrls = new Set<string>()
+
+      if (this.isProduction && this.bucket) {
+        // Production: Sync from Google Cloud Storage
+        await this.syncFromGoogleCloud(categories, foundUrls, existingByUrl, syncResults)
+      } else {
+        // Development: Sync from local filesystem
+        await this.syncFromLocal(categories, foundUrls, existingByUrl, syncResults)
+      }
+
+      // Remove orphaned database records (files that no longer exist)
+      const orphanedFiles = existingFiles.filter(file => !foundUrls.has(file.url))
+
+      for (const orphan of orphanedFiles) {
+        try {
+          await prisma.mediaFile.delete({
+            where: { id: orphan.id }
+          })
+          syncResults.removed++
+        } catch (deleteError) {
+          syncResults.errors.push(`Failed to remove orphaned record ${orphan.originalName}: ${deleteError}`)
+        }
+      }
+
+    } catch (error) {
+      syncResults.errors.push(`Sync error: ${error}`)
+    }
+
+    return syncResults
+  }
+
+  /**
+   * Sync files from Google Cloud Storage
+   */
+  private async syncFromGoogleCloud(
+    categories: string[],
+    foundUrls: Set<string>,
+    existingByUrl: Map<string, any>,
+    syncResults: any
+  ): Promise<void> {
+    if (!this.bucket) {
+      throw new Error('Google Cloud Storage not configured')
+    }
+
+    for (const category of categories) {
+      try {
+        const [files] = await this.bucket.getFiles({
+          prefix: `${category}/`,
+          delimiter: '/'
+        })
+
+        for (const file of files) {
+          // Skip directories and hidden files
+          if (file.name.endsWith('/') || file.name.includes('/.')) {
+            continue
+          }
+
+          const filename = file.name.split('/').pop() || ''
+          const fileUrl = `https://storage.googleapis.com/${this.bucket.name}/${file.name}`
+          foundUrls.add(fileUrl)
+
+          try {
+            const [metadata] = await file.getMetadata()
+            const mimeType = metadata.contentType || this.getMimeType(filename)
+            const fileSize = parseInt(metadata.size || '0')
+            const existingFile = existingByUrl.get(fileUrl)
+
+            if (!existingFile) {
+              // New file - add to database
+              await prisma.mediaFile.create({
+                data: {
+                  filename,
+                  originalName: filename,
+                  url: fileUrl,
+                  mimeType,
+                  fileSize,
+                  category,
+                  uploaderId: null // Cloud files may not have uploader
+                }
+              })
+              syncResults.added++
+            } else {
+              // Existing file - check if we need to update
+              const needsUpdate =
+                existingFile.fileSize !== fileSize ||
+                existingFile.mimeType !== mimeType ||
+                existingFile.category !== category
+
+              if (needsUpdate) {
+                await prisma.mediaFile.update({
+                  where: { id: existingFile.id },
+                  data: {
+                    mimeType,
+                    fileSize,
+                    category,
+                    updatedAt: new Date()
+                  }
+                })
+                syncResults.updated++
+              }
+            }
+          } catch (fileError) {
+            syncResults.errors.push(`Failed to process cloud file ${filename}: ${fileError}`)
+          }
+        }
+      } catch (dirError) {
+        syncResults.errors.push(`Failed to read cloud ${category} directory: ${dirError}`)
+      }
+    }
+  }
+
+  /**
+   * Sync files from local filesystem
+   */
+  private async syncFromLocal(
+    categories: string[],
+    foundUrls: Set<string>,
+    existingByUrl: Map<string, any>,
+    syncResults: any
+  ): Promise<void> {
+    const mediaDir = path.join(process.cwd(), 'public', 'media')
+
+    for (const category of categories) {
+      try {
+        const categoryPath = path.join(mediaDir, category)
+        const files = await fs.readdir(categoryPath)
+
+        for (const filename of files) {
+          // Skip hidden files
+          if (filename.startsWith('.')) continue
+
+          const filePath = path.join(categoryPath, filename)
+          const fileUrl = `/media/${category}/${filename}`
+          foundUrls.add(fileUrl)
+
+          try {
+            const stats = await stat(filePath)
+            const mimeType = this.getMimeType(filename)
+            const existingFile = existingByUrl.get(fileUrl)
+
+            if (!existingFile) {
+              // New file - add to database
+              await prisma.mediaFile.create({
+                data: {
+                  filename,
+                  originalName: filename,
+                  url: fileUrl,
+                  mimeType,
+                  fileSize: stats.size,
+                  category,
+                  uploaderId: null // Local files may not have uploader
+                }
+              })
+              syncResults.added++
+            } else {
+              // Existing file - check if we need to update
+              const needsUpdate =
+                existingFile.fileSize !== stats.size ||
+                existingFile.mimeType !== mimeType ||
+                existingFile.category !== category
+
+              if (needsUpdate) {
+                await prisma.mediaFile.update({
+                  where: { id: existingFile.id },
+                  data: {
+                    mimeType,
+                    fileSize: stats.size,
+                    category,
+                    updatedAt: new Date()
+                  }
+                })
+                syncResults.updated++
+              }
+            }
+          } catch (fileError) {
+            syncResults.errors.push(`Failed to process local file ${filename}: ${fileError}`)
+          }
+        }
+      } catch (dirError) {
+        syncResults.errors.push(`Failed to read local ${category} directory: ${dirError}`)
+      }
+    }
+  }
+
+  /**
+   * Get MIME type from filename
+   */
+  private getMimeType(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    const mimeTypes: { [key: string]: string } = {
+      // Images
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      svg: 'image/svg+xml',
+
+      // Documents
+      pdf: 'application/pdf',
+      doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      txt: 'text/plain',
+
+      // Videos
+      mp4: 'video/mp4',
+      mpeg: 'video/mpeg',
+      mov: 'video/quicktime',
+      avi: 'video/x-msvideo',
+      webm: 'video/webm'
+    }
+
+    return mimeTypes[ext || ''] || 'application/octet-stream'
   }
 }
 
