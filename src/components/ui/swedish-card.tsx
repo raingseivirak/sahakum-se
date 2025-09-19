@@ -12,7 +12,7 @@ interface SwedenCardProps {
   className?: string;
   hover?: boolean;
   href?: string;
-  variant?: 'default' | 'featured' | 'compact' | 'outline';
+  variant?: 'default' | 'featured' | 'compact' | 'outline' | 'borderless';
   shadow?: 'sm' | 'md' | 'lg' | 'none';
 }
 
@@ -22,7 +22,8 @@ export const SwedenCard = forwardRef<HTMLDivElement | HTMLAnchorElement, SwedenC
       default: 'bg-white border border-sweden-neutral-200',
       featured: 'bg-white border-2 border-sweden-blue-500',
       compact: 'bg-white border border-sweden-neutral-200',
-      outline: 'bg-transparent border-2 border-sweden-neutral-300'
+      outline: 'bg-transparent border-2 border-sweden-neutral-300',
+      borderless: 'bg-white border-none'
     };
 
     const shadows = {

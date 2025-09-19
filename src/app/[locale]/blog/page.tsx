@@ -238,9 +238,9 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {posts.map((post: any) => (
-                  <SwedishCard key={post.id} href={`/${params.locale}/blog/${post.slug}`} className="group hover:shadow-xl h-full">
+                  <SwedishCard key={post.id} href={`/${params.locale}/blog/${post.slug}`} variant="borderless" className="group hover:shadow-xl h-full !rounded-none">
                     {post.featuredImg && (
-                      <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+                      <div className="aspect-video bg-gray-200 overflow-hidden">
                         <img
                           src={post.featuredImg}
                           alt={post.translation?.title || ''}
@@ -268,7 +268,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                         {post.categories?.slice(0, 2).map((category: any) => (
                           <span
                             key={category.slug}
-                            className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1 rounded"
+                            className="text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-navy)] px-2 py-1"
                           >
                             {category.name}
                           </span>
