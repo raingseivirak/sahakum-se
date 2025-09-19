@@ -268,7 +268,7 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
         {/* Post Content */}
         <section className="py-8 lg:py-12">
           <Container size="wide">
-            <div className="max-w-sweden-content mx-auto">
+            <div className="w-full">
               <LanguageAvailabilityNotice
                 currentLocale={params.locale}
                 slug={`blog/${decodedSlug}`}
