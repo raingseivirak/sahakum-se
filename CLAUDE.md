@@ -126,7 +126,7 @@ sahakum-khmer-se/
 - Services: `npx tsx scripts/seed-services.ts` ✅
 - Pages: `npx tsx scripts/seed-pages.ts` ✅
 - Blog posts: `npx tsx scripts/seed-personnummer-blog.ts` ✅
-- Categories/Tags: `npx tsx scripts/seed-categories-tags.ts` ❌ BROKEN
+- Categories/Tags: `npx tsx scripts/seed-categories-tags.ts` ✅
 - Members: `npx tsx scripts/seed-members.ts` ❌ BROKEN
 
 ## Troubleshooting
@@ -143,7 +143,7 @@ sahakum-khmer-se/
 
 ### Development Server
 - Default port: 3000
-- Admin login: admin@sahakumkhmer.se / admin123
+- Admin login: admin@sahakumkhmer.se / HelloCambodia123
 - Check console for API errors
 
 ## Deployment

@@ -288,9 +288,9 @@ export default function TagsPage({ params }: TagsPageProps) {
   }
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' },
+    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
+    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
+    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
   ]
 
   const filteredTags = tags.filter(tag =>
@@ -386,7 +386,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                     <TabsList className="grid w-full grid-cols-3">
                       {languages.map((lang) => (
                         <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                          <span className="mr-2">{lang.flag}</span>
+                          <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                           {lang.name}
                         </TabsTrigger>
                       ))}
@@ -452,7 +452,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                     <TabsList className="grid w-full grid-cols-3">
                       {languages.map((lang) => (
                         <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                          <span className="mr-2">{lang.flag}</span>
+                          <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                           {lang.name}
                         </TabsTrigger>
                       ))}
@@ -568,7 +568,7 @@ export default function TagsPage({ params }: TagsPageProps) {
                             const lang = languages.find(l => l.code === translation.language)
                             return lang ? (
                               <Badge key={translation.language} variant="outline" className="text-xs">
-                                {lang.flag}
+                                <img src={lang.flag} alt={`${lang.name} flag`} className="w-3 h-2 object-cover rounded-sm" />
                               </Badge>
                             ) : null
                           })}

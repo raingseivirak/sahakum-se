@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            content: true
+            contentItems: true
           }
         }
       },

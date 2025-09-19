@@ -101,10 +101,14 @@ model ContentTranslation {
 model Category {
   id           String                @id @default(cuid())
   slug         String                @unique
+  type         String                @default("general")
+  parentId     String?
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
   translations CategoryTranslation[]
   contentItems ContentItemCategory[]
+  parent       Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryHierarchy")
 
   @@map("categories")
 }
@@ -211,6 +215,7 @@ model ServiceTranslation {
 
 model Member {
   id                 String              @id @default(cuid())
+  memberNumber       String              @unique
   firstName          String
   lastName           String
   firstNameKhmer     String?
@@ -233,7 +238,6 @@ model Member {
   emergencyPhone     String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  memberNumber       String              @unique
   membershipRequests MembershipRequest[]
 
   @@map("members")
@@ -241,35 +245,35 @@ model Member {
 
 model MembershipRequest {
   id                  String           @id @default(cuid())
+  requestNumber       String           @unique
   firstName           String
   lastName            String
   firstNameKhmer      String?
   lastNameKhmer       String?
+  dateOfBirth         DateTime?
   email               String
   phone               String?
   address             String?
   city                String?
   postalCode          String?
+  country             String           @default("Sweden")
   residenceStatus     ResidenceStatus?
+  residenceSince      DateTime?
   motivation          String
+  hearAboutUs         String?
+  interests           String?
+  skills              String?
+  requestedMemberType MembershipType   @default(REGULAR)
   status              RequestStatus    @default(PENDING)
+  submittedAt         DateTime         @default(now())
   reviewedBy          String?
   reviewedAt          DateTime?
   reviewNotes         String?
+  approvedBy          String?
+  approvedAt          DateTime?
+  createdMemberId     String?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
-  approvedAt          DateTime?
-  approvedBy          String?
-  country             String           @default("Sweden")
-  createdMemberId     String?
-  dateOfBirth         DateTime?
-  hearAboutUs         String?
-  interests           String?
-  requestNumber       String           @unique
-  requestedMemberType MembershipType   @default(REGULAR)
-  residenceSince      DateTime?
-  skills              String?
-  submittedAt         DateTime         @default(now())
   approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
   createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
   reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
@@ -304,11 +308,11 @@ enum MembershipType {
 enum ResidenceStatus {
   CITIZEN
   PERMANENT_RESIDENT
+  EU_CITIZEN
   STUDENT
   WORK_PERMIT
   ASYLUM_SEEKER
   OTHER
-  EU_CITIZEN
 }
 
 enum RequestStatus {

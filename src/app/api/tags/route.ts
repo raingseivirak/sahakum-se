@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         translations: true,
         _count: {
           select: {
-            content: true
+            contentItems: true
           }
         }
       },

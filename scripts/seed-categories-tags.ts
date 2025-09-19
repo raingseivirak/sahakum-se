@@ -8,8 +8,8 @@ async function seedCategoriesAndTags() {
   try {
     // Clear existing data
     console.log('🧹 Cleaning existing categories and tags...')
-    await prisma.contentCategory.deleteMany()
-    await prisma.contentTag.deleteMany()
+    await prisma.contentItemCategory.deleteMany()
+    await prisma.contentItemTag.deleteMany()
     await prisma.categoryTranslation.deleteMany()
     await prisma.tagTranslation.deleteMany()
     await prisma.category.deleteMany()

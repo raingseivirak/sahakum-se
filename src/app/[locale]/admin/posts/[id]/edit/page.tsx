@@ -179,17 +179,17 @@ export default function EditPost({ params }: EditPostProps) {
   }
 
   const handlePreview = () => {
-    if (post) {
+    if (formData.slug && params.id) {
       // Open preview in new tab with the post ID as preview parameter
-      const previewUrl = `/${params.locale}/blog/${encodeURIComponent(post.slug)}?preview=${post.id}`
+      const previewUrl = `/${params.locale}/blog/${encodeURIComponent(formData.slug)}?preview=${params.id}`
       window.open(previewUrl, '_blank')
     }
   }
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' },
+    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
+    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
+    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
   ]
 
   const categories = [
@@ -280,7 +280,7 @@ export default function EditPost({ params }: EditPostProps) {
                     <TabsList className="grid w-full grid-cols-3">
                       {languages.map((lang) => (
                         <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                          <span className="mr-2">{lang.flag}</span>
+                          <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                           {lang.name}
                         </TabsTrigger>
                       ))}
@@ -423,7 +423,7 @@ export default function EditPost({ params }: EditPostProps) {
                   <TabsList className="grid w-full grid-cols-3">
                     {languages.map((lang) => (
                       <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                        <span className="mr-2">{lang.flag}</span>
+                        <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                         {lang.name}
                       </TabsTrigger>
                     ))}
@@ -567,7 +567,7 @@ export default function EditPost({ params }: EditPostProps) {
                   return (
                     <div key={lang.code} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span>{lang.flag}</span>
+                        <img src={lang.flag} alt={`${lang.name} flag`} className="w-4 h-3 object-cover rounded-sm" />
                         <span className={`text-sm ${fontClass}`}>{lang.name}</span>
                       </div>
                       <Badge variant={hasContent ? "default" : "outline"} className="text-xs">

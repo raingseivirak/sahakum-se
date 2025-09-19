@@ -91,9 +91,9 @@ export function PageForm({ locale }: PageFormProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭' },
+    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
+    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
+    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
   ]
 
   const form = useForm<PageFormData>({
@@ -274,7 +274,7 @@ export function PageForm({ locale }: PageFormProps) {
               <TabsList className="grid w-full grid-cols-3">
                 {languages.map((lang) => (
                   <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                    <span className="mr-2">{lang.flag}</span>
+                    <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                     {lang.name}
                   </TabsTrigger>
                 ))}
@@ -366,7 +366,7 @@ export function PageForm({ locale }: PageFormProps) {
                   <TabsList className="grid w-full grid-cols-3">
                     {languages.map((lang) => (
                       <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                        <span className="mr-2">{lang.flag}</span>
+                        <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
                         {lang.name}
                       </TabsTrigger>
                     ))}
