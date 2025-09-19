@@ -329,10 +329,14 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="sv" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg h-auto">
                 {languages.map((lang) => (
-                  <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                    <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
+                  <TabsTrigger
+                    key={lang.code}
+                    value={lang.code}
+                    className={`${fontClass} flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                  >
+                    <img src={lang.flag} alt={`${lang.name} flag`} className="w-4 h-3 object-cover rounded-sm" />
                     {lang.name}
                   </TabsTrigger>
                 ))}
@@ -421,10 +425,14 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
               </DialogHeader>
               <div className="mt-4">
                 <Tabs defaultValue="sv" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg h-auto">
                     {languages.map((lang) => (
-                      <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                        <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
+                      <TabsTrigger
+                        key={lang.code}
+                        value={lang.code}
+                        className={`${fontClass} flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                      >
+                        <img src={lang.flag} alt={`${lang.name} flag`} className="w-4 h-3 object-cover rounded-sm" />
                         {lang.name}
                       </TabsTrigger>
                     ))}

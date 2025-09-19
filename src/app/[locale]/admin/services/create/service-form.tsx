@@ -318,10 +318,25 @@ export function ServiceForm({ locale }: ServiceFormProps) {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="en" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="en" className={fontClass}>English</TabsTrigger>
-                    <TabsTrigger value="sv" className={fontClass}>Svenska</TabsTrigger>
-                    <TabsTrigger value="km" className={fontClass}>ខ្មែរ</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg h-auto">
+                    <TabsTrigger
+                      value="en"
+                      className={`${fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                    >
+                      English
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="sv"
+                      className={`${fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                    >
+                      Svenska
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="km"
+                      className={`${fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                    >
+                      ខ្មែរ
+                    </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="en" className="space-y-4">
