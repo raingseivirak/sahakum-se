@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          image: user.image,
+          profileImage: user.profileImage,
         }
       }
     })
@@ -52,16 +52,36 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt"
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role
+        token.profileImage = user.profileImage
       }
+
+      // Handle session updates (when update() is called)
+      if (trigger === "update" && session) {
+        token.profileImage = session.profileImage
+      }
+
+      // Always fetch fresh user data to ensure profileImage is current
+      if (token.sub) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { profileImage: true, role: true, name: true, email: true }
+        })
+        if (freshUser) {
+          token.profileImage = freshUser.profileImage
+          token.role = freshUser.role
+        }
+      }
+
       return token
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub
         session.user.role = token.role as UserRole
+        session.user.profileImage = token.profileImage
       }
       return session
     }

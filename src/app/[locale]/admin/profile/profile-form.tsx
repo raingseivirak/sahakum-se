@@ -19,7 +19,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Loader2, CheckCircle, AlertCircle, User, Lock } from 'lucide-react'
+import { Loader2, CheckCircle, AlertCircle, User, Lock, Camera } from 'lucide-react'
+import { AvatarUpload } from '@/components/ui/avatar-upload'
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -160,23 +161,23 @@ export function ProfileForm({ locale }: ProfileFormProps) {
     }
   }
 
-  const getTexts = (locale: string) => ({
-    profile: locale === 'km' ? 'ព័ត៌មានគណនី' : locale === 'sv' ? 'Kontoinformation' : 'Account Information',
-    profileDesc: locale === 'km' ? 'កែសម្រួលព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក' : locale === 'sv' ? 'Redigera din personliga information' : 'Edit your personal information',
-    security: locale === 'km' ? 'សុវត្ថិភាព' : locale === 'sv' ? 'Säkerhet' : 'Security',
-    securityDesc: locale === 'km' ? 'ប្តូរពាក្យសម្ងាត់របស់អ្នក' : locale === 'sv' ? 'Ändra ditt lösenord' : 'Change your password',
-    name: locale === 'km' ? 'ឈ្មោះ' : locale === 'sv' ? 'Namn' : 'Name',
-    email: locale === 'km' ? 'អ៊ីមែល' : locale === 'sv' ? 'E-post' : 'Email',
-    firstName: locale === 'km' ? 'នាមខ្លួន' : locale === 'sv' ? 'Förnamn' : 'First Name',
-    lastName: locale === 'km' ? 'នាមត្រកូល' : locale === 'sv' ? 'Efternamn' : 'Last Name',
-    currentPassword: locale === 'km' ? 'ពាក្យសម្ងាត់បច្ចុប្បន្ន' : locale === 'sv' ? 'Nuvarande lösenord' : 'Current Password',
-    newPassword: locale === 'km' ? 'ពាក្យសម្ងាត់ថ្មី' : locale === 'sv' ? 'Nytt lösenord' : 'New Password',
-    confirmPassword: locale === 'km' ? 'បញ្ជាក់ពាក្យសម្ងាត់' : locale === 'sv' ? 'Bekräfta lösenord' : 'Confirm Password',
-    updateProfile: locale === 'km' ? 'កែប្រែព័ត៌មាន' : locale === 'sv' ? 'Uppdatera profil' : 'Update Profile',
-    changePassword: locale === 'km' ? 'ប្តូរពាក្យសម្ងាត់' : locale === 'sv' ? 'Ändra lösenord' : 'Change Password',
-  })
-
-  const texts = getTexts(locale)
+  const texts = {
+    profile: 'Account Information',
+    profileDesc: 'Edit your personal information',
+    avatar: 'Profile Picture',
+    avatarDesc: 'Manage your profile picture',
+    security: 'Security',
+    securityDesc: 'Change your password',
+    name: 'Name',
+    email: 'Email',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm Password',
+    updateProfile: 'Update Profile',
+    changePassword: 'Change Password',
+  }
 
   return (
     <div className="space-y-4">
@@ -188,6 +189,13 @@ export function ProfileForm({ locale }: ProfileFormProps) {
           >
             <User className="h-4 w-4" />
             {texts.profile}
+          </TabsTrigger>
+          <TabsTrigger
+            value="avatar"
+            className="flex items-center gap-2 font-sweden data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-4"
+          >
+            <Camera className="h-4 w-4" />
+            {texts.avatar}
           </TabsTrigger>
           <TabsTrigger
             value="security"
@@ -305,6 +313,21 @@ export function ProfileForm({ locale }: ProfileFormProps) {
                 </Form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="avatar">
+            <AvatarUpload
+              currentAvatar={session?.user?.profileImage}
+              userName={session?.user?.name || 'User'}
+              onUploadSuccess={(avatarUrl) => {
+                // Update session with new avatar
+                update({ profileImage: avatarUrl })
+              }}
+              onDeleteSuccess={() => {
+                // Update session to remove avatar
+                update({ profileImage: null })
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="security">

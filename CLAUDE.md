@@ -223,3 +223,27 @@ This happens via `scripts/setup-schema.js` which runs before:
 - Check `/docs/SYSTEM_STATUS.md` for complete feature status
 - Schema automatically adapts to environment - no manual changes needed
 - Use `npm run setup` for first-time setup
+
+## 🚨 CRITICAL: Database Migration Flow
+
+### ✅ **CORRECT Migration Flow:**
+1. **Local Development:**
+   - Make schema changes in `prisma/schema.prisma`
+   - Run `npx prisma migrate dev --name description` to create migration
+   - Test locally with seeding scripts
+
+2. **Production Deployment:**
+   - Push code to GitHub (includes migration files)
+   - GitHub Actions automatically runs `npx prisma migrate deploy`
+   - Production gets updated safely through the pipeline
+
+### ❌ **NEVER DO THIS:**
+- **NEVER** run scripts directly against production database
+- **NEVER** bypass the GitHub Actions pipeline for production changes
+- **NEVER** use direct DATABASE_URL for production operations outside of emergency
+
+### 📝 **Remember:**
+- **ONLY** test scripts locally, then deploy through proper channels
+- Migrations should handle both schema changes AND data seeding
+- Production database operations must go through the proper CI/CD pipeline
+- This prevents data corruption, conflicts, and maintains audit trail

@@ -16,6 +16,7 @@ model User {
   lastName                   String?
   role                       Role                @default(USER)
   password                   String?
+  profileImage               String?
   isActive                   Boolean             @default(true)
   createdAt                  DateTime            @default(now())
   updatedAt                  DateTime            @updatedAt
