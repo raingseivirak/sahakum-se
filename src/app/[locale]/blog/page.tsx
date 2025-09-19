@@ -290,7 +290,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                       <span>{posts[0].readingTime} {params.locale === 'sv' ? 'min' : params.locale === 'km' ? 'នាទី' : 'min'}</span>
                     </div>
 
-                    <SwedishCardTitle as="h2" size="lg" className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors" locale={params.locale}>
+                    <SwedishCardTitle as="h2" size="lg" className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors text-3xl lg:text-4xl xl:text-5xl" locale={params.locale}>
                       <Link href={`/${params.locale}/blog/${posts[0].slug}`}>
                         {posts[0].translation?.title}
                       </Link>

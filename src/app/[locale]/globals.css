@@ -853,23 +853,23 @@
   }
 
   .container-sweden-lg {
-    max-width: 1024px;
+    max-width: 1200px; /* Increased from 1024px */
   }
 
   .container-sweden-xl {
-    max-width: 1280px;
+    max-width: 1400px; /* Increased from 1280px */
   }
 
   .container-sweden-xxl {
-    max-width: 1440px; /* Wider Sweden.se page width */
+    max-width: 1600px; /* Increased from 1440px - Much wider for large screens */
   }
 
   .container-sweden-content {
-    max-width: 896px; /* Sweden.se content width */
+    max-width: 1000px; /* Increased from 896px - Better content width */
   }
 
   .container-sweden-wide {
-    max-width: 1200px; /* Sweden.se article page width */
+    max-width: 1400px; /* Increased from 1200px - Much wider article pages */
   }
 
   .container-sweden-reading {
@@ -1023,4 +1023,29 @@
   .swedish-card:hover {
     transform: none;
   }
+}
+
+/* Custom Scrollbar Styles for Media Selector */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #D4932F;
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #c27f26;
+}
+
+/* Firefox support */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #D4932F #f1f5f9;
 }

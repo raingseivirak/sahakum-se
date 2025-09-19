@@ -288,11 +288,11 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="INTERNAL">Internal Page</SelectItem>
-                            <SelectItem value="BLOG">Blog Section</SelectItem>
-                            <SelectItem value="EXTERNAL">External Link</SelectItem>
-                            <SelectItem value="CUSTOM">Custom</SelectItem>
+                          <SelectContent className={`bg-white ${fontClass}`}>
+                            <SelectItem value="INTERNAL" className={fontClass}>Internal Page</SelectItem>
+                            <SelectItem value="BLOG" className={fontClass}>Blog Section</SelectItem>
+                            <SelectItem value="EXTERNAL" className={fontClass}>External Link</SelectItem>
+                            <SelectItem value="CUSTOM" className={fontClass}>Custom</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -312,11 +312,11 @@ export function EditServiceForm({ locale, serviceId }: EditServiceFormProps) {
                               <SelectValue placeholder="Select theme" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="navy">Navy</SelectItem>
-                            <SelectItem value="gold">Gold</SelectItem>
-                            <SelectItem value="blue">Blue</SelectItem>
-                            <SelectItem value="custom">Custom</SelectItem>
+                          <SelectContent className={`bg-white ${fontClass}`}>
+                            <SelectItem value="navy" className={fontClass}>Navy</SelectItem>
+                            <SelectItem value="gold" className={fontClass}>Gold</SelectItem>
+                            <SelectItem value="blue" className={fontClass}>Blue</SelectItem>
+                            <SelectItem value="custom" className={fontClass}>Custom</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

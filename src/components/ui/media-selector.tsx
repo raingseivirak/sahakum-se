@@ -75,7 +75,7 @@ export function MediaSelector({
     try {
       const params = new URLSearchParams({
         category,
-        limit: '50',
+        limit: '100',
         page: '1'
       })
 
@@ -156,10 +156,10 @@ export function MediaSelector({
               {buttonText}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogContent className="max-w-4xl max-h-[80vh] bg-white font-sweden">
             <DialogHeader>
-              <DialogTitle>Select Media File</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="font-sweden">Select Media File</DialogTitle>
+              <DialogDescription className="font-sweden">
                 Choose from your media library
               </DialogDescription>
             </DialogHeader>
@@ -173,37 +173,43 @@ export function MediaSelector({
                     placeholder="Search files..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 font-sweden"
                   />
                 </div>
               </div>
               {accept === 'all' && (
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-40 font-sweden">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Files</SelectItem>
-                    <SelectItem value="images">Images</SelectItem>
-                    <SelectItem value="documents">Documents</SelectItem>
-                    <SelectItem value="videos">Videos</SelectItem>
+                  <SelectContent className="bg-white font-sweden">
+                    <SelectItem value="all" className="font-sweden">All Files</SelectItem>
+                    <SelectItem value="images" className="font-sweden">Images</SelectItem>
+                    <SelectItem value="documents" className="font-sweden">Documents</SelectItem>
+                    <SelectItem value="videos" className="font-sweden">Videos</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             </div>
 
-            {/* Media Grid */}
-            <ScrollArea className="h-96">
+            {/* Media Grid with Custom Scrollbar */}
+            <div
+              className="h-96 max-h-[60vh] w-full overflow-y-auto border border-gray-200 rounded-md bg-gray-50/30 scrollbar-custom"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#D4932F #f1f5f9'
+              }}
+            >
               {loading ? (
                 <div className="flex items-center justify-center h-32">
-                  <div className="text-muted-foreground">Loading media files...</div>
+                  <div className="text-muted-foreground font-sweden">Loading media files...</div>
                 </div>
               ) : files.length === 0 ? (
                 <div className="flex items-center justify-center h-32">
-                  <div className="text-muted-foreground">No media files found</div>
+                  <div className="text-muted-foreground font-sweden">No media files found</div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 min-h-fit">
                   {files.map((file) => (
                     <div
                       key={file.id}
@@ -233,15 +239,15 @@ export function MediaSelector({
 
                       {/* File Info */}
                       <div className="p-2 space-y-1">
-                        <div className="text-xs font-medium truncate" title={file.originalName}>
+                        <div className="text-xs font-medium truncate font-sweden" title={file.originalName}>
                           {file.originalName}
                         </div>
                         <div className="flex items-center justify-between">
-                          <Badge variant="secondary" className="text-xs px-1 py-0">
+                          <Badge variant="secondary" className="text-xs px-1 py-0 font-sweden">
                             {file.category}
                           </Badge>
                           {file.fileSize && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground font-sweden">
                               {formatFileSize(file.fileSize)}
                             </span>
                           )}
@@ -258,11 +264,11 @@ export function MediaSelector({
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
 
             {/* Actions */}
             <div className="flex justify-between pt-4 border-t">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground font-sweden">
                 {selectedFile && (
                   <span>Selected: {files.find(f => f.url === selectedFile)?.originalName}</span>
                 )}
@@ -271,12 +277,14 @@ export function MediaSelector({
                 <Button
                   variant="outline"
                   onClick={() => setIsOpen(false)}
+                  className="font-sweden"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSelect}
                   disabled={!selectedFile}
+                  className="font-sweden"
                 >
                   Select File
                 </Button>
