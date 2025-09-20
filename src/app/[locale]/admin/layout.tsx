@@ -1,5 +1,6 @@
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { AdminPermissionsProvider } from "@/contexts/admin-permissions-context"
 import { Metadata } from 'next'
 
 interface AdminLayoutProps {
@@ -26,13 +27,15 @@ export const metadata: Metadata = {
 
 export default function AdminLayout({ children, params }: AdminLayoutProps) {
   return (
-    <SidebarProvider>
-      <AdminSidebar locale={params.locale} />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <AdminPermissionsProvider>
+      <SidebarProvider>
+        <AdminSidebar locale={params.locale} />
+        <SidebarInset>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </AdminPermissionsProvider>
   )
 }

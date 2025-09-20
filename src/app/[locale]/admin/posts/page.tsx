@@ -35,6 +35,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePosts } from "@/hooks/use-posts"
+import { useAdminPermissions } from "@/contexts/admin-permissions-context"
 import { useState, useEffect } from "react"
 
 interface PostsPageProps {
@@ -44,6 +45,7 @@ interface PostsPageProps {
 export default function PostsPage({ params }: PostsPageProps) {
   const fontClass = 'font-sweden'
   const { posts, loading, error, deletePost } = usePosts()
+  const { permissions } = useAdminPermissions()
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
 
   const handleDeletePost = async (postId: string) => {
@@ -58,6 +60,22 @@ export default function PostsPage({ params }: PostsPageProps) {
         setDeletingPostId(null)
       }
     }
+  }
+
+  // Helper function to check if user can edit a specific post
+  const canEditPost = (post: any) => {
+    if (!post.author?.id) return permissions.canEditOthersContent
+    // For now, assume we can edit our own content if we have create permissions
+    // In a real implementation, you'd check if post.author.id === currentUser.id
+    return permissions.canEditOwnContent || permissions.canEditOthersContent
+  }
+
+  // Helper function to check if user can delete a specific post
+  const canDeletePost = (post: any) => {
+    if (!post.author?.id) return permissions.canDeleteOthersContent
+    // For now, assume we can delete our own content if we have create permissions
+    // In a real implementation, you'd check if post.author.id === currentUser.id
+    return permissions.canDeleteOwnContent || permissions.canDeleteOthersContent
   }
 
   // Mock data - replaced with real data from API
@@ -184,12 +202,19 @@ export default function PostsPage({ params }: PostsPageProps) {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <Button asChild className={fontClass}>
-              <Link href={`/${params.locale}/admin/posts/create`}>
+            {permissions.canCreateContent ? (
+              <Button asChild className={fontClass}>
+                <Link href={`/${params.locale}/admin/posts/create`}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Post
+                </Link>
+              </Button>
+            ) : (
+              <Button disabled className={`${fontClass} opacity-50 cursor-not-allowed`} title="You don't have permission to create posts">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Post
-              </Link>
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -314,21 +339,43 @@ export default function PostsPage({ params }: PostsPageProps) {
                             <SearchX className="mr-2 h-4 w-4" />
                             Preview
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className={`flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer ${fontClass}`}
-                            onClick={() => window.location.href = `/${params.locale}/admin/posts/${post.id}/edit`}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className={`flex items-center px-2 py-2 text-sm hover:bg-red-50 rounded cursor-pointer text-red-600 ${fontClass}`}
-                            onClick={() => handleDeletePost(post.id)}
-                            disabled={deletingPostId === post.id}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
-                          </DropdownMenuItem>
+                          {canEditPost(post) ? (
+                            <DropdownMenuItem
+                              className={`flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer ${fontClass}`}
+                              onClick={() => window.location.href = `/${params.locale}/admin/posts/${post.id}/edit`}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className={`flex items-center px-2 py-2 text-sm opacity-50 cursor-not-allowed rounded ${fontClass}`}
+                              title="You don't have permission to edit this post"
+                              disabled
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                          )}
+                          {canDeletePost(post) ? (
+                            <DropdownMenuItem
+                              className={`flex items-center px-2 py-2 text-sm hover:bg-red-50 rounded cursor-pointer text-red-600 ${fontClass}`}
+                              onClick={() => handleDeletePost(post.id)}
+                              disabled={deletingPostId === post.id}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className={`flex items-center px-2 py-2 text-sm opacity-50 cursor-not-allowed rounded text-gray-400 ${fontClass}`}
+                              title="You don't have permission to delete this post"
+                              disabled
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

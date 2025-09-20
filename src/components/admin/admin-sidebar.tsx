@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
+import { useAdminPermissions } from "@/contexts/admin-permissions-context"
 import {
   LayoutDashboard,
   FileText,
@@ -20,6 +21,7 @@ import {
   Grid3X3,
   UserCheck,
   ClipboardList,
+  Lock,
 } from "lucide-react"
 
 import {
@@ -44,132 +46,182 @@ interface AdminSidebarProps {
   locale: string
 }
 
-// Admin navigation items with trilingual support
-const getNavigationItems = (locale: string) => ({
-  main: [
-    {
-      title: locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : locale === 'sv' ? 'Instrumentpanel' : 'Dashboard',
-      url: `/${locale}/admin`,
-      icon: LayoutDashboard,
-    },
-  ],
-  content: [
-    {
-      title: locale === 'km' ? 'ទំព័រ' : locale === 'sv' ? 'Sidor' : 'Pages',
-      url: `/${locale}/admin/pages`,
-      icon: FileText,
-      items: [
-        {
-          title: locale === 'km' ? 'ទំព័រទាំងអស់' : locale === 'sv' ? 'Alla sidor' : 'All Pages',
-          url: `/${locale}/admin/pages`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតទំព័រ' : locale === 'sv' ? 'Skapa sida' : 'Create Page',
-          url: `/${locale}/admin/pages/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'ប្រកាស' : locale === 'sv' ? 'Inlägg' : 'Posts',
-      url: `/${locale}/admin/posts`,
-      icon: Newspaper,
-      items: [
-        {
-          title: locale === 'km' ? 'ប្រកាសទាំងអស់' : locale === 'sv' ? 'Alla inlägg' : 'All Posts',
-          url: `/${locale}/admin/posts`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតប្រកាស' : locale === 'sv' ? 'Skapa inlägg' : 'Create Post',
-          url: `/${locale}/admin/posts/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'ព្រឹត្តិការណ៍' : locale === 'sv' ? 'Evenemang' : 'Events',
-      url: `/${locale}/admin/events`,
-      icon: Calendar,
-      items: [
-        {
-          title: locale === 'km' ? 'ព្រឹត្តិការណ៍ទាំងអស់' : locale === 'sv' ? 'Alla evenemang' : 'All Events',
-          url: `/${locale}/admin/events`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតព្រឹត្តិការណ៍' : locale === 'sv' ? 'Skapa evenemang' : 'Create Event',
-          url: `/${locale}/admin/events/create`,
-        },
-      ],
-    },
-  ],
-  organization: [
-    {
-      title: locale === 'km' ? 'សំណើសមាជិក' : locale === 'sv' ? 'Medlemsansökningar' : 'Membership Requests',
-      url: `/${locale}/admin/membership-requests`,
-      icon: ClipboardList,
-    },
-    {
-      title: locale === 'km' ? 'សមាជិក' : locale === 'sv' ? 'Medlemmar' : 'Members',
-      url: `/${locale}/admin/members`,
-      icon: UserCheck,
-      items: [
-        {
-          title: locale === 'km' ? 'សមាជិកទាំងអស់' : locale === 'sv' ? 'Alla medlemmar' : 'All Members',
-          url: `/${locale}/admin/members`,
-        },
-        {
-          title: locale === 'km' ? 'បន្ថែមសមាជិក' : locale === 'sv' ? 'Lägg till medlem' : 'Add Member',
-          url: `/${locale}/admin/members/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'សេវាកម្ម' : locale === 'sv' ? 'Tjänster' : 'Services',
-      url: `/${locale}/admin/services`,
-      icon: Grid3X3,
-      items: [
-        {
-          title: locale === 'km' ? 'សេវាកម្មទាំងអស់' : locale === 'sv' ? 'Alla tjänster' : 'All Services',
-          url: `/${locale}/admin/services`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតសេវាកម្ម' : locale === 'sv' ? 'Skapa tjänst' : 'Create Service',
-          url: `/${locale}/admin/services/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'ប្រភេទ' : locale === 'sv' ? 'Kategorier' : 'Categories',
-      url: `/${locale}/admin/categories`,
-      icon: FolderOpen,
-    },
-    {
-      title: locale === 'km' ? 'ស្លាក' : locale === 'sv' ? 'Taggar' : 'Tags',
-      url: `/${locale}/admin/tags`,
-      icon: Tags,
-    },
-    {
-      title: locale === 'km' ? 'មេឌៀ' : locale === 'sv' ? 'Media' : 'Media',
-      url: `/${locale}/admin/media`,
-      icon: Image,
-    },
-  ],
-  system: [
-    {
-      title: locale === 'km' ? 'អ្នកប្រើប្រាស់' : locale === 'sv' ? 'Användare' : 'Users',
-      url: `/${locale}/admin/users`,
-      icon: Users,
-    },
-    {
-      title: locale === 'km' ? 'ការកំណត់' : locale === 'sv' ? 'Inställningar' : 'Settings',
-      url: `/${locale}/admin/settings`,
-      icon: Settings,
-    },
-  ],
-})
+// Admin navigation items with trilingual support and permission requirements
+const getNavigationItems = (locale: string, permissions: any) => {
+  const allItems = {
+    main: [
+      {
+        title: locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : locale === 'sv' ? 'Instrumentpanel' : 'Dashboard',
+        url: `/${locale}/admin`,
+        icon: LayoutDashboard,
+        requiresPermission: null, // Always visible
+      },
+    ],
+    content: [
+      {
+        title: locale === 'km' ? 'ទំព័រ' : locale === 'sv' ? 'Sidor' : 'Pages',
+        url: `/${locale}/admin/pages`,
+        icon: FileText,
+        requiresPermission: 'canCreateContent', // AUTHORS and above
+        items: [
+          {
+            title: locale === 'km' ? 'ទំព័រទាំងអស់' : locale === 'sv' ? 'Alla sidor' : 'All Pages',
+            url: `/${locale}/admin/pages`,
+            requiresPermission: 'canCreateContent',
+          },
+          {
+            title: locale === 'km' ? 'បង្កើតទំព័រ' : locale === 'sv' ? 'Skapa sida' : 'Create Page',
+            url: `/${locale}/admin/pages/create`,
+            requiresPermission: 'canCreateContent',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'ប្រកាស' : locale === 'sv' ? 'Inlägg' : 'Posts',
+        url: `/${locale}/admin/posts`,
+        icon: Newspaper,
+        requiresPermission: 'canCreateContent', // AUTHORS and above
+        items: [
+          {
+            title: locale === 'km' ? 'ប្រកាសទាំងអស់' : locale === 'sv' ? 'Alla inlägg' : 'All Posts',
+            url: `/${locale}/admin/posts`,
+            requiresPermission: 'canCreateContent',
+          },
+          {
+            title: locale === 'km' ? 'បង្កើតប្រកាស' : locale === 'sv' ? 'Skapa inlägg' : 'Create Post',
+            url: `/${locale}/admin/posts/create`,
+            requiresPermission: 'canCreateContent',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'ព្រឹត្តិការណ៍' : locale === 'sv' ? 'Evenemang' : 'Events',
+        url: `/${locale}/admin/events`,
+        icon: Calendar,
+        requiresPermission: 'canCreateContent', // AUTHORS and above
+        items: [
+          {
+            title: locale === 'km' ? 'ព្រឹត្តិការណ៍ទាំងអស់' : locale === 'sv' ? 'Alla evenemang' : 'All Events',
+            url: `/${locale}/admin/events`,
+            requiresPermission: 'canCreateContent',
+          },
+          {
+            title: locale === 'km' ? 'បង្កើតព្រឹត្តិការណ៍' : locale === 'sv' ? 'Skapa evenemang' : 'Create Event',
+            url: `/${locale}/admin/events/create`,
+            requiresPermission: 'canCreateContent',
+          },
+        ],
+      },
+    ],
+    organization: [
+      {
+        title: locale === 'km' ? 'សំណើសមាជិក' : locale === 'sv' ? 'Medlemsansökningar' : 'Membership Requests',
+        url: `/${locale}/admin/membership-requests`,
+        icon: ClipboardList,
+        requiresPermission: 'canViewMembershipRequests', // MODERATOR and above
+      },
+      {
+        title: locale === 'km' ? 'សមាជិក' : locale === 'sv' ? 'Medlemmar' : 'Members',
+        url: `/${locale}/admin/members`,
+        icon: UserCheck,
+        requiresPermission: 'canManageMembers', // EDITOR and above
+        items: [
+          {
+            title: locale === 'km' ? 'សមាជិកទាំងអស់' : locale === 'sv' ? 'Alla medlemmar' : 'All Members',
+            url: `/${locale}/admin/members`,
+            requiresPermission: 'canManageMembers',
+          },
+          {
+            title: locale === 'km' ? 'បន្ថែមសមាជិក' : locale === 'sv' ? 'Lägg till medlem' : 'Add Member',
+            url: `/${locale}/admin/members/create`,
+            requiresPermission: 'canManageMembers',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'សេវាកម្ម' : locale === 'sv' ? 'Tjänster' : 'Services',
+        url: `/${locale}/admin/services`,
+        icon: Grid3X3,
+        requiresPermission: 'canManageServices', // EDITOR and above
+        items: [
+          {
+            title: locale === 'km' ? 'សេវាកម្មទាំងអស់' : locale === 'sv' ? 'Alla tjänster' : 'All Services',
+            url: `/${locale}/admin/services`,
+            requiresPermission: 'canManageServices',
+          },
+          {
+            title: locale === 'km' ? 'បង្កើតសេវាកម្ម' : locale === 'sv' ? 'Skapa tjänst' : 'Create Service',
+            url: `/${locale}/admin/services/create`,
+            requiresPermission: 'canManageServices',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'ប្រភេទ' : locale === 'sv' ? 'Kategorier' : 'Categories',
+        url: `/${locale}/admin/categories`,
+        icon: FolderOpen,
+        requiresPermission: 'canManageCategories', // EDITOR and above
+      },
+      {
+        title: locale === 'km' ? 'ស្លាក' : locale === 'sv' ? 'Taggar' : 'Tags',
+        url: `/${locale}/admin/tags`,
+        icon: Tags,
+        requiresPermission: 'canManageCategories', // EDITOR and above
+      },
+      {
+        title: locale === 'km' ? 'មេឌៀ' : locale === 'sv' ? 'Media' : 'Media',
+        url: `/${locale}/admin/media`,
+        icon: Image,
+        requiresPermission: 'canManageMedia', // MODERATOR and above
+      },
+    ],
+    system: [
+      {
+        title: locale === 'km' ? 'អ្នកប្រើប្រាស់' : locale === 'sv' ? 'Användare' : 'Users',
+        url: `/${locale}/admin/users`,
+        icon: Users,
+        requiresPermission: 'canManageUsers', // ADMIN only
+      },
+      {
+        title: locale === 'km' ? 'ការកំណត់' : locale === 'sv' ? 'Inställningar' : 'Settings',
+        url: `/${locale}/admin/settings`,
+        icon: Settings,
+        requiresPermission: 'canAccessSettings', // EDITOR and above
+      },
+    ],
+  }
+
+  // Filter items based on permissions
+  const filterItems = (items: any[]) => {
+    return items.filter(item => {
+      if (!item.requiresPermission) return true
+      const hasPermission = permissions?.[item.requiresPermission] === true
+
+      // If this item has subitems, filter those too
+      if (item.items && hasPermission) {
+        item.items = item.items.filter((subItem: any) => {
+          if (!subItem.requiresPermission) return true
+          return permissions?.[subItem.requiresPermission] === true
+        })
+      }
+
+      return hasPermission
+    })
+  }
+
+  return {
+    main: filterItems(allItems.main),
+    content: filterItems(allItems.content),
+    organization: filterItems(allItems.organization),
+    system: filterItems(allItems.system),
+  }
+}
 
 export function AdminSidebar({ locale }: AdminSidebarProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const navItems = getNavigationItems(locale)
+  const { permissions, loading: permissionsLoading } = useAdminPermissions()
+  const navItems = getNavigationItems(locale, permissions)
 
   const isActive = (url: string, hasSubItems: boolean = false) => {
     // Always match exactly for dashboard
@@ -210,23 +262,36 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="bg-white">
-        {/* Main Navigation */}
-        <SidebarGroup className="bg-white">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.main.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link href={item.url} className="font-sweden">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {permissionsLoading ? (
+          <SidebarGroup className="bg-white">
+            <SidebarGroupContent>
+              <div className="flex items-center justify-center p-4">
+                <div className="flex items-center gap-2 text-sweden-neutral-500">
+                  <Lock className="h-4 w-4 animate-pulse" />
+                  <span className="text-sm font-sweden">Loading permissions...</span>
+                </div>
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : (
+          <>
+            {/* Main Navigation */}
+            <SidebarGroup className="bg-white">
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navItems.main.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <Link href={item.url} className="font-sweden">
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
         {/* Content Management */}
         <SidebarGroup className="bg-white">
@@ -283,26 +348,28 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* System */}
-        <SidebarGroup className="bg-white">
-          <SidebarGroupLabel className="font-sweden">
-            {locale === 'km' ? 'ប្រព័ន្ធ' : locale === 'sv' ? 'System' : 'System'}
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="bg-white">
-            <SidebarMenu>
-              {navItems.system.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link href={item.url} className="font-sweden">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+            {/* System */}
+            <SidebarGroup className="bg-white">
+              <SidebarGroupLabel className="font-sweden">
+                {locale === 'km' ? 'ប្រព័ន្ធ' : locale === 'sv' ? 'System' : 'System'}
+              </SidebarGroupLabel>
+              <SidebarGroupContent className="bg-white">
+                <SidebarMenu>
+                  {navItems.system.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <Link href={item.url} className="font-sweden">
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sweden-neutral-200 p-4">
