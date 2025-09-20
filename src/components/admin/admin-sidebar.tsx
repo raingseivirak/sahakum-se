@@ -14,9 +14,7 @@ import {
   Image,
   Settings,
   Globe,
-  ChefHat,
   Newspaper,
-  BookOpen,
   LogOut,
   User,
   Grid3X3,
@@ -98,36 +96,6 @@ const getNavigationItems = (locale: string) => ({
         {
           title: locale === 'km' ? 'បង្កើតព្រឹត្តិការណ៍' : locale === 'sv' ? 'Skapa evenemang' : 'Create Event',
           url: `/${locale}/admin/events/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'រូបមន្ត' : locale === 'sv' ? 'Recept' : 'Recipes',
-      url: `/${locale}/admin/recipes`,
-      icon: ChefHat,
-      items: [
-        {
-          title: locale === 'km' ? 'រូបមន្តទាំងអស់' : locale === 'sv' ? 'Alla recept' : 'All Recipes',
-          url: `/${locale}/admin/recipes`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតរូបមន្ត' : locale === 'sv' ? 'Skapa recept' : 'Create Recipe',
-          url: `/${locale}/admin/recipes/create`,
-        },
-      ],
-    },
-    {
-      title: locale === 'km' ? 'ប្រព័ន្ធព័ត៌មាន' : locale === 'sv' ? 'Nyheter' : 'News',
-      url: `/${locale}/admin/news`,
-      icon: BookOpen,
-      items: [
-        {
-          title: locale === 'km' ? 'ព័ត៌មានទាំងអស់' : locale === 'sv' ? 'Alla nyheter' : 'All News',
-          url: `/${locale}/admin/news`,
-        },
-        {
-          title: locale === 'km' ? 'បង្កើតព័ត៌មាន' : locale === 'sv' ? 'Skapa nyhet' : 'Create News',
-          url: `/${locale}/admin/news/create`,
         },
       ],
     },
