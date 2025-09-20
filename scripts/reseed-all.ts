@@ -42,6 +42,12 @@ const scripts = [
     command: 'npx tsx scripts/seed-categories-tags.ts',
     description: 'Seeds blog categories and tags for Cambodian Community',
     status: '✅ Working'
+  },
+  {
+    name: 'Settings',
+    command: 'npx tsx scripts/seed-settings.ts',
+    description: 'Seeds organization settings and configuration',
+    status: '✅ Working'
   }
 ]
 
@@ -100,6 +106,7 @@ async function main() {
   console.log('   - 6 blog articles (1 detailed + 5 practical guides)')
   console.log('   - 10 categories (News, Events, Culture, Integration, Community + subcategories)')
   console.log('   - 24 tags (languages, festivals, culture, integration, community)')
+  console.log('   - Organization settings (contact info, social media, site config)')
   console.log('   - Multilingual support (EN/SV/KM)')
 }
 
