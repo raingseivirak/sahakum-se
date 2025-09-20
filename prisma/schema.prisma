@@ -18,6 +18,7 @@ model User {
   password                   String?
   profileImage               String?
   isActive                   Boolean             @default(true)
+  linkedMemberId             String?             @unique
   createdAt                  DateTime            @default(now())
   updatedAt                  DateTime            @updatedAt
   accounts                   Account[]
@@ -27,6 +28,7 @@ model User {
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
   statusHistoryChanges       MembershipRequestStatusHistory[]
   sessions                   Session[]
+  linkedMember               Member?             @relation("UserMemberLink", fields: [linkedMemberId], references: [id])
 
   @@map("users")
 }
@@ -243,6 +245,7 @@ model Member {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   membershipRequests MembershipRequest[]
+  linkedUser         User?               @relation("UserMemberLink")
 
   @@map("members")
 }
@@ -304,8 +307,11 @@ model MembershipRequestStatusHistory {
 
 enum Role {
   USER
-  ADMIN
+  AUTHOR
+  MODERATOR
   EDITOR
+  BOARD
+  ADMIN
 }
 
 enum ContentType {

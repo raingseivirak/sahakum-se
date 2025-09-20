@@ -26,6 +26,14 @@ async function seedSettings() {
     { key: 'site_title', value: 'Sahakum Khmer - Swedish-Cambodian Association', type: 'TEXT', category: 'site' },
     { key: 'site_description', value: 'Official website of Sahakum Khmer, the Swedish-Cambodian Association dedicated to cultural preservation and community support', type: 'TEXT', category: 'site' },
     { key: 'default_language', value: 'sv', type: 'TEXT', category: 'site' },
+
+    // Permission settings
+    { key: 'permissions_author_edit_others', value: 'false', type: 'BOOLEAN', category: 'permissions' },
+    { key: 'permissions_author_publish_direct', value: 'false', type: 'BOOLEAN', category: 'permissions' },
+    { key: 'permissions_moderator_edit_others', value: 'true', type: 'BOOLEAN', category: 'permissions' },
+    { key: 'permissions_moderator_publish_direct', value: 'false', type: 'BOOLEAN', category: 'permissions' },
+    { key: 'content_workflow_enabled', value: 'true', type: 'BOOLEAN', category: 'permissions' },
+    { key: 'content_approval_required', value: 'true', type: 'BOOLEAN', category: 'permissions' },
   ]
 
   for (const setting of defaultSettings) {

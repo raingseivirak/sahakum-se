@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Settings,
   Building2,
@@ -22,6 +24,11 @@ import {
   Image as ImageIcon,
   ArrowLeft,
   Save,
+  Shield,
+  Check,
+  X,
+  Settings2,
+  Info,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -70,6 +77,18 @@ const SETTINGS_SCHEMA = {
       { key: 'social_instagram', label: 'Instagram URL', type: 'URL', placeholder: 'https://instagram.com/sahakumkhmer' },
       { key: 'social_youtube', label: 'YouTube URL', type: 'URL', placeholder: 'https://youtube.com/@sahakumkhmer' },
       { key: 'social_linkedin', label: 'LinkedIn URL', type: 'URL', placeholder: 'https://linkedin.com/company/sahakumkhmer' },
+    ]
+  },
+  permissions: {
+    title: 'Permissions',
+    icon: Shield,
+    fields: [
+      { key: 'permissions_author_edit_others', label: 'Authors Can Edit Others\' Content', type: 'BOOLEAN', placeholder: 'false' },
+      { key: 'permissions_author_publish_direct', label: 'Authors Can Publish Directly', type: 'BOOLEAN', placeholder: 'false' },
+      { key: 'permissions_moderator_edit_others', label: 'Moderators Can Edit Others\' Content', type: 'BOOLEAN', placeholder: 'true' },
+      { key: 'permissions_moderator_publish_direct', label: 'Moderators Can Publish Directly', type: 'BOOLEAN', placeholder: 'false' },
+      { key: 'content_workflow_enabled', label: 'Enable Content Workflow', type: 'BOOLEAN', placeholder: 'true' },
+      { key: 'content_approval_required', label: 'Require Content Approval', type: 'BOOLEAN', placeholder: 'true' },
     ]
   },
   site: {
@@ -249,7 +268,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
         {/* Settings Tabs */}
         <Tabs defaultValue="organization" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             {Object.entries(SETTINGS_SCHEMA).map(([key, config]) => {
               const Icon = config.icon
               return (
@@ -261,56 +280,314 @@ export default function SettingsPage({ params }: SettingsPageProps) {
             })}
           </TabsList>
 
-          {Object.entries(SETTINGS_SCHEMA).map(([categoryKey, config]) => (
+{Object.entries(SETTINGS_SCHEMA).map(([categoryKey, config]) => (
             <TabsContent key={categoryKey} value={categoryKey}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
-                    <config.icon className="h-5 w-5" />
-                    {config.title}
-                  </CardTitle>
-                  <CardDescription className={fontClass}>
-                    Configure {config.title.toLowerCase()} settings for your organization
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {config.fields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={field.key} className={fontClass}>
-                        {field.label}
-                      </Label>
-                      {field.type === 'TEXT' && field.key.includes('mission') || field.key.includes('vision') || field.key.includes('description') ? (
-                        <Textarea
-                          id={field.key}
-                          placeholder={field.placeholder}
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleInputChange(field.key, e.target.value)}
-                          className={fontClass}
-                          rows={3}
-                        />
-                      ) : (
-                        <Input
-                          id={field.key}
-                          type={field.type === 'EMAIL' ? 'email' : field.type === 'URL' ? 'url' : 'text'}
-                          placeholder={field.placeholder}
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleInputChange(field.key, e.target.value)}
-                          className={fontClass}
-                        />
-                      )}
-                      {field.type === 'IMAGE' && formData[field.key] && (
-                        <div className="mt-2">
-                          <img
-                            src={formData[field.key]}
-                            alt="Preview"
-                            className="h-20 w-20 object-cover rounded border"
-                          />
+              {categoryKey === 'permissions' ? (
+                <div className="space-y-6">
+                  {/* Permission Overview Table */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                        <Info className="h-5 w-5" />
+                        Permission Overview
+                      </CardTitle>
+                      <CardDescription className={fontClass}>
+                        Overview of what each role can do in the system
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className={fontClass}>Permission</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>USER</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>AUTHOR</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>MODERATOR</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>EDITOR</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>BOARD</TableHead>
+                            <TableHead className={`text-center ${fontClass}`}>ADMIN</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className={fontClass}>Create Content</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Edit Own Content</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Edit Others' Content</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
+                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Delete Content</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Publish Content</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
+                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Moderate Comments</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Manage Categories/Tags</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Approve Membership</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Manage Users/Settings</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                      <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-green-500" />
+                          <span className={fontClass}>Always Allowed</span>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+                        <div className="flex items-center gap-2">
+                          <X className="h-4 w-4 text-red-500" />
+                          <span className={fontClass}>Not Allowed</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Settings2 className="h-4 w-4 text-blue-500" />
+                          <span className={fontClass}>Configurable Below</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Content Workflow Explanation */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                        <Settings2 className="h-5 w-5" />
+                        Content Workflow
+                      </CardTitle>
+                      <CardDescription className={fontClass}>
+                        How content moves through the approval process
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <h4 className={`font-semibold ${fontClass}`}>Draft → Published Flow:</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                              <span>1. Author creates content (DRAFT status)</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <span>2. Editor/Board reviews content</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span>3. Content published (PUBLISHED status)</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <h4 className={`font-semibold ${fontClass}`}>Role Capabilities:</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <span><strong>BOARD</strong>: Full content control + membership approval</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <span><strong>EDITOR</strong>: Content management + categories</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <span><strong>MODERATOR</strong>: Content creation + comment moderation</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                              <span><strong>AUTHOR</strong>: Content creation only</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Permission Configuration */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                        <config.icon className="h-5 w-5" />
+                        {config.title} Configuration
+                      </CardTitle>
+                      <CardDescription className={fontClass}>
+                        Configure permission settings that affect role capabilities
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {config.fields.map((field) => (
+                        <div key={field.key} className="space-y-2">
+                          <Label htmlFor={field.key} className={fontClass}>
+                            {field.label}
+                          </Label>
+                          {field.type === 'BOOLEAN' ? (
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id={field.key}
+                                checked={formData[field.key] === 'true'}
+                                onCheckedChange={(checked) => handleInputChange(field.key, checked.toString())}
+                                className={fontClass}
+                              />
+                              <Label htmlFor={field.key} className={`text-sm text-muted-foreground ${fontClass}`}>
+                                {formData[field.key] === 'true' ? 'Enabled' : 'Disabled'}
+                              </Label>
+                            </div>
+                          ) : field.type === 'TEXT' && field.key.includes('mission') || field.key.includes('vision') || field.key.includes('description') ? (
+                            <Textarea
+                              id={field.key}
+                              placeholder={field.placeholder}
+                              value={formData[field.key] || ''}
+                              onChange={(e) => handleInputChange(field.key, e.target.value)}
+                              className={fontClass}
+                              rows={3}
+                            />
+                          ) : (
+                            <Input
+                              id={field.key}
+                              type={field.type === 'EMAIL' ? 'email' : field.type === 'URL' ? 'url' : 'text'}
+                              placeholder={field.placeholder}
+                              value={formData[field.key] || ''}
+                              onChange={(e) => handleInputChange(field.key, e.target.value)}
+                              className={fontClass}
+                            />
+                          )}
+                          {field.type === 'IMAGE' && formData[field.key] && (
+                            <div className="mt-2">
+                              <img
+                                src={formData[field.key]}
+                                alt="Preview"
+                                className="h-20 w-20 object-cover rounded border"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                      <config.icon className="h-5 w-5" />
+                      {config.title}
+                    </CardTitle>
+                    <CardDescription className={fontClass}>
+                      Configure {config.title.toLowerCase()} settings for your organization
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {config.fields.map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label htmlFor={field.key} className={fontClass}>
+                          {field.label}
+                        </Label>
+                        {field.type === 'BOOLEAN' ? (
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id={field.key}
+                              checked={formData[field.key] === 'true'}
+                              onCheckedChange={(checked) => handleInputChange(field.key, checked.toString())}
+                              className={fontClass}
+                            />
+                            <Label htmlFor={field.key} className={`text-sm text-muted-foreground ${fontClass}`}>
+                              {formData[field.key] === 'true' ? 'Enabled' : 'Disabled'}
+                            </Label>
+                          </div>
+                        ) : field.type === 'TEXT' && field.key.includes('mission') || field.key.includes('vision') || field.key.includes('description') ? (
+                          <Textarea
+                            id={field.key}
+                            placeholder={field.placeholder}
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleInputChange(field.key, e.target.value)}
+                            className={fontClass}
+                            rows={3}
+                          />
+                        ) : (
+                          <Input
+                            id={field.key}
+                            type={field.type === 'EMAIL' ? 'email' : field.type === 'URL' ? 'url' : 'text'}
+                            placeholder={field.placeholder}
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleInputChange(field.key, e.target.value)}
+                            className={fontClass}
+                          />
+                        )}
+                        {field.type === 'IMAGE' && formData[field.key] && (
+                          <div className="mt-2">
+                            <img
+                              src={formData[field.key]}
+                              alt="Preview"
+                              className="h-20 w-20 object-cover rounded border"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           ))}
         </Tabs>

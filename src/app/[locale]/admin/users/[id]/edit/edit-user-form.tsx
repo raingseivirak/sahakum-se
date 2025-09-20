@@ -267,23 +267,23 @@ export function EditUserForm({ locale, userId }: EditUserFormProps) {
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                          <SelectItem value="ADMIN" className="hover:bg-gray-100">
+                        <SelectContent className={`bg-white border border-gray-200 shadow-lg ${fontClass}`}>
+                          <SelectItem value="ADMIN" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Administrator</span>
-                              <span className="text-xs text-muted-foreground">Full system access</span>
+                              <span className={fontClass}>Administrator</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Full system access</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="EDITOR" className="hover:bg-gray-100">
+                          <SelectItem value="EDITOR" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Editor</span>
-                              <span className="text-xs text-muted-foreground">Content management</span>
+                              <span className={fontClass}>Editor</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Content management</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="AUTHOR" className="hover:bg-gray-100">
+                          <SelectItem value="AUTHOR" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Author</span>
-                              <span className="text-xs text-muted-foreground">Content creation only</span>
+                              <span className={fontClass}>Author</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Content creation only</span>
                             </div>
                           </SelectItem>
                         </SelectContent>
