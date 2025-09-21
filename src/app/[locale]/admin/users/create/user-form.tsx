@@ -37,7 +37,7 @@ const userSchema = z.object({
   email: z.string().email("Invalid email address"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  role: z.enum(["ADMIN", "EDITOR", "AUTHOR"]),
+  role: z.enum(["USER", "AUTHOR", "MODERATOR", "EDITOR", "BOARD", "ADMIN"]),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Please confirm password"),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -287,23 +287,41 @@ export function UserForm({ locale }: UserFormProps) {
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                          <SelectItem value="ADMIN" className="hover:bg-gray-100">
+                        <SelectContent className={`bg-white border border-gray-200 shadow-lg ${fontClass}`}>
+                          <SelectItem value="ADMIN" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Administrator</span>
-                              <span className="text-xs text-muted-foreground">Full system access</span>
+                              <span className={fontClass}>Administrator</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Full system access</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="EDITOR" className="hover:bg-gray-100">
+                          <SelectItem value="BOARD" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Editor</span>
-                              <span className="text-xs text-muted-foreground">Content management</span>
+                              <span className={fontClass}>Board Member</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Board-level access and membership approval</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="AUTHOR" className="hover:bg-gray-100">
+                          <SelectItem value="EDITOR" className={`hover:bg-gray-100 ${fontClass}`}>
                             <div className="flex flex-col">
-                              <span>Author</span>
-                              <span className="text-xs text-muted-foreground">Content creation only</span>
+                              <span className={fontClass}>Editor</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Content management and services</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="MODERATOR" className={`hover:bg-gray-100 ${fontClass}`}>
+                            <div className="flex flex-col">
+                              <span className={fontClass}>Moderator</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Content moderation and media management</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="AUTHOR" className={`hover:bg-gray-100 ${fontClass}`}>
+                            <div className="flex flex-col">
+                              <span className={fontClass}>Author</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Content creation only</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="USER" className={`hover:bg-gray-100 ${fontClass}`}>
+                            <div className="flex flex-col">
+                              <span className={fontClass}>User</span>
+                              <span className={`text-xs text-muted-foreground ${fontClass}`}>Basic user access</span>
                             </div>
                           </SelectItem>
                         </SelectContent>

@@ -10,7 +10,7 @@ const userUpdateSchema = z.object({
   email: z.string().email().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  role: z.enum(['ADMIN', 'EDITOR', 'AUTHOR']).optional(),
+  role: z.enum(['USER', 'AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN']).optional(),
   isActive: z.boolean().optional(),
 })
 
