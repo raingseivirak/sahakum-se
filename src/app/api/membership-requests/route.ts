@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { withModeratorAccess } from '@/lib/admin-auth-middleware'
 
 // Validation schema for Membership Request
 const membershipRequestSchema = z.object({
@@ -59,8 +62,8 @@ async function generateRequestNumber(): Promise<string> {
   return `${prefix}${nextNumber.toString().padStart(3, '0')}`
 }
 
-// GET /api/membership-requests - Get all membership requests
-export async function GET(request: NextRequest) {
+// GET /api/membership-requests - Get all membership requests (requires MODERATOR access)
+const getHandler = async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -103,6 +106,44 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Get membership requests error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch membership requests' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    // Check if user is authenticated
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 })
+    }
+
+    // Get user and check for appropriate role (BOARD+ should be able to approve membership)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true, name: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // For now, require ADMIN or BOARD role for membership management
+    if (user.role !== 'ADMIN' && user.role !== 'BOARD') {
+      return NextResponse.json({
+        error: 'Insufficient privileges - Board or Admin access required',
+        required: ['ADMIN', 'BOARD'],
+        current: user.role
+      }, { status: 403 })
+    }
+
+    // User is authenticated and has appropriate role - proceed with original handler
+    return getHandler(request)
+  } catch (error) {
+    console.error('Membership requests fetch error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch membership requests' },
       { status: 500 }

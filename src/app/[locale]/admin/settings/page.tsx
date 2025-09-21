@@ -20,6 +20,7 @@ import {
   Mail,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   Image as ImageIcon,
   ArrowLeft,
@@ -310,34 +311,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                         </TableHeader>
                         <TableBody>
                           <TableRow>
-                            <TableCell className={fontClass}>Create Content</TableCell>
-                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className={fontClass}>Edit Own Content</TableCell>
-                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className={fontClass}>Edit Others' Content</TableCell>
-                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
-                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className={fontClass}>Delete Content</TableCell>
+                            <TableCell className={fontClass}>Manage Pages</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
@@ -346,25 +320,43 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                           </TableRow>
                           <TableRow>
-                            <TableCell className={fontClass}>Publish Content</TableCell>
+                            <TableCell className={fontClass}>Manage Blog Posts</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
-                            <TableCell className="text-center"><Settings2 className="h-4 w-4 text-blue-500 mx-auto" title="Configurable" /></TableCell>
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell className={fontClass}>Moderate Comments</TableCell>
-                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
-                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                           </TableRow>
                           <TableRow>
-                            <TableCell className={fontClass}>Manage Categories/Tags</TableCell>
+                            <TableCell className={fontClass}>View Categories/Tags</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Create Categories/Tags</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>View Services</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Any authenticated user" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Any authenticated user" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Any authenticated user" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Any authenticated user" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Any authenticated user" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Manage Services</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
@@ -382,6 +374,15 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                           </TableRow>
                           <TableRow>
+                            <TableCell className={fontClass}>View Settings</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
                             <TableCell className={fontClass}>Manage Users/Settings</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
@@ -395,11 +396,15 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                       <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
-                          <span className={fontClass}>Always Allowed</span>
+                          <span className={fontClass}>Working</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <X className="h-4 w-4 text-red-500" />
                           <span className={fontClass}>Not Allowed</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span className={fontClass}>Currently Broken</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Settings2 className="h-4 w-4 text-blue-500" />
@@ -417,47 +422,69 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                         Content Workflow
                       </CardTitle>
                       <CardDescription className={fontClass}>
-                        How content moves through the approval process
+                        How content moves through the system based on user roles
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
-                          <h4 className={`font-semibold ${fontClass}`}>Draft → Published Flow:</h4>
+                          <h4 className={`font-semibold ${fontClass}`}>Content Creation Workflow:</h4>
                           <div className="space-y-2 text-sm">
                             <div className={`flex items-center gap-2 ${fontClass}`}>
-                              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                              <span>1. Author creates content (DRAFT status)</span>
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span><strong>AUTHORS</strong> create blog posts and draft content</span>
                             </div>
                             <div className={`flex items-center gap-2 ${fontClass}`}>
                               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <span>2. Editor/Board reviews content</span>
+                              <span><strong>EDITORS</strong> manage pages, categories, and content review</span>
                             </div>
                             <div className={`flex items-center gap-2 ${fontClass}`}>
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span>3. Content published (PUBLISHED status)</span>
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <span><strong>BOARD</strong> approves membership requests and strategic content</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                              <span><strong>ADMINS</strong> have full system control and user management</span>
                             </div>
                           </div>
                         </div>
                         <div className="space-y-3">
-                          <h4 className={`font-semibold ${fontClass}`}>Role Capabilities:</h4>
+                          <h4 className={`font-semibold ${fontClass}`}>Content Publishing Flow:</h4>
                           <div className="space-y-2 text-sm">
                             <div className={`flex items-center gap-2 ${fontClass}`}>
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                              <span><strong>BOARD</strong>: Full content control + membership approval</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${fontClass}`}>
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <span><strong>EDITOR</strong>: Content management + categories</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${fontClass}`}>
-                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                              <span><strong>MODERATOR</strong>: Content creation + comment moderation</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${fontClass}`}>
                               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                              <span><strong>AUTHOR</strong>: Content creation only</span>
+                              <span><strong>DRAFT</strong>: Content created by authors, not visible publicly</span>
                             </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                              <span><strong>REVIEW</strong>: Editors review and modify content as needed</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span><strong>PUBLISHED</strong>: Content goes live and is visible to public</span>
+                            </div>
+                            <div className={`flex items-center gap-2 ${fontClass}`}>
+                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                              <span><strong>ARCHIVED</strong>: Old content hidden but preserved</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className={`font-semibold text-blue-800 mb-2 ${fontClass}`}>Current Implementation Notes:</h4>
+                        <div className="space-y-2 text-sm text-blue-700">
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <Check className="h-4 w-4 text-green-600" />
+                            <span><strong>Working:</strong> Blog Posts (AUTHOR+), Membership Requests (BOARD+), Settings (EDITOR+)</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <Check className="h-4 w-4 text-green-600" />
+                            <span><strong>Status-based publishing:</strong> DRAFT → PUBLISHED → ARCHIVED content states</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <Settings2 className="h-4 w-4 text-blue-600" />
+                            <span><strong>Configurable:</strong> Permission settings below can modify role capabilities</span>
                           </div>
                         </div>
                       </div>

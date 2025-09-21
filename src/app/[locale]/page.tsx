@@ -10,6 +10,7 @@ import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid
 import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { UserMenu } from '@/components/layout/user-menu';
 import { type Language } from '@/lib/constants';
 
 const translations = {
@@ -24,6 +25,11 @@ const translations = {
     "nav.living_in_sweden": "Leva i Sverige",
     "nav.community": "Gemenskap",
     "nav.blog": "Blogg",
+    "nav.sign_in": "Logga in",
+    "nav.sign_out": "Logga ut",
+    "nav.admin": "Adminpanel",
+    "nav.profile": "Profil",
+    "nav.settings": "Inställningar",
     "services.title": "Våra tjänster",
     "services.description": "Vi erbjuder stöd och gemenskap för att hjälpa dig att trivas i Sverige",
     "cambodia.description": "Lär dig om kambodjansk historia, kultur, mat och traditioner.",
@@ -43,6 +49,11 @@ const translations = {
     "nav.living_in_sweden": "Living in Sweden",
     "nav.community": "Community",
     "nav.blog": "Blog",
+    "nav.sign_in": "Sign In",
+    "nav.sign_out": "Sign Out",
+    "nav.admin": "Admin Dashboard",
+    "nav.profile": "Profile",
+    "nav.settings": "Settings",
     "services.title": "Our services",
     "services.description": "We offer support and community to help you thrive in Sweden",
     "cambodia.description": "Learn about Cambodian history, culture, food and traditions.",
@@ -62,6 +73,11 @@ const translations = {
     "nav.living_in_sweden": "រស់នៅក្នុងស៊ុយអែត",
     "nav.community": "សហគមន៍",
     "nav.blog": "ប្លុក",
+    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_out": "ចេញ",
+    "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
+    "nav.profile": "ប្រវត្តិរូប",
+    "nav.settings": "ការកំណត់",
     "services.title": "សេវាកម្មរបស់យើង",
     "services.description": "យើងផ្តល់ការគាំទ្រ និងសហគមន៍ដើម្បីជួយអ្នកទទួលបានជោគជ័យនៅស៊ុយអែត",
     "cambodia.description": "ស្វែងយល់អំពីប្រវត្តិសាស្ត្រ វប្បធម៌ អាហារ និងប្រពៃណីកម្ពុជា។",
@@ -97,23 +113,36 @@ export default function HomePage({ params }: Props) {
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 
-      {/* Sophisticated Header with Sahakum Colors */}
-      <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
+      {/* Swedish Design Header - Simple, Consistent, Contextual */}
+      <header className="bg-[var(--sahakum-navy)] text-white shadow-sm border-b border-[var(--sahakum-gold)]/15">
         <Container size="wide">
-          <nav className="flex items-center justify-between py-4 lg:py-6">
-            {/* Swedish Brand Logo */}
+          <nav className="flex items-center justify-between py-6 lg:py-8">
+            {/* Swedish Brand Logo - Consistent */}
             <SwedenBrandLogo
               locale={params.locale}
-              size="md"
+              size="lg"
               variant="horizontal"
-              className="hover:opacity-90 transition-opacity duration-200"
+              className="hover:opacity-90 transition-all duration-[var(--duration-sweden-base)] ease-[var(--easing-sweden-standard)]"
             />
 
-            {/* Language Switcher */}
-            <LanguageSwitcher
-              currentLocale={params.locale as Language}
-              variant="compact"
-            />
+            {/* Right side - Simple Layout with Enhanced Spacing */}
+            <div className="flex items-center gap-6">
+              <LanguageSwitcher
+                currentLocale={params.locale as Language}
+                variant="compact"
+                className="transition-all duration-[var(--duration-sweden-base)]"
+              />
+              <UserMenu
+                locale={params.locale as Language}
+                translations={{
+                  sign_in: t('nav.sign_in') || 'Sign In',
+                  sign_out: t('nav.sign_out') || 'Sign Out',
+                  admin: t('nav.admin') || 'Admin Dashboard',
+                  profile: t('nav.profile') || 'Profile',
+                  settings: t('nav.settings') || 'Settings'
+                }}
+              />
+            </div>
           </nav>
         </Container>
       </header>

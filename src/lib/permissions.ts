@@ -20,13 +20,9 @@ export type Permission =
 export interface UserWithMember {
   id: string
   role: Role
-  linkedMember?: {
-    id: string
-    membershipType: MembershipType
-  } | null
 }
 
-class PermissionService {
+export class PermissionService {
   private settingsCache: Map<string, string> = new Map()
   private cacheExpiry: number = 0
   private readonly CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
@@ -69,8 +65,7 @@ class PermissionService {
     const moderatorCanEditOthers = await this.getSetting('permissions_moderator_edit_others')
     const moderatorCanPublishDirect = await this.getSetting('permissions_moderator_publish_direct')
 
-    // Check board member privileges
-    const isBoardMember = user.linkedMember?.membershipType === 'BOARD'
+    // Note: Board member privileges now handled purely by role
 
     switch (permission) {
       case 'create_content':
@@ -108,10 +103,10 @@ class PermissionService {
         return ['USER', 'AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD'].includes(user.role)
 
       case 'edit_members':
-        return user.role === 'BOARD' || isBoardMember
+        return ['BOARD', 'ADMIN'].includes(user.role)
 
       case 'approve_membership':
-        return user.role === 'BOARD' || isBoardMember
+        return ['BOARD', 'ADMIN'].includes(user.role)
 
       case 'manage_users':
       case 'manage_settings':
@@ -148,17 +143,15 @@ class PermissionService {
   async getUserWithMember(userId: string): Promise<UserWithMember | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        linkedMember: {
-          select: {
-            id: true,
-            membershipType: true
-          }
-        }
+      select: {
+        id: true,
+        role: true,
       }
     })
 
-    return user as UserWithMember | null
+    if (!user) return null
+
+    return user as UserWithMember
   }
 
   /**

@@ -262,6 +262,22 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="bg-white">
+        {/* Main Navigation - Always visible */}
+        <SidebarGroup className="bg-white">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive(`/${locale}/admin`)}>
+                  <Link href={`/${locale}/admin`} className="font-sweden">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>{locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : locale === 'sv' ? 'Instrumentpanel' : 'Dashboard'}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {permissionsLoading ? (
           <SidebarGroup className="bg-white">
             <SidebarGroupContent>
@@ -275,23 +291,6 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
           </SidebarGroup>
         ) : (
           <>
-            {/* Main Navigation */}
-            <SidebarGroup className="bg-white">
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navItems.main.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                        <Link href={item.url} className="font-sweden">
-                          <item.icon className="mr-2 h-4 w-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
 
         {/* Content Management */}
         <SidebarGroup className="bg-white">

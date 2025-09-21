@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { Button } from '@/components/ui/button';
+import { UserMenu } from '@/components/layout/user-menu';
 import { type Language } from '@/lib/constants';
 
 export function Header() {
@@ -49,18 +49,10 @@ export function Header() {
             ))}
           </div>
 
-          {/* Right side - Language switcher and Admin */}
+          {/* Right side - Language switcher and User menu */}
           <div className="flex items-center space-x-4">
             <LanguageSwitcher currentLocale={locale} />
-            <Link href={`/${locale}/admin`}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-white/20 text-white hover:bg-white hover:text-[#006AA7] transition-colors"
-              >
-                {t('admin')}
-              </Button>
-            </Link>
+            <UserMenu />
           </div>
         </nav>
       </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { withAuthorAccess, AdminAuthContext } from "@/lib/admin-auth-middleware"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
@@ -21,13 +22,8 @@ const postSchema = z.object({
 })
 
 // GET /api/posts - List all posts
-export async function GET() {
+async function handleGET(request: NextRequest, context: AdminAuthContext) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     const posts = await prisma.contentItem.findMany({
       where: { type: "POST" },
       include: {
@@ -64,14 +60,48 @@ export async function GET() {
   }
 }
 
-// POST /api/posts - Create a new post
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    // Check if user is authenticated
     const session = await getServerSession(authOptions)
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 })
     }
 
+    // Get user and check for appropriate role
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true, name: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // For posts, require AUTHOR+ role (AUTHOR, MODERATOR, EDITOR, BOARD, ADMIN)
+    const allowedRoles = ['AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN']
+    if (!allowedRoles.includes(user.role)) {
+      return NextResponse.json({
+        error: 'Insufficient privileges - Author access required',
+        required: allowedRoles,
+        current: user.role
+      }, { status: 403 })
+    }
+
+    // User is authenticated and has appropriate role - proceed with original handler
+    return handleGET(request, { user })
+  } catch (error) {
+    console.error('Posts fetch error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch posts' },
+      { status: 500 }
+    )
+  }
+}
+
+// POST /api/posts - Create a new post
+async function handlePOST(request: NextRequest, context: AdminAuthContext) {
+  try {
     const body = await request.json()
     const validatedData = postSchema.parse(body)
 
@@ -98,7 +128,7 @@ export async function POST(request: NextRequest) {
         slug: validatedData.slug,
         type: "POST",
         status: validatedData.status,
-        authorId: session.user.id,
+        authorId: context.user.id,
         publishedAt: publishedAt,
         featuredImg: validatedData.featuredImg,
         translations: {
@@ -138,5 +168,44 @@ export async function POST(request: NextRequest) {
     }
     console.error("Error creating post:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check if user is authenticated
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 })
+    }
+
+    // Get user and check for appropriate role
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true, name: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // For creating posts, require AUTHOR+ role
+    const allowedRoles = ['AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN']
+    if (!allowedRoles.includes(user.role)) {
+      return NextResponse.json({
+        error: 'Insufficient privileges - Author access required',
+        required: allowedRoles,
+        current: user.role
+      }, { status: 403 })
+    }
+
+    // User is authenticated and has appropriate role - proceed with original handler
+    return handlePOST(request, { user })
+  } catch (error) {
+    console.error('Post creation error:', error)
+    return NextResponse.json(
+      { error: 'Failed to create post' },
+      { status: 500 }
+    )
   }
 }

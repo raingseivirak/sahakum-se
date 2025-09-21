@@ -2,6 +2,9 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AdminPermissionsProvider } from "@/contexts/admin-permissions-context"
 import { Metadata } from 'next'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -25,7 +28,21 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AdminLayout({ children, params }: AdminLayoutProps) {
+export default async function AdminLayout({ children, params }: AdminLayoutProps) {
+  // Check authentication server-side
+  const session = await getServerSession(authOptions)
+
+  // Redirect to signin if not authenticated
+  if (!session?.user?.id) {
+    redirect(`/${params.locale}/auth/signin?callbackUrl=${encodeURIComponent(`/${params.locale}/admin`)}`)
+  }
+
+  // Check if user has admin access (AUTHOR or higher)
+  const allowedRoles = ['AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN']
+  if (!allowedRoles.includes(session.user.role)) {
+    redirect(`/${params.locale}/auth/signin?error=insufficient_privileges`)
+  }
+
   return (
     <AdminPermissionsProvider>
       <SidebarProvider>
