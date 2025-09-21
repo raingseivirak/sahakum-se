@@ -147,7 +147,7 @@ export default function SignInPage({ params }: SignInPageProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="font-sweden h-12 border-2 border-gray-200 focus:border-sahakum-gold-500 focus:ring-0 rounded-none bg-gray-50 focus:bg-white transition-all"
-                    placeholder="admin@sahakumkhmer.se"
+                    placeholder="email address"
                   />
                   <div className="absolute left-0 bottom-0 h-0.5 bg-sahakum-gold-500 transition-all duration-300 w-0 focus-within:w-full"></div>
                 </div>

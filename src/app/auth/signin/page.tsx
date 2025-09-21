@@ -94,7 +94,7 @@ export default function SignIn() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={fontClass}
-                  placeholder="admin@sahakumkhmer.se"
+                  placeholder="email address"
                 />
               </div>
 
