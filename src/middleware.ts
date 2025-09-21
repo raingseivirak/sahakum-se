@@ -39,8 +39,8 @@ async function middleware(request: NextRequest) {
           return NextResponse.redirect(signInUrl)
         }
 
-        // Check if user has admin or editor role
-        if (token.role !== "ADMIN" && token.role !== "EDITOR") {
+        // Check if user has admin access (AUTHOR and higher roles)
+        if (!["AUTHOR", "MODERATOR", "EDITOR", "BOARD", "ADMIN"].includes(token.role)) {
           return NextResponse.redirect(new URL("/", req.url))
         }
 

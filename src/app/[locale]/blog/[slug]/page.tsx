@@ -340,6 +340,9 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
   )
 }
 
+// Enable ISR (Incremental Static Regeneration)
+export const revalidate = 300 // Revalidate every 5 minutes
+
 export async function generateStaticParams() {
   try {
     const posts = await prisma.contentItem.findMany({

@@ -36,7 +36,7 @@ export default function SignIn() {
       } else {
         // Get the session to check user role
         const session = await getSession()
-        if (session?.user?.role === "ADMIN" || session?.user?.role === "EDITOR") {
+        if (["ADMIN", "BOARD", "EDITOR", "MODERATOR", "AUTHOR"].includes(session?.user?.role)) {
           router.push("/en/admin")
         } else {
           router.push("/en")

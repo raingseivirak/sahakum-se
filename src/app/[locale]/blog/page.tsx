@@ -8,6 +8,9 @@ import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
 
+// Enable ISR (Incremental Static Regeneration)
+export const revalidate = 300 // Revalidate every 5 minutes
+
 interface BlogPageProps {
   params: { locale: string }
   searchParams: { page?: string; category?: string; tag?: string }

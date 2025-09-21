@@ -27,7 +27,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "BOARD" && session.user.role !== "EDITOR")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -80,7 +80,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "BOARD" && session.user.role !== "EDITOR")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -100,7 +100,7 @@ export async function PUT(
       return NextResponse.json({ error: "Post not found" }, { status: 404 })
     }
 
-    // Only ADMIN can edit others' posts, EDITOR can only edit their own
+    // Only ADMIN and BOARD can edit others' posts, EDITOR can only edit their own
     if (session.user.role === "EDITOR" && existingPost.authorId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden: You can only edit your own posts" }, { status: 403 })
     }
@@ -226,7 +226,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "BOARD" && session.user.role !== "EDITOR")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -243,7 +243,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Post not found" }, { status: 404 })
     }
 
-    // Only ADMIN can delete others' posts, EDITOR can only delete their own
+    // Only ADMIN and BOARD can delete others' posts, EDITOR can only delete their own
     if (session.user.role === "EDITOR" && existingPost.authorId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden: You can only delete your own posts" }, { status: 403 })
     }

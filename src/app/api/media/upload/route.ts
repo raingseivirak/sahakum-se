@@ -17,7 +17,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user || !["ADMIN", "EDITOR"].includes(session.user.role)) {
+    if (!session?.user || !["ADMIN", "BOARD", "EDITOR", "MODERATOR", "AUTHOR"].includes(session.user.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         mimeType: file.type,
         fileSize: file.size,
         category: category,
-        uploadedBy: session.user.id,
+        uploaderId: session.user.id,
         altText: formData.get("altText") as string || null,
         caption: formData.get("caption") as string || null,
       }

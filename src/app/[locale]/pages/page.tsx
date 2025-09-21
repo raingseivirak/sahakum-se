@@ -7,6 +7,9 @@ import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
 import Link from 'next/link'
 import Image from 'next/image'
 
+// Enable ISR (Incremental Static Regeneration)
+export const revalidate = 300 // Revalidate every 5 minutes
+
 const translations = {
   sv: {
     "pages.title": "Alla sidor",

@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Temporarily use simplified permissions - admin gets all, others get basic
     const isAdmin = user.role === 'ADMIN'
+    const isBoard = ['BOARD', 'ADMIN'].includes(user.role)
     const isEditor = ['EDITOR', 'BOARD', 'ADMIN'].includes(user.role)
     const isModerator = ['MODERATOR', 'EDITOR', 'BOARD', 'ADMIN'].includes(user.role)
     const isAuthor = ['AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN'].includes(user.role)
@@ -45,9 +46,9 @@ export async function GET(request: NextRequest) {
       canApproveContent: isEditor,
 
       // Organization Management
-      canViewMembershipRequests: isModerator,
+      canViewMembershipRequests: isBoard,
       canApproveMembership: isEditor,
-      canManageMembers: isEditor,
+      canManageMembers: isBoard,
       canManageServices: isEditor,
       canManageCategories: isEditor,
       canManageMedia: isModerator,

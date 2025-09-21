@@ -13,6 +13,9 @@ import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { type Language } from '@/lib/constants';
 
+// Enable ISR (Incremental Static Regeneration)
+export const revalidate = 300 // Revalidate every 5 minutes
+
 const translations = {
   sv: {
     "home.title": "Välkommen till vår gemenskap",

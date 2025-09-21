@@ -365,6 +365,24 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                           </TableRow>
                           <TableRow>
+                            <TableCell className={fontClass}>View Membership Requests</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className={fontClass}>Manage Members</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
+                          </TableRow>
+                          <TableRow>
                             <TableCell className={fontClass}>Approve Membership</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
