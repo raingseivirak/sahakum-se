@@ -14,7 +14,7 @@ export default async function AdminProfilePage({
 }) {
   const session = await getServerSession(authOptions)
 
-  if (!session || !['ADMIN', 'EDITOR', 'AUTHOR'].includes(session.user.role)) {
+  if (!session || !['ADMIN', 'BOARD', 'EDITOR', 'MODERATOR', 'AUTHOR'].includes(session.user.role)) {
     redirect(`/${locale}/auth/signin`)
   }
 
