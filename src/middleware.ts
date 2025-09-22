@@ -28,8 +28,9 @@ async function middleware(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const cspPolicy = [
     "default-src 'self'",
-    // Scripts: nonce for inline scripts, strict-dynamic for Next.js chunks
-    `script-src 'self' 'nonce-${nonce}' ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
+    // Scripts: nonce for inline scripts, with unsafe-inline for compatibility
+    // TODO: Implement proper nonce attribution for all inline scripts
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",
