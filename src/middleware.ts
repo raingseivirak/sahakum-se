@@ -30,8 +30,9 @@ async function middleware(request: NextRequest) {
     "default-src 'self'",
     // Scripts: nonce for inline scripts, strict-dynamic for Next.js chunks
     `script-src 'self' 'nonce-${nonce}' ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
-    // Styles: nonce for inline styles (TipTap editor needs this)
-    `style-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
+    // Styles: For TipTap compatibility, we need unsafe-inline without nonce
+    // This is a necessary compromise for rich text editor functionality
+    "style-src 'self' 'unsafe-inline'",
     // Images: allow data URLs for editor and external images
     "img-src 'self' data: blob: https:",
     // Fonts: allow data URLs for Sweden Sans
