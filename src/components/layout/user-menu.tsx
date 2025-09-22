@@ -23,9 +23,10 @@ interface UserMenuProps {
     profile: string;
     settings: string;
   };
+  currentUrl?: string;
 }
 
-export function UserMenu({ locale, translations }: UserMenuProps) {
+export function UserMenu({ locale, translations, currentUrl }: UserMenuProps) {
   const { data: session, status } = useSession();
 
   // Determine font class based on locale
@@ -55,8 +56,12 @@ export function UserMenu({ locale, translations }: UserMenuProps) {
 
   // Show sign in button if not authenticated
   if (status === 'unauthenticated' || !session) {
+    const signinUrl = currentUrl
+      ? `/${locale}/auth/signin?callbackUrl=${encodeURIComponent(currentUrl)}`
+      : `/${locale}/auth/signin`;
+
     return (
-      <Link href={`/${locale}/auth/signin`}>
+      <Link href={signinUrl}>
         <div className={`flex items-center space-x-1 px-2 py-1 text-xs bg-[var(--sahakum-gold)]/20 text-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/30 rounded-sm transition-colors ${fontClass} cursor-pointer`}>
           <User className="w-3 h-3" />
           <span>{translations.sign_in}</span>
@@ -80,7 +85,8 @@ export function UserMenu({ locale, translations }: UserMenuProps) {
   };
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: `/${locale}` });
+    const redirectUrl = currentUrl || `/${locale}`;
+    signOut({ callbackUrl: redirectUrl });
   };
 
   return (

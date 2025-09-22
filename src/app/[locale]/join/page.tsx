@@ -4,6 +4,7 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH3, SwedenLead, SwedenBody } from '@/components/ui/sweden-typography';
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { UserMenu } from '@/components/layout/user-menu';
 import { type Language } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -28,7 +29,12 @@ const translations = {
     "benefits.volunteer_description": "Ge tillbaka till samhället genom olika volontärprogram och initiativ",
     "form.title": "Medlemsansökan",
     "form.wizard_title": "Medlemsansökan",
-    "form.wizard_description": "Fyll i guiden nedan för att ansöka om medlemskap."
+    "form.wizard_description": "Fyll i guiden nedan för att ansöka om medlemskap.",
+    "nav.sign_in": "Logga in",
+    "nav.sign_out": "Logga ut",
+    "nav.admin": "Administratörspanel",
+    "nav.profile": "Min profil",
+    "nav.settings": "Inställningar"
   },
   en: {
     "page.title": "Join Sahakum Khmer",
@@ -49,7 +55,12 @@ const translations = {
     "benefits.volunteer_description": "Give back to the community through various volunteer programs and initiatives",
     "form.title": "Membership Application",
     "form.wizard_title": "Membership Application Form",
-    "form.wizard_description": "Complete the wizard below to apply for membership."
+    "form.wizard_description": "Complete the wizard below to apply for membership.",
+    "nav.sign_in": "Sign In",
+    "nav.sign_out": "Sign Out",
+    "nav.admin": "Admin Dashboard",
+    "nav.profile": "Profile",
+    "nav.settings": "Settings"
   },
   km: {
     "page.title": "ចូលរួមជាមួយសហគមន៍ខ្មែរ",
@@ -70,7 +81,12 @@ const translations = {
     "benefits.volunteer_description": "ផ្តល់ការគាំទ្រដល់សហគមន៍តាមរយៈកម្មវិធីស្ម័គ្រចិត្តនិងគំនិតផ្តួចផ្តើមផ្សេងៗ",
     "form.title": "ពាក្យសុំសមាជិកភាព",
     "form.wizard_title": "ទម្រង់ពាក្យសុំសមាជិកភាព",
-    "form.wizard_description": "បំពេញសំណូមពរខាងក្រោមដើម្បីដាក់ពាក្យសុំសមាជិកភាព។"
+    "form.wizard_description": "បំពេញសំណូមពរខាងក្រោមដើម្បីដាក់ពាក្យសុំសមាជិកភាព។",
+    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_out": "ចាកចេញ",
+    "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
+    "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",
+    "nav.settings": "ការកំណត់"
   }
 }
 
@@ -125,6 +141,17 @@ export default function JoinPage({ params }: JoinPageProps) {
               <LanguageSwitcher
                 currentLocale={params.locale as Language}
                 variant="compact"
+              />
+              <UserMenu
+                locale={params.locale as Language}
+                translations={{
+                  sign_in: t('nav.sign_in'),
+                  sign_out: t('nav.sign_out'),
+                  admin: t('nav.admin'),
+                  profile: t('nav.profile'),
+                  settings: t('nav.settings')
+                }}
+                currentUrl={`/${params.locale}/join`}
               />
             </div>
           </nav>

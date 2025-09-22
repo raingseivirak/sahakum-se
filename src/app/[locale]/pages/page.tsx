@@ -16,21 +16,36 @@ const translations = {
     "pages.subtitle": "Utforska allt innehåll på vår webbplats",
     "pages.description": "Hitta alla tillgängliga sidor och artiklar sorterade efter språk.",
     "pages.no_content": "Inget innehåll tillgängligt för tillfället.",
-    "pages.read_more": "Läs mer"
+    "pages.read_more": "Läs mer",
+    "nav.sign_in": "Logga in",
+    "nav.sign_out": "Logga ut",
+    "nav.admin": "Administratörspanel",
+    "nav.profile": "Min profil",
+    "nav.settings": "Inställningar"
   },
   en: {
     "pages.title": "All Pages",
     "pages.subtitle": "Explore all content on our website",
     "pages.description": "Find all available pages and articles organized by language.",
     "pages.no_content": "No content available at the moment.",
-    "pages.read_more": "Read more"
+    "pages.read_more": "Read more",
+    "nav.sign_in": "Sign In",
+    "nav.sign_out": "Sign Out",
+    "nav.admin": "Admin Dashboard",
+    "nav.profile": "Profile",
+    "nav.settings": "Settings"
   },
   km: {
     "pages.title": "ទំព័រទាំងអស់",
     "pages.subtitle": "ស្វែងរកមាតិកាទាំងអស់នៅលើគេហទំព័ររបស់យើង",
     "pages.description": "រកមើលទំព័រ និងអត្ថបទទាំងអស់ដែលបានរៀបចំតាមភាសា។",
     "pages.no_content": "មិនមានមាតិកាអ្វីទេនៅពេលនេះ។",
-    "pages.read_more": "អានបន្ថែម"
+    "pages.read_more": "អានបន្ថែម",
+    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_out": "ចាកចេញ",
+    "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
+    "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",
+    "nav.settings": "ការកំណត់"
   }
 }
 
@@ -86,6 +101,14 @@ export default async function PagesListPage({ params }: PagesListProps) {
           title: t('pages.title'),
           excerpt: t('pages.description')
         }}
+        translations={{
+          sign_in: t('nav.sign_in'),
+          sign_out: t('nav.sign_out'),
+          admin: t('nav.admin'),
+          profile: t('nav.profile'),
+          settings: t('nav.settings')
+        }}
+        currentUrl={`/${params.locale}/pages`}
       />
 
       {/* Hero Section - Clean Sophisticated Sahakum style */}

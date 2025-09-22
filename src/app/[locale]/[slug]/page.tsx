@@ -68,6 +68,14 @@ export default async function DynamicPage({ params }: PageProps) {
           title: page.translation.title,
           excerpt: page.translation.excerpt
         }}
+        translations={{
+          sign_in: params.locale === 'km' ? 'ចូលប្រើប្រាស់' : params.locale === 'sv' ? 'Logga in' : 'Sign In',
+          sign_out: params.locale === 'km' ? 'ចាកចេញ' : params.locale === 'sv' ? 'Logga ut' : 'Sign Out',
+          admin: params.locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : params.locale === 'sv' ? 'Administratörspanel' : 'Admin Dashboard',
+          profile: params.locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : params.locale === 'sv' ? 'Min profil' : 'Profile',
+          settings: params.locale === 'km' ? 'ការកំណត់' : params.locale === 'sv' ? 'Inställningar' : 'Settings'
+        }}
+        currentUrl={`/${params.locale}/${params.slug}`}
       />
 
       {/* Page Content with Sweden Brand Header */}
@@ -98,7 +106,7 @@ export default async function DynamicPage({ params }: PageProps) {
         {/* Page Content */}
         <section className="py-8 lg:py-12">
           <Container size="wide">
-            <div className="max-w-sweden-content mx-auto">
+            <div className="w-full">
               <LanguageAvailabilityNotice
                 currentLocale={params.locale}
                 slug={params.slug}

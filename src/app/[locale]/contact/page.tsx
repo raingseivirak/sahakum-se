@@ -4,6 +4,7 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenH3, SwedenBody } from '@/components/ui/sweden-typography';
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
+import { UserMenu } from '@/components/layout/user-menu';
 import { type Language } from '@/lib/constants';
 
 const translations = {
@@ -33,7 +34,12 @@ const translations = {
     "services.culture": "Kulturaktiviteter",
     "services.culture_desc": "Delta i kambodjanska kulturella evenemang",
     "emergency.title": "Akut hjälp",
-    "emergency.description": "För akuta situationer, kontakta alltid nödnumret 112 först."
+    "emergency.description": "För akuta situationer, kontakta alltid nödnumret 112 först.",
+    "nav.sign_in": "Logga in",
+    "nav.sign_out": "Logga ut",
+    "nav.admin": "Administratörspanel",
+    "nav.profile": "Min profil",
+    "nav.settings": "Inställningar"
   },
   en: {
     "page.title": "Contact Us",
@@ -61,7 +67,12 @@ const translations = {
     "services.culture": "Cultural Activities",
     "services.culture_desc": "Participate in Cambodian cultural events",
     "emergency.title": "Emergency Help",
-    "emergency.description": "For emergency situations, always contact emergency number 112 first."
+    "emergency.description": "For emergency situations, always contact emergency number 112 first.",
+    "nav.sign_in": "Sign In",
+    "nav.sign_out": "Sign Out",
+    "nav.admin": "Admin Dashboard",
+    "nav.profile": "Profile",
+    "nav.settings": "Settings"
   },
   km: {
     "page.title": "ទាក់ទងយើង",
@@ -89,7 +100,12 @@ const translations = {
     "services.culture": "សកម្មភាពវប្បធម៌",
     "services.culture_desc": "ចូលរួមក្នុងព្រឹត្តិការណ៍វប្បធម៌កម្ពុជា",
     "emergency.title": "ជំនួយបន្ទាន់",
-    "emergency.description": "សម្រាប់ស្ថានការណ៍បន្ទាន់ សូមទាក់ទងលេខបន្ទាន់ ១១២ ជាមុនសិន។"
+    "emergency.description": "សម្រាប់ស្ថានការណ៍បន្ទាន់ សូមទាក់ទងលេខបន្ទាន់ ១១២ ជាមុនសិន។",
+    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_out": "ចាកចេញ",
+    "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
+    "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",
+    "nav.settings": "ការកំណត់"
   }
 };
 
@@ -140,6 +156,16 @@ export default function ContactPage({ params }: ContactPageProps) {
               <LanguageSwitcher
                 currentLocale={params.locale as Language}
                 variant="compact"
+              />
+              <UserMenu
+                locale={params.locale as Language}
+                translations={{
+                  sign_in: t('nav.sign_in'),
+                  sign_out: t('nav.sign_out'),
+                  admin: t('nav.admin'),
+                  profile: t('nav.profile'),
+                  settings: t('nav.settings')
+                }}
               />
             </div>
           </nav>

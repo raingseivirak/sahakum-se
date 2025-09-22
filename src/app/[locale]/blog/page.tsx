@@ -5,6 +5,7 @@ import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
 import { SwedenH1, SwedenH2, SwedenBody } from '@/components/ui/sweden-typography'
 import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { UserMenu } from '@/components/layout/user-menu'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
 
@@ -26,7 +27,12 @@ const blogTranslations = {
     by: 'av',
     noPostsFound: 'Inga inlägg hittades',
     noPostsDescription: 'Det finns inga publicerade blogginlägg just nu. Kom tillbaka senare!',
-    loadingPosts: 'Laddar inlägg...'
+    loadingPosts: 'Laddar inlägg...',
+    sign_in: 'Logga in',
+    sign_out: 'Logga ut',
+    admin: 'Administratörspanel',
+    profile: 'Min profil',
+    settings: 'Inställningar'
   },
   en: {
     title: 'Blog',
@@ -36,7 +42,12 @@ const blogTranslations = {
     by: 'by',
     noPostsFound: 'No posts found',
     noPostsDescription: 'There are no published blog posts at the moment. Check back later!',
-    loadingPosts: 'Loading posts...'
+    loadingPosts: 'Loading posts...',
+    sign_in: 'Sign In',
+    sign_out: 'Sign Out',
+    admin: 'Admin Dashboard',
+    profile: 'Profile',
+    settings: 'Settings'
   },
   km: {
     title: 'ប្លុក',
@@ -46,7 +57,12 @@ const blogTranslations = {
     by: 'ដោយ',
     noPostsFound: 'រកមិនឃើញប្រកាស',
     noPostsDescription: 'មិនមានប្រកាសប្លុកដែលបានបោះពុម្ពនៅពេលនេះទេ។ សូមពិនិត្យមកវិញពេលក្រោយ!',
-    loadingPosts: 'កំពុងផ្ទុកប្រកាស...'
+    loadingPosts: 'កំពុងផ្ទុកប្រកាស...',
+    sign_in: 'ចូលប្រើប្រាស់',
+    sign_out: 'ចាកចេញ',
+    admin: 'ផ្ទាំងគ្រប់គ្រង',
+    profile: 'ប្រវត្តិរូបផ្ទាល់ខ្លួន',
+    settings: 'ការកំណត់'
   }
 }
 
@@ -333,6 +349,17 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                 currentLocale={params.locale as Language}
                 variant="compact"
               />
+              <UserMenu
+                locale={params.locale as Language}
+                translations={{
+                  sign_in: t('sign_in'),
+                  sign_out: t('sign_out'),
+                  admin: t('admin'),
+                  profile: t('profile'),
+                  settings: t('settings')
+                }}
+                currentUrl={`/${params.locale}/blog`}
+              />
             </div>
           </nav>
         </Container>
@@ -550,7 +577,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                 {posts.length > 1 && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     {posts.slice(1, 4).map((post: any) => (
-                      <SwedishCard key={post.id} href={`/${params.locale}/blog/${post.slug}`} variant="borderless" className="group hover:shadow-xl h-full">
+                      <SwedishCard key={post.id} variant="borderless" className="group hover:shadow-xl h-full">
                         {post.featuredImg && (
                           <div className="aspect-video bg-gray-200 overflow-hidden">
                             <img
@@ -567,7 +594,9 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                             <span>{post.readingTime} {params.locale === 'sv' ? 'min' : params.locale === 'km' ? 'នាទី' : 'min'}</span>
                           </div>
                           <SwedishCardTitle size="sm" className="text-[var(--sahakum-navy)] group-hover:text-[var(--sahakum-gold)] transition-colors duration-200" locale={params.locale}>
-                            {post.translation?.title}
+                            <Link href={`/${params.locale}/blog/${post.slug}`}>
+                              {post.translation?.title}
+                            </Link>
                           </SwedishCardTitle>
                         </SwedishCardHeader>
                         <SwedishCardContent>
@@ -618,7 +647,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                 {posts.length > 4 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.slice(4).map((post: any) => (
-                      <SwedishCard key={post.id} href={`/${params.locale}/blog/${post.slug}`} variant="borderless" className="group hover:shadow-xl h-full">
+                      <SwedishCard key={post.id} variant="borderless" className="group hover:shadow-xl h-full">
                         {post.featuredImg && (
                           <div className="aspect-video bg-gray-200 overflow-hidden">
                             <img
@@ -635,7 +664,9 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
                             <span>{post.readingTime} {params.locale === 'sv' ? 'min' : params.locale === 'km' ? 'នាទី' : 'min'}</span>
                           </div>
                           <SwedishCardTitle size="sm" className="text-[var(--sahakum-navy)] group-hover:text-[var(--sahakum-gold)] transition-colors duration-200" locale={params.locale}>
-                            {post.translation?.title}
+                            <Link href={`/${params.locale}/blog/${post.slug}`}>
+                              {post.translation?.title}
+                            </Link>
                           </SwedishCardTitle>
                         </SwedishCardHeader>
                         <SwedishCardContent>

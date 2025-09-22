@@ -187,6 +187,14 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
           author: post.author.name,
           publishedAt: post.publishedAt!
         }}
+        translations={{
+          sign_in: params.locale === 'km' ? 'ចូលប្រើប្រាស់' : params.locale === 'sv' ? 'Logga in' : 'Sign In',
+          sign_out: params.locale === 'km' ? 'ចាកចេញ' : params.locale === 'sv' ? 'Logga ut' : 'Sign Out',
+          admin: params.locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : params.locale === 'sv' ? 'Administratörspanel' : 'Admin Dashboard',
+          profile: params.locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : params.locale === 'sv' ? 'Min profil' : 'Profile',
+          settings: params.locale === 'km' ? 'ការកំណត់' : params.locale === 'sv' ? 'Inställningar' : 'Settings'
+        }}
+        currentUrl={`/${params.locale}/blog/${params.slug}`}
       />
 
       {/* Preview Banner */}

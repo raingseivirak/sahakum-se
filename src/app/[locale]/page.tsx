@@ -144,6 +144,7 @@ export default function HomePage({ params }: Props) {
                   profile: t('nav.profile') || 'Profile',
                   settings: t('nav.settings') || 'Settings'
                 }}
+                currentUrl={`/${params.locale}`}
               />
             </div>
           </nav>

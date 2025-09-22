@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Container } from '@/components/layout/grid'
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { UserMenu } from '@/components/layout/user-menu'
 import { type Language } from '@/lib/constants'
 
 interface ScrollAwareHeaderProps {
@@ -16,12 +17,22 @@ interface ScrollAwareHeaderProps {
     author?: string
     publishedAt?: string
   }
+  translations?: {
+    sign_in: string
+    sign_out: string
+    admin: string
+    profile: string
+    settings: string
+  }
+  currentUrl?: string
 }
 
 export function ScrollAwareHeader({
   locale,
   showBlogLink = false,
-  stickyContent
+  stickyContent,
+  translations,
+  currentUrl
 }: ScrollAwareHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [showStickyTitle, setShowStickyTitle] = useState(false)
@@ -86,6 +97,13 @@ export function ScrollAwareHeader({
                 currentLocale={locale as Language}
                 variant="compact"
               />
+              {translations && (
+                <UserMenu
+                  locale={locale as Language}
+                  translations={translations}
+                  currentUrl={currentUrl}
+                />
+              )}
             </div>
           </nav>
         </Container>
