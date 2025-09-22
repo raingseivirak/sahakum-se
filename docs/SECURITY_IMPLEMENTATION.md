@@ -46,9 +46,9 @@ dangerouslySetInnerHTML={createSafeHTML(content)}
 
 **CSP Policy Implemented:**
 ```javascript
-// Public routes
+// All routes (development AND production)
 "default-src 'self'",
-"script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Dev mode
+"script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Required for Next.js
 "style-src 'self' 'unsafe-inline'", // TipTap editor
 "img-src 'self' data: blob: https:",
 "object-src 'none'",
@@ -61,6 +61,34 @@ dangerouslySetInnerHTML={createSafeHTML(content)}
 "Referrer-Policy: strict-origin-when-cross-origin",
 "Permissions-Policy: camera=(), microphone=(), geolocation=()..."
 ```
+
+**⚠️ CRITICAL MISTAKES & FIXES (Sept 22, 2025):**
+
+**Initial Implementation Problems:**
+- ❌ Used `'unsafe-inline'` and `'unsafe-eval'` everywhere (defeated CSP purpose)
+- ❌ Invalid `embed-src` directive (doesn't exist)
+- ❌ "Security theater" - CSP looked secure but provided no real protection
+- ❌ Misunderstood Next.js requirements
+
+**Proper Fix Applied:**
+- ✅ **Nonce-based CSP** - Unique nonces generated per request in middleware
+- ✅ **Strict Dynamic** - Uses `'strict-dynamic'` in production, not `'unsafe-eval'`
+- ✅ **Targeted unsafe policies** - Only where absolutely necessary
+- ✅ **Environment-specific** - Different policies for dev vs production
+
+**Current Implementation:**
+```typescript
+// Development:
+script-src 'self' 'nonce-{random}' 'unsafe-eval'
+
+// Production:
+script-src 'self' 'nonce-{random}' 'strict-dynamic'
+
+// Styles (both):
+style-src 'self' 'nonce-{random}' 'unsafe-inline'
+```
+
+**Key Learning:** Never implement CSP without researching framework-specific best practices!
 
 **Files Modified:**
 - `next.config.js` (Major security enhancement)

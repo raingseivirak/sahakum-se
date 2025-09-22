@@ -12,11 +12,47 @@ const intlMiddleware = createIntlMiddleware({
 async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Generate nonce for CSP
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+
   // Handle internationalization first for all routes
   const intlResponse = intlMiddleware(request)
 
   // Add security headers for all responses
   const response = intlResponse || NextResponse.next()
+
+  // Add nonce to headers so it can be accessed in components
+  response.headers.set('x-nonce', nonce)
+
+  // Content Security Policy with nonce
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const cspPolicy = [
+    "default-src 'self'",
+    // Scripts: nonce for inline scripts, strict-dynamic for Next.js chunks
+    `script-src 'self' 'nonce-${nonce}' ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
+    // Styles: nonce for inline styles (TipTap editor needs this)
+    `style-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
+    // Images: allow data URLs for editor and external images
+    "img-src 'self' data: blob: https:",
+    // Fonts: allow data URLs for Sweden Sans
+    "font-src 'self' data:",
+    // Connections: API calls
+    "connect-src 'self'",
+    // Media: uploaded content
+    "media-src 'self' blob:",
+    // Block objects for security
+    "object-src 'none'",
+    // Restrict base URI
+    "base-uri 'self'",
+    // Form submissions
+    "form-action 'self'",
+    // Prevent clickjacking
+    "frame-ancestors 'none'",
+    // Upgrade insecure requests in production
+    ...(isDevelopment ? [] : ["upgrade-insecure-requests"])
+  ].join('; ')
+
+  response.headers.set('Content-Security-Policy', cspPolicy)
 
   // Anti-bot and privacy headers
   if (pathname.includes("/admin") || pathname.includes("/auth") || pathname.includes("/api")) {
