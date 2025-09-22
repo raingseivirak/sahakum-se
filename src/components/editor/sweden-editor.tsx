@@ -8,6 +8,17 @@
  * → src/lib/sanitize.ts
  *
  * Otherwise content may be stripped when displayed to users!
+ *
+ * 🛡️ CSP COMPATIBILITY NOTICE:
+ * This editor is compatible with Content Security Policy (CSP) headers.
+ * The CSP configuration in next.config.js allows:
+ * - 'unsafe-inline' for styles (required for TipTap toolbar styling)
+ * - 'self' for scripts (blocks inline JavaScript for security)
+ * - data: and blob: for images (supports editor image functionality)
+ *
+ * If you add extensions that require additional CSP permissions:
+ * → Update the CSP policy in next.config.js
+ * → Test with csp-test.html to verify security isn't compromised
  */
 
 import { useEditor, EditorContent } from '@tiptap/react'
