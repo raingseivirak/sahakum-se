@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
+import { createSafeHTML } from '@/lib/sanitize'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -133,7 +134,7 @@ export default async function DynamicPage({ params }: PageProps) {
                   <article
                     className={`prose prose-sweden prose-sm max-w-none ${fontClass}`}
                     data-language={params.locale}
-                    dangerouslySetInnerHTML={{ __html: page.translation.content || '' }}
+                    dangerouslySetInnerHTML={createSafeHTML(page.translation.content)}
                   />
                 </div>
               </div>

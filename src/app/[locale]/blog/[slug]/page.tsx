@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
+import { createSafeHTML } from '@/lib/sanitize'
 
 interface BlogPostPageProps {
   params: {
@@ -303,7 +304,7 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                   <article
                     className={`prose prose-sweden prose-lg max-w-none ${fontClass}`}
                     data-language={params.locale}
-                    dangerouslySetInnerHTML={{ __html: post.translation.content || '' }}
+                    dangerouslySetInnerHTML={createSafeHTML(post.translation.content)}
                   />
 
                   {/* Tags */}

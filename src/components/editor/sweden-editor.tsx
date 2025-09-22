@@ -1,5 +1,15 @@
 "use client"
 
+/**
+ * ⚠️ SECURITY NOTICE: This editor's output is sanitized on the frontend
+ *
+ * If you add new TipTap extensions, HTML tags, CSS classes, or attributes,
+ * you MUST update the sanitization configuration in:
+ * → src/lib/sanitize.ts
+ *
+ * Otherwise content may be stripped when displayed to users!
+ */
+
 import { useEditor, EditorContent } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
 import { Image } from '@tiptap/extension-image'

@@ -177,6 +177,23 @@ This happens via `scripts/setup-schema.js` which runs before:
 
 **No more manual schema switching!** ✨
 
+## 🛡️ SECURITY: XSS Protection & Editor Sanitization
+
+**CRITICAL**: All user content is sanitized using DOMPurify to prevent XSS attacks.
+
+**If you modify the Swedish Editor (`src/components/editor/sweden-editor.tsx`):**
+- Add new TipTap extensions → Update `src/lib/sanitize.ts` ALLOWED_TAGS
+- Add new CSS classes → Verify they pass class regex validation
+- Add new HTML attributes → Add to ALLOWED_ATTR array
+- **Test thoroughly**: Create content in admin → View on frontend → Verify formatting preserved
+
+**Files involved in sanitization:**
+- `src/lib/sanitize.ts` - Main sanitization configuration
+- `src/app/[locale]/[slug]/page.tsx` - Dynamic pages (uses `createSafeHTML`)
+- `src/app/[locale]/blog/[slug]/page.tsx` - Blog posts (uses `createSafeHTML`)
+
+**Last XSS fix**: 2025-01-22 - Added DOMPurify for Swedish editor compatibility
+
 ## 🚨 CRITICAL INFORMATION FOR CLAUDE CODE
 
 ### Recent Major Fixes (Sept 17, 2025)
