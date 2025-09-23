@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
+import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 
 interface BlogPostPageProps {
@@ -325,6 +326,27 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                       </div>
                     </div>
                   )}
+
+                  {/* Share Article Section */}
+                  <div className="mt-12 pt-8 border-t border-gray-200">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div>
+                        <h3 className={`text-lg font-semibold text-[var(--sahakum-navy)] mb-2 ${fontClass}`}>
+                          {params.locale === 'km' ? 'ចែករំលែកអត្ថបទ' : params.locale === 'en' ? 'Share Article' : 'Dela artikel'}
+                        </h3>
+                        <p className={`text-sm text-gray-600 ${fontClass}`}>
+                          {params.locale === 'km' ? 'ចែករំលែកអត្ថបទនេះជាមួយមិត្តភក្តិ' :
+                           params.locale === 'en' ? 'Share this article with friends and colleagues' :
+                           'Dela den här artikeln med vänner och kollegor'}
+                        </p>
+                      </div>
+                      <CopyLinkButton
+                        locale={params.locale}
+                        title={post.translation.title}
+                        className="flex-shrink-0"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
