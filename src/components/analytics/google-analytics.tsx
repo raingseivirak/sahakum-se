@@ -58,6 +58,10 @@ function GoogleAnalyticsInner() {
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+
+            // Ensure gtag is available globally
+            window.gtag = window.gtag || gtag;
+
             gtag('js', new Date());
 
             gtag('config', '${GA_TRACKING_ID}', {
