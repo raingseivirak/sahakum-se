@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Check, Link2, Share } from 'lucide-react'
+import { trackEvents } from '@/lib/analytics'
 
 interface CopyLinkButtonProps {
   url?: string
@@ -22,6 +23,8 @@ export function CopyLinkButton({
   shareText = 'Share Article'
 }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [hasNativeShare, setHasNativeShare] = useState(false)
   const params = useParams()
   const locale = params.locale as string
 
@@ -29,12 +32,21 @@ export function CopyLinkButton({
   const linkUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
   const fontClass = locale === 'km' ? 'font-khmer' : 'font-sweden'
 
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true)
+    setHasNativeShare(typeof navigator !== 'undefined' && !!navigator.share)
+  }, [])
+
   const handleCopy = async () => {
     if (!linkUrl) return
 
     try {
       await navigator.clipboard.writeText(linkUrl)
       setCopied(true)
+
+      // Track analytics event
+      trackEvents.shareArticle('copy_link', title)
 
       // Reset after 2 seconds
       setTimeout(() => {
@@ -50,6 +62,9 @@ export function CopyLinkButton({
       document.body.removeChild(textArea)
 
       setCopied(true)
+      // Track analytics event
+      trackEvents.shareArticle('copy_link', title)
+
       setTimeout(() => {
         setCopied(false)
       }, 2000)
@@ -131,10 +146,13 @@ export function CopyLinkButton({
       )}
 
       {/* Mobile-friendly share button - only show if native share is available */}
-      {typeof navigator !== 'undefined' && navigator.share && className?.includes('subtle-link-button') && (
+      {mounted && hasNativeShare && className?.includes('subtle-link-button') && (
         <button
           onClick={() => {
             if (navigator.share) {
+              // Track analytics event
+              trackEvents.shareArticle('native_share', title)
+
               navigator.share({
                 title: title,
                 url: linkUrl,

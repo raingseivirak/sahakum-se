@@ -6,6 +6,7 @@ import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
+import { Footer } from '@/components/layout/footer'
 
 interface BlogPostPageProps {
   params: {
@@ -348,18 +349,8 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
         </section>
       </main>
 
-      {/* Footer - Consistent with homepage */}
-      <footer className="bg-[var(--sahakum-navy)] text-white py-12 border-t border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <div className="text-center">
-            <p className={`text-[var(--sahakum-gold)] mb-0 ${fontClass}`}>
-              © 2025 Sahakum Khmer. {params.locale === 'km' ? 'រក្សាសិទ្ធិគ្រប់យ៉ាង។' :
-                                   params.locale === 'en' ? 'All rights reserved.' :
-                                   'Alla rättigheter förbehållna.'}
-            </p>
-          </div>
-        </Container>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

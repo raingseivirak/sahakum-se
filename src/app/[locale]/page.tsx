@@ -11,6 +11,7 @@ import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
+import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
 
 // Enable ISR (Incremental Static Regeneration)
@@ -215,15 +216,7 @@ export default function HomePage({ params }: Props) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[var(--sahakum-navy)] text-white py-12 border-t border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <div className="text-center">
-            <SwedenBody className="text-[var(--sahakum-gold)] mb-0" locale={params.locale}>
-              {t('footer.copyright')}
-            </SwedenBody>
-          </div>
-        </Container>
-      </footer>
+      <Footer />
     </div>
   );
 }

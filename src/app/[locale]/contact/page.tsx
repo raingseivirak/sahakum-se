@@ -5,6 +5,7 @@ import { SwedenH1, SwedenH2, SwedenH3, SwedenBody } from '@/components/ui/sweden
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
+import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
 
 const translations = {
@@ -315,18 +316,8 @@ export default function ContactPage({ params }: ContactPageProps) {
         </Container>
       </main>
 
-      {/* Footer - Consistent with homepage */}
-      <footer className="bg-[var(--sahakum-navy)] text-white py-12 border-t border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <div className="text-center">
-            <SwedenBody className="text-[var(--sahakum-gold)] mb-0" locale={params.locale}>
-              {params.locale === 'sv' ? '© 2025 Sahakum Khmer. Alla rättigheter förbehållna.' :
-               params.locale === 'km' ? '© ២០២៥ សហគមន៍ខ្មែរ។ រក្សាសិទ្ធិគ្រប់យ៉ាង។' :
-               '© 2025 Sahakum Khmer. All rights reserved.'}
-            </SwedenBody>
-          </div>
-        </Container>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

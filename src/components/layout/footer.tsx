@@ -1,7 +1,37 @@
-import { useTranslations } from 'next-intl';
+'use client'
+
+import { useParams } from 'next/navigation';
+import { showCookieSettings } from '@/lib/cookie-consent';
+
+// Static translations for the footer
+const footerTranslations = {
+  sv: {
+    contact: 'Kontakt',
+    cookie_settings: 'Cookie-inställningar',
+    follow_us: 'Följ oss',
+    copyright: '© 2025 Sahakum Khmer. Alla rättigheter förbehållna.',
+    tagline: 'Gemenskap • Kultur • Integration'
+  },
+  en: {
+    contact: 'Contact',
+    cookie_settings: 'Cookie Settings',
+    follow_us: 'Follow us',
+    copyright: '© 2025 Sahakum Khmer. All rights reserved.',
+    tagline: 'Community • Culture • Integration'
+  },
+  km: {
+    contact: 'ទំនាក់ទំនង',
+    cookie_settings: 'ការកំណត់ Cookie',
+    follow_us: 'តាមដាន',
+    copyright: '© ២០២៥ សហគមន៍ខ្មែរ។ រក្សាសិទ្ធិគ្រប់យ៉ាង។',
+    tagline: 'សហគមន៍ • វប្បធម៌ • ការរួមបញ្ចូល'
+  }
+};
 
 export function Footer() {
-  const t = useTranslations('common');
+  const params = useParams();
+  const locale = (params?.locale as string) || 'sv';
+  const t = (key: string) => footerTranslations[locale as keyof typeof footerTranslations]?.[key] || footerTranslations.sv[key] || key;
 
   return (
     <footer className="bg-gray-50 border-t">
@@ -10,7 +40,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-[var(--sweden-blue)] mb-4">Sahakum Khmer</h3>
             <p className="text-gray-600 text-sm">
-              Gemenskap • Kultur • Integration
+              {t('tagline')}
             </p>
           </div>
 
@@ -23,7 +53,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-gray-800 mb-4">Följ oss</h4>
+            <h4 className="font-semibold text-gray-800 mb-4">{t('follow_us')}</h4>
             <div className="flex space-x-4">
               <a href="#" className="text-[var(--sweden-blue)] hover:text-[var(--sweden-blue-light)]">
                 Facebook
@@ -36,7 +66,15 @@ export function Footer() {
         </div>
 
         <div className="border-t pt-6 mt-8 text-center text-sm text-gray-500">
-          <p>&copy; 2025 Sahakum Khmer. Alla rättigheter förbehållna.</p>
+          <p>{t('copyright')}</p>
+          <div className="mt-2 flex justify-center">
+            <button
+              onClick={showCookieSettings}
+              className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors duration-200 underline font-medium"
+            >
+              {t('cookie_settings')}
+            </button>
+          </div>
         </div>
       </div>
     </footer>
