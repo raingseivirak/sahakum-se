@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { ActivityLogger } from "@/lib/activity-logger"
 
 const categoryCreateSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
@@ -104,6 +105,28 @@ export async function POST(request: NextRequest) {
             translations: true
           }
         }
+      }
+    })
+
+    // Log category creation activity
+    const mainTranslation = validatedData.translations.find(t => t.language === 'en') || validatedData.translations[0]
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'category.created',
+      resourceType: 'CATEGORY',
+      resourceId: category.id,
+      description: `Created category "${mainTranslation.name}" (${category.slug})`,
+      newValues: {
+        slug: category.slug,
+        type: category.type,
+        parentId: category.parentId
+      },
+      metadata: {
+        slug: category.slug,
+        type: category.type,
+        parentId: category.parentId,
+        languages: validatedData.translations.map(t => t.language),
+        translationCount: validatedData.translations.length
       }
     })
 

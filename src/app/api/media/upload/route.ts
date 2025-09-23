@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { writeFile } from "fs/promises"
 import { join } from "path"
 import { randomUUID } from "crypto"
+import { ActivityLogger } from "@/lib/activity-logger"
 
 const ALLOWED_TYPES = {
   images: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -67,6 +68,32 @@ export async function POST(request: NextRequest) {
         uploaderId: session.user.id,
         altText: formData.get("altText") as string || null,
         caption: formData.get("caption") as string || null,
+      }
+    })
+
+    // Log media upload activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'media.uploaded',
+      resourceType: 'MEDIA',
+      resourceId: mediaFile.id,
+      description: `Uploaded media file "${file.name}" (${category})`,
+      newValues: {
+        filename: mediaFile.filename,
+        originalName: mediaFile.originalName,
+        url: mediaFile.url,
+        mimeType: mediaFile.mimeType,
+        fileSize: mediaFile.fileSize,
+        category: mediaFile.category,
+        altText: mediaFile.altText,
+        caption: mediaFile.caption
+      },
+      metadata: {
+        category: mediaFile.category,
+        mimeType: mediaFile.mimeType,
+        fileSize: mediaFile.fileSize,
+        originalName: mediaFile.originalName,
+        uploadPath: `/media/${category}/${uniqueFilename}`
       }
     })
 

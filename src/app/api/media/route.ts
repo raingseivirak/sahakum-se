@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { readdir, stat } from "fs/promises"
 import { join } from "path"
+import { ActivityLogger } from "@/lib/activity-logger"
 
 // GET /api/media - List all media files
 export async function GET(request: NextRequest) {
@@ -135,6 +136,24 @@ export async function PUT(request: NextRequest) {
 
     // TODO: Check for orphaned database records (files that no longer exist on disk)
     // This would require checking each database record against the file system
+
+    // Log media sync activity
+    if (syncResults.added > 0 || syncResults.errors.length > 0) {
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action: 'media.sync_completed',
+        resourceType: 'MEDIA',
+        resourceId: 'sync_operation',
+        description: `Media sync completed: ${syncResults.added} files added${syncResults.errors.length > 0 ? `, ${syncResults.errors.length} errors` : ''}`,
+        metadata: {
+          filesAdded: syncResults.added,
+          filesRemoved: syncResults.removed,
+          errorCount: syncResults.errors.length,
+          errors: syncResults.errors.slice(0, 5), // Limit error list for storage
+          categories: categories
+        }
+      })
+    }
 
     return NextResponse.json(syncResults)
 

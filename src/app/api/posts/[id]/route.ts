@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { ActivityLogger, getChangedFields } from "@/lib/activity-logger"
 import { z } from "zod"
 
 const postUpdateSchema = z.object({
@@ -129,6 +130,13 @@ export async function PUT(
       updateData.publishedAt = new Date(validatedData.publishedAt)
     }
 
+    // Prepare old values for activity logging
+    const oldValues = {
+      slug: existingPost.slug,
+      status: existingPost.status,
+      featuredImg: existingPost.featuredImg
+    }
+
     const post = await prisma.contentItem.update({
       where: { id: params.id },
       data: updateData,
@@ -157,6 +165,27 @@ export async function PUT(
         }
       }
     })
+
+    // Log post update activity if there were changes
+    if (Object.keys(updateData).length > 0) {
+      const newValues = {
+        slug: post.slug,
+        status: post.status,
+        featuredImg: post.featuredImg
+      }
+      const changedFields = getChangedFields(oldValues, newValues)
+      const mainTranslation = existingPost.translations.find(t => t.language === 'en') || existingPost.translations[0]
+
+      await ActivityLogger.logContentUpdated(
+        session.user.id,
+        'POST',
+        post.id,
+        mainTranslation.title,
+        oldValues,
+        newValues,
+        changedFields
+      )
+    }
 
     // Update translations if provided
     if (validatedData.translations) {
@@ -248,10 +277,29 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden: You can only delete your own posts" }, { status: 403 })
     }
 
+    // Get post title for activity logging
+    const postTranslations = await prisma.contentTranslation.findMany({
+      where: { contentItemId: params.id }
+    })
+    const mainTranslation = postTranslations.find(t => t.language === 'en') || postTranslations[0]
+    const postTitle = mainTranslation?.title || existingPost.slug
+
     // Delete post (translations will be deleted automatically due to cascade)
     await prisma.contentItem.delete({
       where: { id: params.id }
     })
+
+    // Log post deletion activity
+    await ActivityLogger.logContentDeleted(
+      session.user.id,
+      'POST',
+      params.id,
+      postTitle,
+      {
+        slug: existingPost.slug,
+        status: existingPost.status
+      }
+    )
 
     return NextResponse.json({ message: "Post deleted successfully" })
   } catch (error) {

@@ -27,6 +27,7 @@ model User {
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
   statusHistoryChanges       MembershipRequestStatusHistory[]
   sessions                   Session[]
+  activityLogs               ActivityLog[]
 
   @@map("users")
 }
@@ -370,4 +371,30 @@ enum SettingType {
   URL
   EMAIL
   IMAGE
+}
+
+model ActivityLog {
+  id           String   @id @default(cuid())
+  userId       String
+  action       String   // e.g., "page.created", "user.updated", "auth.login"
+  resourceType String   // e.g., "PAGE", "USER", "POST", "MEDIA"
+  resourceId   String?  // ID of the affected resource
+  description  String   // Human-readable description
+  oldValues    Json?    // Previous state (for updates)
+  newValues    Json?    // New state (for updates)
+  metadata     Json?    // Additional context (e.g., changed fields, file sizes)
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@map("activity_logs")
 }

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { withAuthorAccess, AdminAuthContext } from "@/lib/admin-auth-middleware"
 import { prisma } from "@/lib/prisma"
+import { ActivityLogger } from "@/lib/activity-logger"
 import { z } from "zod"
 
 // Schema for post creation/update
@@ -160,6 +161,20 @@ async function handlePOST(request: NextRequest, context: AdminAuthContext) {
         }
       }
     })
+
+    // Log post creation activity
+    const mainTranslation = validatedData.translations.find(t => t.language === 'en') || validatedData.translations[0]
+    await ActivityLogger.logContentCreated(
+      context.user.id,
+      'POST',
+      post.id,
+      mainTranslation.title,
+      {
+        slug: post.slug,
+        status: post.status,
+        languages: validatedData.translations.map(t => t.language)
+      }
+    )
 
     return NextResponse.json(post, { status: 201 })
   } catch (error) {

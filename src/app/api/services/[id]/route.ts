@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { ActivityLogger, getChangedFields } from '@/lib/activity-logger'
 
 // Validation schema for Service update
 const serviceUpdateSchema = z.object({
@@ -70,7 +71,10 @@ export async function PUT(
 
     // Check if service exists
     const existingService = await prisma.service.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: {
+        translations: true
+      }
     })
 
     if (!existingService) {
@@ -110,6 +114,47 @@ export async function PUT(
       }
     })
 
+    // Log service update activity
+    const oldValues = {
+      slug: existingService.slug,
+      icon: existingService.icon,
+      featuredImg: existingService.featuredImg,
+      colorTheme: existingService.colorTheme,
+      active: existingService.active,
+      order: existingService.order
+    }
+
+    const newValues = {
+      slug: service.slug,
+      icon: service.icon,
+      featuredImg: service.featuredImg,
+      colorTheme: service.colorTheme,
+      active: service.active,
+      order: service.order
+    }
+
+    const changedFields = getChangedFields(oldValues, newValues)
+    const mainTranslation = existingService.translations.find(t => t.language === 'en') || existingService.translations[0]
+
+    if (changedFields.length > 0 || validatedData.translations) {
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action: 'service.updated',
+        resourceType: 'SERVICE',
+        resourceId: service.id,
+        description: `Updated service "${mainTranslation?.title || existingService.slug}"${changedFields.length > 0 ? ` (${changedFields.join(', ')})` : ''}${validatedData.translations ? ' and translations' : ''}`,
+        oldValues,
+        newValues,
+        metadata: {
+          changedFields,
+          slug: service.slug,
+          colorTheme: service.colorTheme,
+          translationsUpdated: !!validatedData.translations,
+          oldSlug: existingService.slug
+        }
+      })
+    }
+
     return NextResponse.json({ service })
   } catch (error) {
     console.error('Service update error:', error)
@@ -142,15 +187,45 @@ export async function DELETE(
 
     // Check if service exists
     const existingService = await prisma.service.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: {
+        translations: true
+      }
     })
 
     if (!existingService) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 })
     }
 
+    // Get service title for activity logging
+    const mainTranslation = existingService.translations.find(t => t.language === 'en') || existingService.translations[0]
+    const serviceTitle = mainTranslation?.title || existingService.slug
+
     await prisma.service.delete({
       where: { id: params.id }
+    })
+
+    // Log service deletion activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'service.deleted',
+      resourceType: 'SERVICE',
+      resourceId: params.id,
+      description: `Deleted service "${serviceTitle}" (${existingService.slug})`,
+      oldValues: {
+        slug: existingService.slug,
+        icon: existingService.icon,
+        featuredImg: existingService.featuredImg,
+        colorTheme: existingService.colorTheme,
+        active: existingService.active,
+        order: existingService.order
+      },
+      metadata: {
+        slug: existingService.slug,
+        colorTheme: existingService.colorTheme,
+        translationCount: existingService.translations.length,
+        languages: existingService.translations.map(t => t.language)
+      }
     })
 
     return NextResponse.json({ message: 'Service deleted successfully' })

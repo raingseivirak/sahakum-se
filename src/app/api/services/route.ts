@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { ActivityLogger } from '@/lib/activity-logger'
 
 // Validation schema for Service
 const serviceSchema = z.object({
@@ -84,6 +85,30 @@ export async function POST(request: NextRequest) {
       },
       include: {
         translations: true
+      }
+    })
+
+    // Log service creation activity
+    const mainTranslation = validatedData.translations.find(t => t.language === 'en') || validatedData.translations[0]
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'service.created',
+      resourceType: 'SERVICE',
+      resourceId: service.id,
+      description: `Created service "${mainTranslation.title}" (${service.slug})`,
+      newValues: {
+        slug: service.slug,
+        icon: service.icon,
+        featuredImg: service.featuredImg,
+        colorTheme: service.colorTheme,
+        active: service.active,
+        order: service.order
+      },
+      metadata: {
+        slug: service.slug,
+        colorTheme: service.colorTheme,
+        languages: validatedData.translations.map(t => t.language),
+        translationCount: validatedData.translations.length
       }
     })
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ActivityLogger, getChangedFields } from '@/lib/activity-logger'
 import { z } from 'zod'
 
 // Validation schema for User update
@@ -91,6 +92,14 @@ export async function PUT(
       }
     }
 
+    // Prepare old values for activity logging
+    const oldValues = {
+      name: existingUser.name,
+      email: existingUser.email,
+      role: existingUser.role,
+      isActive: existingUser.isActive
+    }
+
     // Update user
     const user = await prisma.user.update({
       where: { id: params.id },
@@ -113,6 +122,56 @@ export async function PUT(
         createdAt: true,
       }
     })
+
+    // Log user update activities
+    const newValues = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    }
+
+    const changedFields = getChangedFields(oldValues, newValues)
+
+    if (changedFields.length > 0) {
+      // Log role change specifically
+      if (changedFields.includes('role')) {
+        await ActivityLogger.logUserManagement(
+          session.user.id,
+          'role_changed',
+          user.id,
+          user.name || user.email,
+          { role: oldValues.role },
+          { role: user.role }
+        )
+      }
+
+      // Log activation/deactivation specifically
+      if (changedFields.includes('isActive')) {
+        const action = user.isActive ? 'activated' : 'deactivated'
+        await ActivityLogger.logUserManagement(
+          session.user.id,
+          action,
+          user.id,
+          user.name || user.email,
+          { isActive: oldValues.isActive },
+          { isActive: user.isActive }
+        )
+      }
+
+      // Log general update if other fields changed
+      const otherChanges = changedFields.filter(f => !['role', 'isActive'].includes(f))
+      if (otherChanges.length > 0) {
+        await ActivityLogger.logUserManagement(
+          session.user.id,
+          'updated',
+          user.id,
+          user.name || user.email,
+          oldValues,
+          newValues
+        )
+      }
+    }
 
     return NextResponse.json({ user })
   } catch (error) {
@@ -186,6 +245,24 @@ export async function DELETE(
     // Delete the user (NextAuth relations will cascade automatically)
     await prisma.user.delete({
       where: { id: params.id }
+    })
+
+    // Log user deletion activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'user.deleted',
+      resourceType: 'USER',
+      resourceId: params.id,
+      description: `Deleted user: "${existingUser.name || existingUser.email}"`,
+      oldValues: {
+        email: existingUser.email,
+        role: existingUser.role,
+        isActive: existingUser.isActive
+      },
+      metadata: {
+        hadContent: existingUser.contentItems.length > 0,
+        contentCount: existingUser.contentItems.length
+      }
     })
 
     return NextResponse.json({

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { withModeratorAccess } from '@/lib/admin-auth-middleware'
+import { ActivityLogger } from '@/lib/activity-logger'
 
 // Validation schema for Membership Request
 const membershipRequestSchema = z.object({
@@ -210,6 +211,34 @@ export async function POST(request: NextRequest) {
         skills: validatedData.skills || null,
         requestedMemberType: validatedData.requestedMemberType,
         status: 'PENDING'
+      }
+    })
+
+    // Log membership request creation activity
+    // Note: Since this is a public endpoint, we don't have a session user
+    // We'll create a special log entry indicating a public submission
+    await ActivityLogger.log({
+      userId: null, // No authenticated user for public submissions
+      action: 'membership_request.submitted',
+      resourceType: 'MEMBERSHIP_REQUEST',
+      resourceId: membershipRequest.id,
+      description: `New membership request submitted by "${validatedData.firstName} ${validatedData.lastName}" (${membershipRequest.requestNumber})`,
+      newValues: {
+        requestNumber: membershipRequest.requestNumber,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        email: validatedData.email,
+        status: 'PENDING',
+        requestedMemberType: validatedData.requestedMemberType,
+        residenceStatus: validatedData.residenceStatus
+      },
+      metadata: {
+        requestNumber: membershipRequest.requestNumber,
+        requestedMemberType: validatedData.requestedMemberType,
+        residenceStatus: validatedData.residenceStatus,
+        city: validatedData.city,
+        country: validatedData.country,
+        isPublicSubmission: true
       }
     })
 

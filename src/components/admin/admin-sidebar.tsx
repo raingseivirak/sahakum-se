@@ -22,6 +22,7 @@ import {
   UserCheck,
   ClipboardList,
   Lock,
+  Clock,
 } from "lucide-react"
 
 import {
@@ -181,6 +182,12 @@ const getNavigationItems = (locale: string, permissions: any) => {
         url: `/${locale}/admin/users`,
         icon: Users,
         requiresPermission: 'canManageUsers', // ADMIN only
+      },
+      {
+        title: 'Activity Log',
+        url: `/${locale}/admin/activity`,
+        icon: Clock,
+        requiresPermission: 'canCreateContent', // AUTHORS and above (they can see their own activity)
       },
       {
         title: locale === 'km' ? 'ការកំណត់' : locale === 'sv' ? 'Inställningar' : 'Settings',

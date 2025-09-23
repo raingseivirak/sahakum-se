@@ -16,8 +16,10 @@ import {
   ChefHat,
   Newspaper,
   BookOpen,
+  Clock,
 } from "lucide-react"
 import Link from "next/link"
+import { RecentActivity } from "@/components/admin/recent-activity"
 
 interface AdminDashboardProps {
   params: { locale: string }
@@ -223,45 +225,7 @@ export default function AdminDashboard({ params }: AdminDashboardProps) {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className={fontClass}>{t.recentActivity}</CardTitle>
-                <CardDescription className={fontClass}>
-                  Recent activity on your site
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-2 h-2 bg-sweden-blue-primary rounded-full" />
-                    <div className="space-y-1">
-                      <p className={`text-sm font-medium ${fontClass}`}>
-                        Page "About Us" was edited
-                      </p>
-                      <p className="text-xs text-muted-foreground">2 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-2 h-2 bg-sahakum-gold rounded-full" />
-                    <div className="space-y-1">
-                      <p className={`text-sm font-medium ${fontClass}`}>
-                        New recipe was created
-                      </p>
-                      <p className="text-xs text-muted-foreground">4 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-                    <div className="space-y-1">
-                      <p className={`text-sm font-medium ${fontClass}`}>
-                        New event was published
-                      </p>
-                      <p className="text-xs text-muted-foreground">1 day ago</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <RecentActivity locale={params.locale} />
           </div>
         </div>
       </div>

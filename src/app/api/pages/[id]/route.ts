@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { ActivityLogger, getChangedFields } from "@/lib/activity-logger"
 import { z } from "zod"
 
 const pageUpdateSchema = z.object({
@@ -91,6 +92,13 @@ export async function PUT(
       }
     }
 
+    // Prepare old values for activity logging
+    const oldValues = {
+      slug: existingPage.slug,
+      status: existingPage.status,
+      featuredImg: existingPage.featuredImg
+    }
+
     // Update page
     const updateData: any = {}
     if (validatedData.slug) updateData.slug = validatedData.slug
@@ -114,6 +122,27 @@ export async function PUT(
         translations: true,
       }
     })
+
+    // Log page update activity if there were changes
+    if (Object.keys(updateData).length > 0) {
+      const newValues = {
+        slug: page.slug,
+        status: page.status,
+        featuredImg: page.featuredImg
+      }
+      const changedFields = getChangedFields(oldValues, newValues)
+      const mainTranslation = existingPage.translations.find(t => t.language === 'en') || existingPage.translations[0]
+
+      await ActivityLogger.logContentUpdated(
+        session.user.id,
+        'PAGE',
+        page.id,
+        mainTranslation.title,
+        oldValues,
+        newValues,
+        changedFields
+      )
+    }
 
     // Update translations if provided
     if (validatedData.translations) {
@@ -174,17 +203,34 @@ export async function DELETE(
       where: {
         id: params.id,
         type: "PAGE"
-      }
+      },
+      include: { translations: true }
     })
 
     if (!existingPage) {
       return NextResponse.json({ error: "Page not found" }, { status: 404 })
     }
 
+    // Get page title for activity logging
+    const mainTranslation = existingPage.translations.find(t => t.language === 'en') || existingPage.translations[0]
+    const pageTitle = mainTranslation?.title || existingPage.slug
+
     // Delete page (translations will be deleted automatically due to cascade)
     await prisma.contentItem.delete({
       where: { id: params.id }
     })
+
+    // Log page deletion activity
+    await ActivityLogger.logContentDeleted(
+      session.user.id,
+      'PAGE',
+      params.id,
+      pageTitle,
+      {
+        slug: existingPage.slug,
+        status: existingPage.status
+      }
+    )
 
     return NextResponse.json({ message: "Page deleted successfully" })
   } catch (error) {

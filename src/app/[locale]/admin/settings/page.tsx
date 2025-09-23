@@ -401,6 +401,15 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                             <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></TableCell>
                           </TableRow>
                           <TableRow>
+                            <TableCell className={fontClass}>View Activity Logs</TableCell>
+                            <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Own activities only" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Own activities only" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="Own activities only" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="All users' activities" /></TableCell>
+                            <TableCell className="text-center"><Check className="h-4 w-4 text-green-500 mx-auto" title="All users' activities" /></TableCell>
+                          </TableRow>
+                          <TableRow>
                             <TableCell className={fontClass}>Manage Users/Settings</TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>
                             <TableCell className="text-center"><X className="h-4 w-4 text-red-500 mx-auto" /></TableCell>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { ActivityLogger } from '@/lib/activity-logger'
 
 // GET /api/membership-requests/[id] - Get specific membership request
 export async function GET(
@@ -167,6 +168,60 @@ export async function PUT(
         }
       })
     })
+
+    // Log membership request status change activity
+    if (status && status !== existingRequest.status) {
+      const action = status === 'REJECTED' ? 'membership_request.rejected' : 'membership_request.status_changed'
+
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action,
+        resourceType: 'MEMBERSHIP_REQUEST',
+        resourceId: params.id,
+        description: status === 'REJECTED'
+          ? `Rejected membership request for "${existingRequest.firstName} ${existingRequest.lastName}"${rejectionReason ? ` - ${rejectionReason}` : ''}`
+          : `Changed membership request status from ${existingRequest.status} to ${status} for "${existingRequest.firstName} ${existingRequest.lastName}"`,
+        oldValues: {
+          status: existingRequest.status,
+          requestNumber: existingRequest.requestNumber
+        },
+        newValues: {
+          status: status,
+          rejectionReason: rejectionReason || null,
+          adminNotes: adminNotes || null
+        },
+        metadata: {
+          requestNumber: existingRequest.requestNumber,
+          membershipType: existingRequest.requestedMemberType,
+          fromStatus: existingRequest.status,
+          toStatus: status,
+          rejectionReason: rejectionReason || null,
+          adminNotes: adminNotes || null
+        }
+      })
+    } else if (adminNotes !== undefined || rejectionReason !== undefined) {
+      // Log when only notes are updated without status change
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action: 'membership_request.notes_updated',
+        resourceType: 'MEMBERSHIP_REQUEST',
+        resourceId: params.id,
+        description: `Updated notes for membership request "${existingRequest.firstName} ${existingRequest.lastName}"`,
+        oldValues: {
+          adminNotes: existingRequest.adminNotes,
+          rejectionReason: existingRequest.rejectionReason
+        },
+        newValues: {
+          adminNotes: adminNotes !== undefined ? adminNotes : existingRequest.adminNotes,
+          rejectionReason: rejectionReason !== undefined ? rejectionReason : existingRequest.rejectionReason
+        },
+        metadata: {
+          requestNumber: existingRequest.requestNumber,
+          membershipType: existingRequest.requestedMemberType,
+          currentStatus: existingRequest.status
+        }
+      })
+    }
 
     return NextResponse.json({
       message: 'Membership request updated successfully',

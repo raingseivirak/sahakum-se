@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ActivityLogger } from '@/lib/activity-logger'
 import { z } from 'zod'
 import bcryptjs from 'bcryptjs'
 
@@ -96,6 +97,19 @@ async function handlePOST(request: NextRequest, context: AdminAuthContext) {
         // }
       }
     })
+
+    // Log user creation activity
+    await ActivityLogger.logUserManagement(
+      context.user.id,
+      'created',
+      user.id,
+      user.name || user.email,
+      undefined,
+      {
+        email: user.email,
+        role: user.role
+      }
+    )
 
     return NextResponse.json({ user }, { status: 201 })
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { ActivityLogger } from "@/lib/activity-logger"
 import { z } from "zod"
 
 // Schema for page creation/update
@@ -85,6 +86,20 @@ export async function POST(request: NextRequest) {
         translations: true,
       }
     })
+
+    // Log page creation activity
+    const mainTranslation = validatedData.translations.find(t => t.language === 'en') || validatedData.translations[0]
+    await ActivityLogger.logContentCreated(
+      session.user.id,
+      'PAGE',
+      page.id,
+      mainTranslation.title,
+      {
+        slug: page.slug,
+        status: page.status,
+        languages: validatedData.translations.map(t => t.language)
+      }
+    )
 
     return NextResponse.json(page, { status: 201 })
   } catch (error) {

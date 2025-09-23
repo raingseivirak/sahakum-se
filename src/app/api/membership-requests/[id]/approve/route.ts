@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { ActivityLogger } from '@/lib/activity-logger'
 
 // Function to generate unique member number
 async function generateMemberNumber(): Promise<string> {
@@ -139,6 +140,53 @@ export async function POST(
       })
 
       return { member: newMember, request: updatedRequest }
+    })
+
+    // Log membership approval activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'membership_request.approved',
+      resourceType: 'MEMBERSHIP_REQUEST',
+      resourceId: params.id,
+      description: `Approved membership request for "${membershipRequest.firstName} ${membershipRequest.lastName}" and created member ${result.member.memberNumber}`,
+      oldValues: {
+        status: membershipRequest.status,
+        requestNumber: membershipRequest.requestNumber
+      },
+      newValues: {
+        status: 'APPROVED',
+        memberNumber: result.member.memberNumber,
+        memberId: result.member.id
+      },
+      metadata: {
+        requestNumber: membershipRequest.requestNumber,
+        memberNumber: result.member.memberNumber,
+        memberId: result.member.id,
+        membershipType: membershipRequest.requestedMemberType,
+        adminNotes: adminNotes
+      }
+    })
+
+    // Log member creation activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'member.created',
+      resourceType: 'MEMBER',
+      resourceId: result.member.id,
+      description: `Created member ${result.member.memberNumber} from approved membership request`,
+      newValues: {
+        memberNumber: result.member.memberNumber,
+        firstName: result.member.firstName,
+        lastName: result.member.lastName,
+        email: result.member.email,
+        membershipType: result.member.membershipType,
+        active: result.member.active
+      },
+      metadata: {
+        sourceRequestId: params.id,
+        requestNumber: membershipRequest.requestNumber,
+        residenceStatus: result.member.residenceStatus
+      }
     })
 
     return NextResponse.json({
