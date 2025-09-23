@@ -17,6 +17,7 @@ export function isAnalyticsEnabled(): boolean {
 // Log page views to Google Analytics
 export const pageview = (url: string) => {
   if (!isAnalyticsEnabled()) return
+  if (typeof window === 'undefined' || !window.gtag) return
 
   window.gtag('config', GA_TRACKING_ID!, {
     page_location: url,
@@ -36,6 +37,7 @@ export const event = ({
   value?: number
 }) => {
   if (!isAnalyticsEnabled()) return
+  if (typeof window === 'undefined' || !window.gtag) return
 
   window.gtag('event', action, {
     event_category: category,

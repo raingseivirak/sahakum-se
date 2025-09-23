@@ -10,6 +10,7 @@ function GoogleAnalyticsInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [analyticsAllowed, setAnalyticsAllowed] = useState(false)
+  const [gtagReady, setGtagReady] = useState(false)
 
   // Listen for consent changes
   useEffect(() => {
@@ -29,13 +30,13 @@ function GoogleAnalyticsInner() {
     return () => window.removeEventListener('consentChanged', handleConsentChange)
   }, [])
 
-  // Track page views when consent is given
+  // Track page views when consent is given AND gtag is ready
   useEffect(() => {
-    if (!isAnalyticsEnabled()) return
+    if (!isAnalyticsEnabled() || !gtagReady) return
 
     const url = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
     pageview(url)
-  }, [pathname, searchParams, analyticsAllowed])
+  }, [pathname, searchParams, analyticsAllowed, gtagReady])
 
   // Only load GA scripts if configured and user has consented
   if (!isGAConfigured || !analyticsAllowed) {
@@ -52,6 +53,7 @@ function GoogleAnalyticsInner() {
       <Script
         id="google-analytics"
         strategy="afterInteractive"
+        onLoad={() => setGtagReady(true)}
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
