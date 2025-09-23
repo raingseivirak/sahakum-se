@@ -39,5 +39,12 @@
     "events": "Events",
     "users": "Users",
     "settings": "Settings"
+  },
+  "blog": {
+    "share_article": "Share Article",
+    "share_description": "Share this article with friends and colleagues",
+    "copy_link": "Copy Link",
+    "link_copied": "Link Copied!",
+    "share_on_mobile": "Share Article"
   }
 }

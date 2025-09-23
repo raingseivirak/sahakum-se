@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
+import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 
 // Enable ISR (Incremental Static Regeneration)
@@ -99,6 +100,17 @@ export default async function DynamicPage({ params }: PageProps) {
                     </p>
                   </div>
                 )}
+
+                {/* Page Sharing */}
+                <div className="flex flex-wrap items-center gap-6 text-[var(--sahakum-gold)] mb-8 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+                  <CopyLinkButton
+                    title={page.translation.title}
+                    copyText={params.locale === 'km' ? 'ចម្លងតំណ' : params.locale === 'en' ? 'Copy Link' : 'Kopiera länk'}
+                    copiedText={params.locale === 'km' ? 'បានចម្លងតំណ!' : params.locale === 'en' ? 'Link Copied!' : 'Länk kopierad!'}
+                    shareText={params.locale === 'km' ? 'ចែករំលែកទំព័រ' : params.locale === 'en' ? 'Share Page' : 'Dela sida'}
+                    className="subtle-link-button"
+                  />
+                </div>
               </div>
             </div>
           </Container>

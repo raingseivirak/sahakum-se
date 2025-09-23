@@ -261,6 +261,18 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                       <span className="ml-2 text-white/90 font-medium">{post.author.name}</span>
                     </div>
                   </div>
+
+                  {/* Subtle Copy Link Button */}
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-[var(--sahakum-gold)] rounded-full"></div>
+                    <CopyLinkButton
+                      title={post.translation.title}
+                      copyText={params.locale === 'km' ? 'ចម្លងតំណ' : params.locale === 'en' ? 'Copy Link' : 'Kopiera länk'}
+                      copiedText={params.locale === 'km' ? 'បានចម្លងតំណ!' : params.locale === 'en' ? 'Link Copied!' : 'Länk kopierad!'}
+                      shareText={params.locale === 'km' ? 'ចែករំលែកអត្ថបទ' : params.locale === 'en' ? 'Share Article' : 'Dela artikel'}
+                      className="subtle-link-button"
+                    />
+                  </div>
                 </div>
 
                 {post.translation.excerpt && (
@@ -327,26 +339,6 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                     </div>
                   )}
 
-                  {/* Share Article Section */}
-                  <div className="mt-12 pt-8 border-t border-gray-200">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div>
-                        <h3 className={`text-lg font-semibold text-[var(--sahakum-navy)] mb-2 ${fontClass}`}>
-                          {params.locale === 'km' ? 'ចែករំលែកអត្ថបទ' : params.locale === 'en' ? 'Share Article' : 'Dela artikel'}
-                        </h3>
-                        <p className={`text-sm text-gray-600 ${fontClass}`}>
-                          {params.locale === 'km' ? 'ចែករំលែកអត្ថបទនេះជាមួយមិត្តភក្តិ' :
-                           params.locale === 'en' ? 'Share this article with friends and colleagues' :
-                           'Dela den här artikeln med vänner och kollegor'}
-                        </p>
-                      </div>
-                      <CopyLinkButton
-                        locale={params.locale}
-                        title={post.translation.title}
-                        className="flex-shrink-0"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
 

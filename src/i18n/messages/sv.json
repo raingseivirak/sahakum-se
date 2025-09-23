@@ -39,5 +39,12 @@
     "events": "Evenemang",
     "users": "Användare",
     "settings": "Inställningar"
+  },
+  "blog": {
+    "share_article": "Dela artikel",
+    "share_description": "Dela den här artikeln med vänner och kollegor",
+    "copy_link": "Kopiera länk",
+    "link_copied": "Länk kopierad!",
+    "share_on_mobile": "Dela artikel"
   }
 }
