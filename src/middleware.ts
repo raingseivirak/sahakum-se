@@ -28,9 +28,9 @@ async function middleware(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV === 'development'
   const cspPolicy = [
     "default-src 'self'",
-    // Scripts: nonce for inline scripts, with unsafe-inline for compatibility
-    // TODO: Implement proper nonce attribution for all inline scripts
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.googletagmanager.com ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
+    // Scripts: allow nonce and remove strict-dynamic to allow unsafe-inline
+    // This allows both nonce-based scripts and legacy inline scripts for Google Analytics
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.googletagmanager.com ${isDevelopment ? "'unsafe-eval'" : ""}`,
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",

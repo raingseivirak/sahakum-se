@@ -82,8 +82,10 @@ function GoogleAnalyticsInner() {
 export function GoogleAnalytics() {
   return (
     <>
-      {/* Always provide gtag fallback to prevent errors */}
-      <script
+      {/* Always provide gtag fallback to prevent errors - Using Next.js Script for CSP compliance */}
+      <Script
+        id="gtag-fallback"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.gtag = window.gtag || function() {
