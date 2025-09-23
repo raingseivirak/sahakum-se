@@ -29,16 +29,6 @@ export default function RootLayout({
   return (
     <html>
       <head>
-        {/* Global gtag fallback to prevent errors before analytics loads */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.gtag = window.gtag || function() {
-                console.log('gtag called before Google Analytics loaded:', arguments);
-              };
-            `,
-          }}
-        />
         {/* Preload Sweden Sans fonts for faster rendering */}
         <link
           rel="preload"

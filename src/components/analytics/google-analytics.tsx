@@ -81,8 +81,20 @@ function GoogleAnalyticsInner() {
 
 export function GoogleAnalytics() {
   return (
-    <Suspense fallback={null}>
-      <GoogleAnalyticsInner />
-    </Suspense>
+    <>
+      {/* Always provide gtag fallback to prevent errors */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.gtag = window.gtag || function() {
+              console.log('gtag called before Google Analytics loaded:', arguments);
+            };
+          `,
+        }}
+      />
+      <Suspense fallback={null}>
+        <GoogleAnalyticsInner />
+      </Suspense>
+    </>
   )
 }
