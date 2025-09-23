@@ -45,6 +45,7 @@ import {
 import Link from "next/link"
 import { SwedenEditor } from "@/components/editor/sweden-editor"
 import { MediaSelector } from "@/components/ui/media-selector"
+import { ContentActivityLog } from "@/components/admin/content-activity-log"
 import { usePosts } from "@/hooks/use-posts"
 import { useCategories } from "@/hooks/use-categories"
 import { useTags } from "@/hooks/use-tags"
@@ -649,6 +650,14 @@ export default function EditPost({ params }: EditPostProps) {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Activity Log */}
+            <ContentActivityLog
+              resourceType="POST"
+              resourceId={params.id}
+              title={formData.translations.en?.title || formData.translations.sv?.title || formData.translations.km?.title}
+              className={fontClass}
+            />
           </div>
         </div>
       </div>

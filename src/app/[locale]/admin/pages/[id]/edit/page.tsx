@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { EditPageForm } from "./edit-page-form"
+import { ContentActivityLog } from "@/components/admin/content-activity-log"
 
 interface EditPageProps {
   params: { locale: string; id: string }
@@ -63,8 +64,23 @@ export default function EditPage({ params }: EditPageProps) {
           </div>
         </div>
 
-        {/* Form */}
-        <EditPageForm locale={params.locale} pageId={params.id} />
+        {/* Form and Activity Log Grid */}
+        <div className="grid gap-4 md:grid-cols-4">
+          {/* Main Content */}
+          <div className="md:col-span-3">
+            <EditPageForm locale={params.locale} pageId={params.id} />
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Activity Log */}
+            <ContentActivityLog
+              resourceType="PAGE"
+              resourceId={params.id}
+              className={fontClass}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

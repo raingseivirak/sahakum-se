@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId') || undefined
     const action = searchParams.get('action') || undefined
     const resourceType = searchParams.get('resourceType') || undefined
+    const resourceId = searchParams.get('resourceId') || undefined
     const startDate = searchParams.get('startDate') ? new Date(searchParams.get('startDate')!) : undefined
     const endDate = searchParams.get('endDate') ? new Date(searchParams.get('endDate')!) : undefined
     const limit = parseInt(searchParams.get('limit') || '50')
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
       userId: effectiveUserId,
       action,
       resourceType,
+      resourceId,
       startDate,
       endDate,
       limit: Math.min(limit, 200), // Cap at 200

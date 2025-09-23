@@ -212,6 +212,7 @@ export class ActivityLogger {
     userId?: string
     action?: string
     resourceType?: string
+    resourceId?: string
     startDate?: Date
     endDate?: Date
     limit?: number
@@ -221,6 +222,7 @@ export class ActivityLogger {
       userId,
       action,
       resourceType,
+      resourceId,
       startDate,
       endDate,
       limit = 100,
@@ -232,6 +234,7 @@ export class ActivityLogger {
     if (userId) where.userId = userId
     if (action) where.action = { contains: action, mode: 'insensitive' }
     if (resourceType) where.resourceType = resourceType
+    if (resourceId) where.resourceId = resourceId
     if (startDate || endDate) {
       where.createdAt = {}
       if (startDate) where.createdAt.gte = startDate
