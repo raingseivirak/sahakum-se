@@ -2,11 +2,11 @@
 
 import Script from 'next/script'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { GA_TRACKING_ID, isGAConfigured, isAnalyticsEnabled, pageview } from '@/lib/analytics'
 import { hasConsentChoice, isAnalyticsAllowed } from '@/lib/cookie-consent'
 
-export function GoogleAnalytics() {
+function GoogleAnalyticsInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [analyticsAllowed, setAnalyticsAllowed] = useState(false)
@@ -70,5 +70,13 @@ export function GoogleAnalytics() {
         }}
       />
     </>
+  )
+}
+
+export function GoogleAnalytics() {
+  return (
+    <Suspense fallback={null}>
+      <GoogleAnalyticsInner />
+    </Suspense>
   )
 }

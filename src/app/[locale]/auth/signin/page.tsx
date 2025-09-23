@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -15,7 +15,7 @@ interface SignInPageProps {
   params: { locale: string }
 }
 
-export default function SignInPage({ params }: SignInPageProps) {
+function SignInPageContent({ params }: SignInPageProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -217,5 +217,20 @@ export default function SignInPage({ params }: SignInPageProps) {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage({ params }: SignInPageProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahakum-navy mx-auto"></div>
+          <p className="mt-2 text-sahakum-navy font-sweden">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignInPageContent params={params} />
+    </Suspense>
   )
 }
