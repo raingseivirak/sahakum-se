@@ -266,6 +266,7 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-[var(--sahakum-gold)] rounded-full"></div>
                     <CopyLinkButton
+                      url={`${typeof window !== 'undefined' ? window.location.origin : 'https://www.sahakumkhmer.se'}/${params.locale}/blog/${encodeURIComponent(decodedSlug)}`}
                       title={post.translation.title}
                       copyText={params.locale === 'km' ? 'ចម្លងតំណ' : params.locale === 'en' ? 'Copy Link' : 'Kopiera länk'}
                       copiedText={params.locale === 'km' ? 'បានចម្លងតំណ!' : params.locale === 'en' ? 'Link Copied!' : 'Länk kopierad!'}

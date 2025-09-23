@@ -104,6 +104,7 @@ export default async function DynamicPage({ params }: PageProps) {
                 {/* Page Sharing */}
                 <div className="flex flex-wrap items-center gap-6 text-[var(--sahakum-gold)] mb-8 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                   <CopyLinkButton
+                    url={`${typeof window !== 'undefined' ? window.location.origin : 'https://www.sahakumkhmer.se'}/${params.locale}/${params.slug}`}
                     title={page.translation.title}
                     copyText={params.locale === 'km' ? 'ចម្លងតំណ' : params.locale === 'en' ? 'Copy Link' : 'Kopiera länk'}
                     copiedText={params.locale === 'km' ? 'បានចម្លងតំណ!' : params.locale === 'en' ? 'Link Copied!' : 'Länk kopierad!'}
