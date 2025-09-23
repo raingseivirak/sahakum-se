@@ -396,17 +396,125 @@ export async function generateMetadata({ params, searchParams }: BlogPostPagePro
     }
   }
 
+  // Generate excerpt from content if no meta description or excerpt exists
+  const generateExcerpt = (content: string, maxLength: number = 160): string => {
+    // Strip HTML tags and get plain text
+    const textContent = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    return textContent.length > maxLength
+      ? textContent.substring(0, maxLength).trim() + '...'
+      : textContent
+  }
+
+  const title = post.translation.title
+  const description = post.translation.metaDescription ||
+                     post.translation.excerpt ||
+                     generateExcerpt(post.translation.content)
+
+  // Site info with multilingual support
+  const siteInfo = {
+    sv: { name: 'Sahakum Khmer', tagline: 'Kambodjanernas gemenskap i Sverige' },
+    en: { name: 'Sahakum Khmer', tagline: 'Cambodian Community in Sweden' },
+    km: { name: 'សហគមខ្មែរ', tagline: 'សហគមន៍ខ្មែរនៅស៊ុយអែត' }
+  }
+
+  const currentSite = siteInfo[params.locale as keyof typeof siteInfo] || siteInfo.en
+  const fullTitle = `${title} | ${currentSite.name}`
+
+  // Canonical URL
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+  const canonicalUrl = `${baseUrl}/${params.locale}/blog/${encodeURIComponent(decodedSlug)}`
+
+  // Enhanced image handling with fallbacks
+  const getImageUrl = (imagePath?: string | null): string => {
+    if (imagePath) {
+      // If it's already a full URL, return as-is
+      if (imagePath.startsWith('http')) return imagePath
+      // If it's a relative path, make it absolute
+      return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`
+    }
+    // Fallback to site logo/default image
+    return `${baseUrl}/media/images/sahakum-social-share.jpg`
+  }
+
+  const imageUrl = getImageUrl(post.featuredImg)
+
   return {
-    title: post.translation.title,
-    description: post.translation.metaDescription || post.translation.excerpt || post.translation.title,
+    title: fullTitle,
+    description,
+
+    // Basic meta tags
+    keywords: post.tags.map(tag => tag.name).join(', '),
+    authors: [{ name: post.author.name }],
+    creator: post.author.name,
+    publisher: currentSite.name,
+
+    // Canonical URL
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    // Open Graph tags (Facebook, LinkedIn, WhatsApp, Telegram, Discord)
     openGraph: {
-      title: post.translation.title,
-      description: post.translation.metaDescription || post.translation.excerpt,
+      title: fullTitle,
+      description,
+      url: canonicalUrl,
+      siteName: currentSite.name,
       locale: params.locale,
       type: 'article',
-      publishedTime: post.publishedAt,
+      publishedTime: post.publishedAt || undefined,
+      modifiedTime: post.updatedAt || undefined,
       authors: [post.author.name],
-      images: post.featuredImg ? [post.featuredImg] : undefined
+      section: post.categories.length > 0 ? post.categories[0].name : undefined,
+      tags: post.tags.map(tag => tag.name),
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+          type: 'image/jpeg',
+        }
+      ],
+    },
+
+    // Twitter Card (X/Twitter)
+    twitter: {
+      card: 'summary_large_image',
+      title: title.length > 70 ? title.substring(0, 67) + '...' : title,
+      description: description.length > 200 ? description.substring(0, 197) + '...' : description,
+      creator: `@sahakumkhmer`, // Replace with actual Twitter handle if available
+      site: `@sahakumkhmer`,    // Replace with actual Twitter handle if available
+      images: [imageUrl],
+    },
+
+    // Additional meta tags for better SEO
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Article-specific structured data hints
+    other: {
+      'article:author': post.author.name,
+      'article:published_time': post.publishedAt || undefined,
+      'article:modified_time': post.updatedAt || undefined,
+      'article:section': post.categories.length > 0 ? post.categories[0].name : undefined,
+      'article:tag': post.tags.map(tag => tag.name).join(','),
+
+      // Theme color for mobile browsers (Sahakum Navy)
+      'theme-color': '#0D1931',
+      'msapplication-TileColor': '#0D1931',
+
+      // Additional social sharing meta
+      'og:site_name': currentSite.name,
+      'og:locale': params.locale,
     }
   }
 }
