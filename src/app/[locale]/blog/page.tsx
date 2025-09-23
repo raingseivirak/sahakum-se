@@ -6,6 +6,7 @@ import { SwedenH1, SwedenH2, SwedenBody } from '@/components/ui/sweden-typograph
 import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { UserMenu } from '@/components/layout/user-menu'
+import { Footer } from '@/components/layout/footer'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
 
@@ -748,18 +749,8 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
         </section>
       </main>
 
-      {/* Footer - Consistent with homepage */}
-      <footer className="bg-[var(--sahakum-navy)] text-white py-12 border-t border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <div className="text-center">
-            <p className={`text-[var(--sahakum-gold)] mb-0 ${fontClass}`}>
-              © 2025 Sahakum Khmer. {params.locale === 'km' ? 'រក្សាសិទ្ធិគ្រប់យ៉ាង។' :
-                                   params.locale === 'en' ? 'All rights reserved.' :
-                                   'Alla rättigheter förbehållna.'}
-            </p>
-          </div>
-        </Container>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
