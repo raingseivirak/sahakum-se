@@ -30,7 +30,7 @@ async function middleware(request: NextRequest) {
     "default-src 'self'",
     // Scripts: nonce for inline scripts, with unsafe-inline for compatibility
     // TODO: Implement proper nonce attribution for all inline scripts
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.googletagmanager.com ${isDevelopment ? "'unsafe-eval'" : "'strict-dynamic'"}`,
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",
@@ -38,8 +38,8 @@ async function middleware(request: NextRequest) {
     "img-src 'self' data: blob: https:",
     // Fonts: allow data URLs for Sweden Sans
     "font-src 'self' data:",
-    // Connections: API calls
-    "connect-src 'self'",
+    // Connections: API calls and analytics
+    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com",
     // Media: uploaded content
     "media-src 'self' blob:",
     // Block objects for security
