@@ -64,7 +64,7 @@ const translations = {
   km: {
     title: "ចូលរួមជាមួយសហគមន៍ខ្មែរ",
     subtitle: "ក្លាយជាផ្នែកមួយនៃសហគមន៍ខ្មែររបស់យើងដែលរស់នៅក្នុងប្រទេសស៊ុយអែត",
-    description: "ក្នុងនាមជាសមាជិក អ្នកនឹងទទួលបានការចូលរួមសកម្មភាពវប្បធម៌ ការគាំទ្រការសម្រុះសម្រួល និងសហគមន៍រឹងមាំដែលជួយអ្នកមានអារម្មណ៍ថាអ្នកនៅផ្ទះនៅស៊ុយអែត។",
+    description: "ក្នុងនាមជាសមាជិក អ្នកនឹងទទួលបានការចូលរួមសកម្មភាពវប្បធម៌ ការគាំទ្រការសម្រុះសម្រួល និងសហគមន៍រឹងមាំដែលជួយអ្នកអោយមានអារម្មណ៍ថាដូចជាអ្នកនៅផ្ទះរបស់ខ្លួននៅស៊ុយអែត។",
     benefits: {
       community: "សហគមន៍ និងការគាំទ្រ",
       culture: "សកម្មភាពវប្បធម៌",
@@ -229,9 +229,9 @@ export function MembershipSection({ locale, className = '' }: MembershipSectionP
                 </div>
                 <div>
                   <p className={`text-lg font-semibold ${fontClass}`}>
-                    {locale === 'sv' ? '200+ aktiva medlemmar' :
-                     locale === 'km' ? 'សមាជិកសកម្ម ២០០+ នាក់' :
-                     '200+ active members'}
+                    {locale === 'sv' ? 'Många aktiva medlemmar' :
+                     locale === 'km' ? 'សមាជិកសកម្មជាច្រេីននាក់' :
+                     'Many active members'}
                   </p>
                   <p className={`text-[var(--sahakum-gold)] text-base ${fontClass}`}>
                     {locale === 'sv' ? 'I hela Sverige' :
