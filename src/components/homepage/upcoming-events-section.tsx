@@ -74,8 +74,8 @@ export async function UpcomingEventsSection({ locale }: UpcomingEventsSectionPro
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <SwedenH2 className="text-sahakum-navy mb-4">{t.title}</SwedenH2>
-          <SwedenBody className="text-gray-600 max-w-2xl mx-auto">
+          <SwedenH2 className={`text-sahakum-navy mb-4 ${fontClass}`}>{t.title}</SwedenH2>
+          <SwedenBody className={`text-gray-600 max-w-2xl mx-auto ${fontClass}`}>
             {t.subtitle}
           </SwedenBody>
         </div>
