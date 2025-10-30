@@ -28,6 +28,8 @@ model User {
   statusHistoryChanges       MembershipRequestStatusHistory[]
   sessions                   Session[]
   activityLogs               ActivityLog[]
+  events                     Event[]
+  eventRegistrations         EventRegistration[]
 
   @@map("users")
 }
@@ -114,6 +116,7 @@ model Category {
   children     Category[]            @relation("CategoryHierarchy")
   translations CategoryTranslation[]
   contentItems ContentItemCategory[]
+  events       EventCategory[]
 
   @@map("categories")
 }
@@ -147,6 +150,7 @@ model Tag {
   updatedAt    DateTime         @updatedAt
   contentItems ContentItemTag[]
   translations TagTranslation[]
+  events       EventTag[]
 
   @@map("tags")
 }
@@ -351,6 +355,23 @@ enum RequestStatus {
   REJECTED
 }
 
+enum EventLocationType {
+  PHYSICAL
+  VIRTUAL
+  HYBRID
+}
+
+enum RegistrationType {
+  PUBLIC
+  MEMBERS_ONLY
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  CANCELLED
+  WAITLIST
+}
+
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
@@ -397,4 +418,131 @@ model ActivityLog {
   @@index([createdAt])
   @@index([userId, createdAt])
   @@map("activity_logs")
+}
+
+model Event {
+  id                    String                @id @default(cuid())
+  slug                  String                @unique
+
+  // Event Details
+  startDate             DateTime
+  endDate               DateTime
+  allDay                Boolean               @default(false)
+
+  // Location
+  locationType          EventLocationType
+  venueName             String?
+  address               String?
+  postalCode            String?
+  city                  String?
+  country               String?               @default("Sweden")
+  virtualUrl            String?
+
+  // Registration Settings
+  registrationEnabled   Boolean               @default(false)
+  registrationType      RegistrationType?
+  registrationDeadline  DateTime?
+  maxCapacity           Int?
+  currentAttendees      Int                   @default(0)
+
+  // Pricing
+  isFree                Boolean               @default(true)
+  price                 Decimal?
+  currency              String                @default("SEK")
+
+  // Additional Info
+  organizer             String?
+  contactEmail          String?
+  externalUrl           String?
+
+  // Content
+  featuredImg           String?
+  status                Status                @default(DRAFT)
+  authorId              String
+  publishedAt           DateTime?
+
+  // Relations
+  author                User                  @relation(fields: [authorId], references: [id])
+  translations          EventTranslation[]
+  categories            EventCategory[]
+  tags                  EventTag[]
+  registrations         EventRegistration[]
+
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@map("events")
+}
+
+model EventTranslation {
+  id              String   @id @default(cuid())
+  eventId         String
+  language        String   // sv | en | km
+
+  title           String
+  content         String   @db.Text
+  excerpt         String?  @db.Text
+  seoTitle        String?
+  metaDescription String?
+
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([eventId, language])
+  @@map("event_translations")
+}
+
+model EventRegistration {
+  id              String             @id @default(cuid())
+  eventId         String
+
+  // User info (if logged in)
+  userId          String?
+
+  // Guest info (if not logged in, for PUBLIC events)
+  guestFirstName  String?
+  guestLastName   String?
+  guestEmail      String?
+  guestPhone      String?
+
+  // Registration details
+  registeredAt    DateTime           @default(now())
+  status          RegistrationStatus @default(CONFIRMED)
+  numberOfGuests  Int                @default(1)
+  notes           String?            @db.Text
+
+  // Relations
+  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user            User?              @relation(fields: [userId], references: [id])
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model EventCategory {
+  eventId    String
+  categoryId String
+
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, categoryId])
+  @@map("event_categories")
+}
+
+model EventTag {
+  eventId String
+  tagId   String
+
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tagId])
+  @@map("event_tags")
 }

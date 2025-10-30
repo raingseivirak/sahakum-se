@@ -9,6 +9,7 @@ import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
 import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid';
 import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
+import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
@@ -207,6 +208,9 @@ export default function HomePage({ params }: Props) {
 
         {/* Featured Content Section - Dynamic pages grid */}
         <FeaturedContentGrid locale={params.locale} />
+
+        {/* Upcoming Events Section */}
+        <UpcomingEventsSection locale={params.locale} />
 
         {/* Dynamic Services Section */}
         <ServicesSection locale={params.locale} />

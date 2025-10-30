@@ -322,22 +322,43 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
                     dangerouslySetInnerHTML={createSafeHTML(post.translation.content)}
                   />
 
-                  {/* Tags */}
-                  {post.tags.length > 0 && (
-                    <div className="mt-12 pt-8 border-t border-gray-200">
-                      <h3 className={`text-lg font-semibold text-[var(--sahakum-navy)] mb-4 ${fontClass}`}>
-                        {params.locale === 'km' ? 'ស្លាក' : params.locale === 'en' ? 'Tags' : 'Taggar'}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {post.tags.map((tag) => (
-                          <span
-                            key={tag.slug}
-                            className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-sm"
-                          >
-                            #{tag.name}
-                          </span>
-                        ))}
-                      </div>
+                  {/* Categories & Tags - Swedish Design System */}
+                  {(post.categories.length > 0 || post.tags.length > 0) && (
+                    <div className="mt-12 pt-8 border-t-2 border-[var(--sahakum-navy)] space-y-6">
+                      {post.categories.length > 0 && (
+                        <div>
+                          <h3 className={`text-base font-bold uppercase tracking-wide text-[var(--sahakum-navy)] mb-4 ${fontClass}`}>
+                            {params.locale === 'km' ? 'ប្រភេទ' : params.locale === 'en' ? 'Categories' : 'Kategorier'}
+                          </h3>
+                          <div className="flex flex-wrap gap-3">
+                            {post.categories.map((category) => (
+                              <span
+                                key={category.slug}
+                                className={`text-sm bg-[var(--sahakum-navy)] text-white px-4 py-2 font-semibold uppercase tracking-wide ${fontClass}`}
+                              >
+                                {category.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {post.tags.length > 0 && (
+                        <div>
+                          <h3 className={`text-base font-bold uppercase tracking-wide text-[var(--sahakum-navy)] mb-4 ${fontClass}`}>
+                            {params.locale === 'km' ? 'ស្លាក' : params.locale === 'en' ? 'Tags' : 'Taggar'}
+                          </h3>
+                          <div className="flex flex-wrap gap-3">
+                            {post.tags.map((tag) => (
+                              <span
+                                key={tag.slug}
+                                className={`text-sm border-2 border-[var(--sahakum-navy)] text-[var(--sahakum-navy)] px-4 py-2 font-semibold ${fontClass}`}
+                              >
+                                #{tag.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 

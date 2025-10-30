@@ -6,6 +6,7 @@ import { Languages } from 'lucide-react'
 interface LanguageAvailabilityNoticeProps {
   currentLocale: string
   slug: string
+  type?: 'page' | 'event' | 'post'
   className?: string
 }
 
@@ -15,14 +16,28 @@ const languageNames = {
   km: { native: 'ខ្មែរ', english: 'Khmer' }
 }
 
-export function LanguageAvailabilityNotice({ currentLocale, slug, className = '' }: LanguageAvailabilityNoticeProps) {
+export function LanguageAvailabilityNotice({ currentLocale, slug, type = 'page', className = '' }: LanguageAvailabilityNoticeProps) {
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchAvailableLanguages() {
       try {
-        const response = await fetch(`/api/public/pages/${encodeURIComponent(slug)}/languages`)
+        // Determine the API endpoint based on type
+        let apiUrl = ''
+        if (type === 'event') {
+          // For events, slug is just the event slug
+          apiUrl = `/api/public/events/${encodeURIComponent(slug)}/languages`
+        } else if (type === 'post') {
+          // For posts, slug is like "blog/post-slug"
+          const postSlug = slug.replace('blog/', '')
+          apiUrl = `/api/public/pages/${encodeURIComponent(postSlug)}/languages`
+        } else {
+          // For pages, slug might include path like "blog/post-slug" or just "slug"
+          apiUrl = `/api/public/pages/${encodeURIComponent(slug)}/languages`
+        }
+
+        const response = await fetch(apiUrl)
         if (response.ok) {
           const data = await response.json()
           setAvailableLanguages(data.availableLanguages || [])
@@ -35,7 +50,7 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, className = ''
     }
 
     fetchAvailableLanguages()
-  }, [slug])
+  }, [slug, type])
 
   // Don't show if there's only one language or still loading
   if (loading || availableLanguages.length <= 1) {
@@ -45,15 +60,35 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, className = ''
   const otherLanguages = availableLanguages.filter(lang => lang !== currentLocale)
 
   const getLocalizedText = () => {
+    const contentType = type === 'event' ? {
+      sv: 'evenemanget',
+      en: 'event',
+      km: 'ព្រឹត្តិការណ៍'
+    } : {
+      sv: 'artikeln',
+      en: 'article',
+      km: 'អត្ថបទ'
+    }
+
     switch (currentLocale) {
       case 'sv':
-        return 'Den här artikeln finns även på'
+        return `Den här ${contentType.sv} finns även på`
       case 'en':
-        return 'This article is also available in'
+        return `This ${contentType.en} is also available in`
       case 'km':
-        return 'អត្ថបទនេះក៏មានជា'
+        return `${contentType.km}នេះក៏មានជា`
       default:
-        return 'This article is also available in'
+        return `This ${contentType.en} is also available in`
+    }
+  }
+
+  const getLanguageUrl = (lang: string) => {
+    if (type === 'event') {
+      return `/${lang}/events/${slug}`
+    } else if (type === 'post') {
+      return `/${lang}/${slug}` // slug already contains 'blog/'
+    } else {
+      return `/${lang}/${slug}`
     }
   }
 
@@ -69,7 +104,7 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, className = ''
               return (
                 <span key={lang}>
                   <a
-                    href={`/${lang}/${slug}`}
+                    href={getLanguageUrl(lang)}
                     className="text-[var(--sahakum-gold)] hover:text-[var(--sahakum-navy)] underline decoration-1 underline-offset-2 transition-colors font-medium"
                   >
                     {language?.native}

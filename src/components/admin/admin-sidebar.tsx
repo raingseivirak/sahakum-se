@@ -111,6 +111,11 @@ const getNavigationItems = (locale: string, permissions: any) => {
             url: `/${locale}/admin/events/create`,
             requiresPermission: 'canCreateContent',
           },
+          {
+            title: locale === 'km' ? 'ការចុះឈ្មោះព្រឹត្តិការណ៍' : locale === 'sv' ? 'Evenemangsan​mälningar' : 'Event Registrations',
+            url: `/${locale}/admin/event-registrations`,
+            requiresPermission: 'canCreateContent',
+          },
         ],
       },
     ],
