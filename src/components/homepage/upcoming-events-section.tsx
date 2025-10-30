@@ -20,6 +20,7 @@ const translations = {
     spotsLeft: 'platser kvar',
     full: 'Fullbokad',
     noEvents: 'Inga kommande evenemang just nu',
+    viewAllEvents: 'Visa alla evenemang',
   },
   en: {
     title: 'Upcoming Events',
@@ -30,6 +31,7 @@ const translations = {
     spotsLeft: 'spots left',
     full: 'Full',
     noEvents: 'No upcoming events at this time',
+    viewAllEvents: 'View all events',
   },
   km: {
     title: 'ព្រឹត្តិការណ៍ខាងមុខ',
@@ -40,6 +42,7 @@ const translations = {
     spotsLeft: 'កន្លែងនៅសល់',
     full: 'ពេញហើយ',
     noEvents: 'គ្មានព្រឹត្តិការណ៍ខាងមុខនៅពេលនេះ',
+    viewAllEvents: 'មើលព្រឹត្តិការណ៍ទាំងអស់',
   }
 };
 
@@ -61,6 +64,11 @@ export async function UpcomingEventsSection({ locale }: UpcomingEventsSectionPro
   const t = translations[locale as keyof typeof translations] || translations.en;
   const fontClass = locale === 'km' ? 'font-khmer' : 'font-sweden';
 
+  // Hide entire section if no upcoming events
+  if (events.length === 0) {
+    return null;
+  }
+
   return (
     <section className={`py-16 bg-white ${fontClass}`}>
       <div className="max-w-7xl mx-auto px-4">
@@ -73,12 +81,7 @@ export async function UpcomingEventsSection({ locale }: UpcomingEventsSectionPro
         </div>
 
         {/* Events Grid */}
-        {events.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-            <p className={`text-gray-600 ${fontClass}`}>{t.noEvents}</p>
-          </div>
-        ) : (
+        {events.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {events.map((event: any) => {
               const translation = event.translation || event.translations?.[0];
@@ -100,9 +103,6 @@ export async function UpcomingEventsSection({ locale }: UpcomingEventsSectionPro
                       {translation?.title || 'Untitled'}
                     </SwedishCardTitle>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {event.isFree && (
-                        <Badge className="bg-green-500 text-white text-xs">{t.free}</Badge>
-                      )}
                       {event.isFull && (
                         <Badge variant="destructive" className="text-xs">{t.full}</Badge>
                       )}
