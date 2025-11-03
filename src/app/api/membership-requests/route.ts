@@ -18,9 +18,9 @@ const membershipRequestSchema = z.object({
   // Contact Information
   email: z.string().email("Valid email address is required"),
   phone: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
+  address: z.string().optional(), // Address is now optional
   city: z.string().min(1, "City is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
+  postalCode: z.string().optional(), // Postal code is now optional
   country: z.string().default("Sweden"),
 
   // Residence Information

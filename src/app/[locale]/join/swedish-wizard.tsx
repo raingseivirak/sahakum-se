@@ -257,14 +257,19 @@ export function SwedishWizard({ locale }: SwedishWizardProps) {
         if (!emailRegex.test(value)) return t.validation.invalidEmail
         return ''
       case 'address':
+        // Address is optional, but if provided must be at least 2 chars
+        if (value.trim() && value.trim().length < 2) return t.validation.tooShort
+        return ''
       case 'city':
         if (!value.trim()) return t.validation.required
         if (value.trim().length < 2) return t.validation.tooShort
         return ''
       case 'postalCode':
-        if (!value.trim()) return t.validation.required
-        const postalRegex = /^\d{5}$/
-        if (!postalRegex.test(value)) return t.validation.invalidPostal
+        // Postal code is optional, but if provided must be valid Swedish format
+        if (value.trim()) {
+          const postalRegex = /^\d{5}$/
+          if (!postalRegex.test(value)) return t.validation.invalidPostal
+        }
         return ''
       case 'residenceStatus':
         if (!value) return t.validation.required
@@ -312,7 +317,8 @@ export function SwedishWizard({ locale }: SwedishWizardProps) {
         case 1:
           return ['firstName', 'lastName', 'email']
         case 2:
-          return ['address', 'city', 'postalCode', 'residenceStatus']
+          // Only city and residenceStatus are required; address and postalCode are optional
+          return ['city', 'residenceStatus']
         case 3:
           return ['motivation']
         default:
@@ -572,7 +578,7 @@ export function SwedishWizard({ locale }: SwedishWizardProps) {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--sahakum-navy)] mb-2">
-                  {t.fields.address} *
+                  {t.fields.address} <span className="text-[var(--sahakum-navy)]/60 font-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -621,7 +627,7 @@ export function SwedishWizard({ locale }: SwedishWizardProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--sahakum-navy)] mb-2">
-                    {t.fields.postalCode} *
+                    {t.fields.postalCode} <span className="text-[var(--sahakum-navy)]/60 font-normal">(optional)</span>
                   </label>
                   <input
                     type="text"
