@@ -91,7 +91,7 @@ export default async function BoardPage({
                   className="bg-white border border-[var(--sahakum-navy)]/20 overflow-hidden transition-all duration-300 hover:border-[var(--sahakum-gold)]"
                 >
                   {/* Image or Clean Placeholder */}
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-[var(--sahakum-navy)]/5">
                     {member.profileImage ? (
                       <img
                         src={member.profileImage}
