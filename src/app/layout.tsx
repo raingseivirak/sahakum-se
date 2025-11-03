@@ -18,7 +18,11 @@ const notoSansKhmer = Noto_Sans_Khmer({
 
 export const metadata = {
   title: 'Sahakum Khmer',
-  description: 'Community • Culture • Integration'
+  description: 'Community • Culture • Integration',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
