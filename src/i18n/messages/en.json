@@ -47,5 +47,18 @@
     "copy_link": "Copy Link",
     "link_copied": "Link Copied!",
     "share_on_mobile": "Share Article"
+  },
+  "board": {
+    "boardOfDirectors": "Board of Directors",
+    "boardDescription": "Meet the dedicated leaders guiding Sahakum Khmer towards our mission",
+    "boardLeadingDescription": "Meet the dedicated leaders guiding our community towards a brighter future",
+    "meetOurChairman": "Meet Our Chairman",
+    "boardMembers": "Our Board Members",
+    "boardMembersDescription": "A passionate team dedicated to serving our community",
+    "education": "Education",
+    "vision": "Vision",
+    "joinOurCommunity": "Join Our Community",
+    "joinCommunityDescription": "Be part of something bigger. Join Sahakum Khmer and help build a stronger Cambodian-Swedish community.",
+    "becomeMember": "Become a Member"
   }
 }

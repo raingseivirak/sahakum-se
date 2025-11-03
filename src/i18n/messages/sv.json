@@ -47,5 +47,18 @@
     "copy_link": "Kopiera länk",
     "link_copied": "Länk kopierad!",
     "share_on_mobile": "Dela artikel"
+  },
+  "board": {
+    "boardOfDirectors": "Styrelsen",
+    "boardDescription": "Möt de engagerade ledare som styr Sahakum Khmer mot vårt uppdrag",
+    "boardLeadingDescription": "Möt de engagerade ledare som styr vår gemenskap mot en ljusare framtid",
+    "meetOurChairman": "Möt Vår Ordförande",
+    "boardMembers": "Våra Styrelsemedlemmar",
+    "boardMembersDescription": "Ett passionerat team dedikerat till att tjäna vår gemenskap",
+    "education": "Utbildning",
+    "vision": "Vision",
+    "joinOurCommunity": "Gå Med i Vår Gemenskap",
+    "joinCommunityDescription": "Var en del av något större. Gå med i Sahakum Khmer och hjälp till att bygga en starkare kambodjansk-svensk gemenskap.",
+    "becomeMember": "Bli Medlem"
   }
 }

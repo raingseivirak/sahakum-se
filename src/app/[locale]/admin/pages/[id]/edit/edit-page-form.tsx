@@ -94,9 +94,9 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
-    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
-    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
+    { code: 'sv', name: 'Svenska' },
+    { code: 'en', name: 'English' },
+    { code: 'km', name: 'ខ្មែរ' },
   ]
 
   const form = useForm<PageFormData>({
@@ -334,9 +334,8 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
                   <TabsTrigger
                     key={lang.code}
                     value={lang.code}
-                    className={`${fontClass} flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                    className={`${lang.code === 'km' ? 'font-khmer' : fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
                   >
-                    <img src={lang.flag} alt={`${lang.name} flag`} className="w-4 h-3 object-cover rounded-sm" />
                     {lang.name}
                   </TabsTrigger>
                 ))}
@@ -430,9 +429,8 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
                       <TabsTrigger
                         key={lang.code}
                         value={lang.code}
-                        className={`${fontClass} flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                        className={`${lang.code === 'km' ? 'font-khmer' : fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
                       >
-                        <img src={lang.flag} alt={`${lang.name} flag`} className="w-4 h-3 object-cover rounded-sm" />
                         {lang.name}
                       </TabsTrigger>
                     ))}

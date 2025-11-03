@@ -241,6 +241,28 @@ export function MembershipSection({ locale, className = '' }: MembershipSectionP
                 </div>
               </div>
             </div>
+
+            {/* Board Link - Swedish Design with Square Corners */}
+            <Link
+              href={`/${locale}/board`}
+              className="block bg-white p-6 border border-[var(--sahakum-navy)]/20 hover:border-[var(--sahakum-gold)] transition-all duration-200 group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-base font-semibold text-[var(--sahakum-navy)] mb-1 ${fontClass}`}>
+                    {locale === 'sv' ? 'Möt vår styrelse' :
+                     locale === 'km' ? 'ជួបក្រុមប្រឹក្សាភិបាលរបស់យើង' :
+                     'Meet our board'}
+                  </p>
+                  <p className={`text-sm text-[var(--sahakum-navy)]/60 ${fontClass}`}>
+                    {locale === 'sv' ? 'Lär känna de som leder vår gemenskap' :
+                     locale === 'km' ? 'ស្គាល់អ្នកដឹកនាំសហគមន៍របស់យើង' :
+                     'Get to know the people leading our community'}
+                  </p>
+                </div>
+                <ArrowRight className="h-5 w-5 text-[var(--sahakum-gold)] transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+            </Link>
           </div>
         </div>
       </Container>

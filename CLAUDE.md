@@ -10,6 +10,87 @@ This file contains configuration and helpful commands for Claude Code when worki
 - **Deployment**: Vercel + Supabase
 - **Styling**: Tailwind CSS + shadcn/ui components
 
+## 🎨 Design & Styling Guidelines
+
+### **IMPORTANT: Admin Pages are English-Only**
+- **Admin interface** (`/[locale]/admin/*`) supports **ONLY English**
+- Do NOT add translations to admin pages
+- Admin UI text should be in English (e.g., "Create Board Member", "Edit Page", "Save")
+- Only the **public-facing pages** (`/[locale]/...`) are multilingual (EN/SV/KM)
+
+### **CRITICAL: Use Existing Theme System**
+The project has a **complete theme system** in place. **NEVER** create pages with:
+- ❌ Inline CSS styles (`style={{...}}`)
+- ❌ Custom color values (`#0D1931`, `rgb(...)`)
+- ❌ New rounded corner styles
+- ❌ Custom gradient backgrounds
+- ❌ Flag emojis or flag images
+
+### **✅ ALWAYS Use:**
+
+**Colors (CSS Custom Properties):**
+```css
+var(--sahakum-navy)    /* Primary navy: #0D1931 */
+var(--sahakum-gold)    /* Primary gold: #D4932F */
+```
+
+**Fonts:**
+```tsx
+className="font-sweden"  /* For English/Swedish text */
+className="font-khmer"   /* For Khmer text */
+```
+
+**Components:**
+- Use **shadcn/ui components** from `/src/components/ui/`
+- Use **Sweden Typography** components: `SwedenH1`, `SwedenH2`, `SwedenBody`
+- Use **existing Card, Button, Input, Textarea** components
+
+**Design Principles (Swedish Brand):**
+- ✅ **Square corners** (no rounded borders except buttons/tabs)
+- ✅ **Minimal gradients** (flat colors preferred)
+- ✅ **Flat organization** (no hierarchy emphasis)
+- ✅ **High contrast** (readable text on backgrounds)
+- ✅ **Clean borders** (use `border-[var(--sahakum-navy)]` or `border-sweden-neutral-200`)
+
+**Tab Styling (Consistent Across All Admin Forms):**
+```tsx
+<TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg h-auto">
+  <TabsTrigger
+    value="en"
+    className={`${locale === 'km' ? 'font-khmer' : 'font-sweden'} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+  >
+    English
+  </TabsTrigger>
+</TabsList>
+```
+
+**Example: Correct Page Structure**
+```tsx
+// ✅ GOOD: Uses existing theme
+<section className="bg-[var(--sahakum-navy)] text-white">
+  <Container size="wide" className="py-16">
+    <SwedenH2 className="text-white font-sweden">
+      Board Members
+    </SwedenH2>
+  </Container>
+</section>
+
+// ❌ BAD: Inline styles and custom colors
+<section style={{ backgroundColor: '#0D1931', color: 'white' }}>
+  <div style={{ padding: '64px', maxWidth: '1200px' }}>
+    <h2 style={{ fontSize: '32px', fontFamily: 'Sweden Sans' }}>
+      Board Members
+    </h2>
+  </div>
+</section>
+```
+
+### **Reference Pages for Theme:**
+- **Public Page Example**: `/src/app/[locale]/[slug]/page.tsx` - Shows correct theme usage
+- **Join Page**: `/src/app/[locale]/join/page.tsx` - Swedish design principles
+- **Homepage**: `/src/app/[locale]/page.tsx` - Color scheme and layout
+- **Admin Pages**: `/src/app/[locale]/admin/pages/create/page-form.tsx` - Consistent admin styling
+
 ## Development Commands
 
 ### Database Commands

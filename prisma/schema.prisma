@@ -546,3 +546,40 @@ model EventTag {
   @@id([eventId, tagId])
   @@map("event_tags")
 }
+
+model BoardMember {
+  id             String                    @id @default(cuid())
+  slug           String                    @unique
+  firstName      String
+  lastName       String
+  firstNameKhmer String?
+  lastNameKhmer  String?
+  profileImage   String?
+  email          String?
+  phone          String?
+  order          Int                       @default(0)
+  isChairman     Boolean                   @default(false)
+  active         Boolean                   @default(true)
+  joinedBoard    DateTime?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  translations   BoardMemberTranslation[]
+
+  @@map("board_members")
+}
+
+model BoardMemberTranslation {
+  id            String      @id @default(cuid())
+  boardMemberId String
+  language      String      // sv | en | km
+  position      String      // "Chairman", "Board Member", "Vice Chairman"
+  education     String      @db.Text
+  vision        String      @db.Text
+  bio           String?     @db.Text
+  boardMember   BoardMember @relation(fields: [boardMemberId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([boardMemberId, language])
+  @@map("board_member_translations")
+}

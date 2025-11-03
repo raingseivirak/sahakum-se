@@ -164,9 +164,9 @@ export default function CreateEvent({ params }: CreateEventProps) {
   }
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
-    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
-    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
+    { code: 'sv', name: 'Svenska' },
+    { code: 'en', name: 'English' },
+    { code: 'km', name: 'ខ្មែរ' },
   ]
 
   const getCategoryName = (category: any, locale: string) => {

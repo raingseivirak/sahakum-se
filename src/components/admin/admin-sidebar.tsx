@@ -23,6 +23,7 @@ import {
   ClipboardList,
   Lock,
   Clock,
+  Users as UsersIcon,
 } from "lucide-react"
 
 import {
@@ -140,6 +141,24 @@ const getNavigationItems = (locale: string, permissions: any) => {
           {
             title: locale === 'km' ? 'បន្ថែមសមាជិក' : locale === 'sv' ? 'Lägg till medlem' : 'Add Member',
             url: `/${locale}/admin/members/create`,
+            requiresPermission: 'canManageMembers',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'ក្រុមប្រឹក្សាភិបាល' : locale === 'sv' ? 'Styrelsen' : 'Board Members',
+        url: `/${locale}/admin/board-members`,
+        icon: UsersIcon,
+        requiresPermission: 'canManageMembers', // EDITOR and above
+        items: [
+          {
+            title: locale === 'km' ? 'សមាជិកទាំងអស់' : locale === 'sv' ? 'Alla styrelsemedlemmar' : 'All Board Members',
+            url: `/${locale}/admin/board-members`,
+            requiresPermission: 'canManageMembers',
+          },
+          {
+            title: locale === 'km' ? 'បន្ថែមសមាជិក' : locale === 'sv' ? 'Lägg till medlem' : 'Add Board Member',
+            url: `/${locale}/admin/board-members/create`,
             requiresPermission: 'canManageMembers',
           },
         ],
@@ -347,12 +366,25 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             <SidebarMenu>
               {navItems.organization.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url, !!item.items)}>
                     <Link href={item.url} className="font-sweden">
                       <item.icon className="mr-2 h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {item.items && (
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild isActive={isActive(subItem.url)} className="font-sweden">
+                            <Link href={subItem.url} className="font-sweden text-sm">
+                              {subItem.title}
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

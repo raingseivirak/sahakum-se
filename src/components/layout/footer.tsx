@@ -12,6 +12,8 @@ const footerTranslations = {
     copyright: '© 2025 Sahakum Khmer. Alla rättigheter förbehållna.',
     tagline: 'Gemenskap • Kultur • Integration',
     quick_links: 'Snabblänkar',
+    about_us: 'Om oss',
+    board: 'Styrelsen',
     events: 'Evenemang',
     blog: 'Blogg',
     pages: 'Sidor'
@@ -23,6 +25,8 @@ const footerTranslations = {
     copyright: '© 2025 Sahakum Khmer. All rights reserved.',
     tagline: 'Community • Culture • Integration',
     quick_links: 'Quick Links',
+    about_us: 'About Us',
+    board: 'Board of Directors',
     events: 'Events',
     blog: 'Blog',
     pages: 'Pages'
@@ -34,6 +38,8 @@ const footerTranslations = {
     copyright: '© ២០២៥ សហគមន៍ខ្មែរ។ រក្សាសិទ្ធិគ្រប់យ៉ាង។',
     tagline: 'សហគមន៍ • វប្បធម៌ • ការរួមបញ្ចូល',
     quick_links: 'តំណរហ័ស',
+    about_us: 'អំពីយើង',
+    board: 'ក្រុមប្រឹក្សាភិបាល',
     events: 'ព្រឹត្តិការណ៍',
     blog: 'ប្លុក',
     pages: 'ទំព័រ'
@@ -59,6 +65,12 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-gray-800 mb-4">{t('quick_links')}</h4>
             <div className="text-sm text-gray-600 space-y-2">
+              <a href={`/${locale}/about-us`} className="block hover:text-[var(--sahakum-gold)] transition-colors">
+                {t('about_us')}
+              </a>
+              <a href={`/${locale}/board`} className="block hover:text-[var(--sahakum-gold)] transition-colors">
+                {t('board')}
+              </a>
               <a href={`/${locale}/events`} className="block hover:text-[var(--sahakum-gold)] transition-colors">
                 {t('events')}
               </a>

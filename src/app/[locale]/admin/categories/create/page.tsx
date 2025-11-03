@@ -120,9 +120,9 @@ export default function CreateCategory({ params }: CreateCategoryProps) {
   }
 
   const languages = [
-    { code: 'sv', name: 'Svenska', flag: '/media/images/sv_flag.png' },
-    { code: 'en', name: 'English', flag: '/media/images/en_flag.png' },
-    { code: 'km', name: 'ខ្មែរ', flag: '/media/images/km_flag.png' },
+    { code: 'sv', name: 'Svenska' },
+    { code: 'en', name: 'English' },
+    { code: 'km', name: 'ខ្មែរ' },
   ]
 
   const categoryTypes = [
@@ -276,10 +276,13 @@ export default function CreateCategory({ params }: CreateCategoryProps) {
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg h-auto">
                     {languages.map((lang) => (
-                      <TabsTrigger key={lang.code} value={lang.code} className={fontClass}>
-                        <img src={lang.flag} alt={`${lang.name} flag`} className="mr-2 w-4 h-3 object-cover rounded-sm" />
+                      <TabsTrigger
+                        key={lang.code}
+                        value={lang.code}
+                        className={`${lang.code === 'km' ? 'font-khmer' : fontClass} data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md py-2 px-3`}
+                      >
                         {lang.name}
                       </TabsTrigger>
                     ))}
