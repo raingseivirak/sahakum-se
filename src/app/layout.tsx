@@ -20,8 +20,8 @@ export const metadata = {
   title: 'Sahakum Khmer',
   description: 'Community • Culture • Integration',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/logo.ico',
+    apple: '/logo.ico',
   },
 };
 
