@@ -202,14 +202,101 @@ export async function generateMetadata({ params }: PageProps) {
     }
   }
 
+  // Generate excerpt from content if no meta description exists
+  const generateExcerpt = (content: string, maxLength: number = 160): string => {
+    const textContent = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    return textContent.length > maxLength
+      ? textContent.substring(0, maxLength).trim() + '...'
+      : textContent
+  }
+
+  const title = page.translation.title
+  const description = page.translation.metaDescription ||
+                     page.translation.excerpt ||
+                     generateExcerpt(page.translation.content)
+
+  // Site info with multilingual support
+  const siteInfo = {
+    sv: { name: 'Sahakum Khmer', tagline: 'Kambodjanernas gemenskap i Sverige' },
+    en: { name: 'Sahakum Khmer', tagline: 'Cambodian Community in Sweden' },
+    km: { name: 'សហគមខ្មែរ', tagline: 'សហគមន៍ខ្មែរនៅស៊ុយអែត' }
+  }
+
+  const currentSite = siteInfo[params.locale as keyof typeof siteInfo] || siteInfo.en
+  const fullTitle = `${title} | ${currentSite.name}`
+
+  // Canonical URL
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+  const canonicalUrl = `${baseUrl}/${params.locale}/${params.slug}`
+
+  // Enhanced image handling with fallbacks
+  const getImageUrl = (imagePath?: string | null): string => {
+    if (imagePath) {
+      if (imagePath.startsWith('http')) return imagePath
+      return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`
+    }
+    return `${baseUrl}/media/images/sahakum-social-share.jpg`
+  }
+
+  const imageUrl = getImageUrl(page.featuredImg)
+
   return {
-    title: page.translation.title,
-    description: page.translation.metaDescription || page.translation.excerpt || page.translation.title,
+    title: fullTitle,
+    description,
+
+    // Canonical URL
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    // Open Graph tags
     openGraph: {
-      title: page.translation.title,
-      description: page.translation.metaDescription || page.translation.excerpt,
+      title: fullTitle,
+      description,
+      url: canonicalUrl,
+      siteName: currentSite.name,
       locale: params.locale,
-      images: page.featuredImg ? [page.featuredImg] : undefined
+      type: 'article',
+      publishedTime: page.publishedAt || undefined,
+      modifiedTime: page.updatedAt || undefined,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+          type: 'image/jpeg',
+        }
+      ],
+    },
+
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      title: title.length > 70 ? title.substring(0, 67) + '...' : title,
+      description: description.length > 200 ? description.substring(0, 197) + '...' : description,
+      creator: '@sahakumkhmer',
+      site: '@sahakumkhmer',
+      images: [imageUrl],
+    },
+
+    // SEO
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Additional metadata
+    other: {
+      'theme-color': '#0D1931',
+      'msapplication-TileColor': '#0D1931',
     }
   }
 }

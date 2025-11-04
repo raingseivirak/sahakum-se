@@ -12,6 +12,11 @@ const intlMiddleware = createIntlMiddleware({
 async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Skip i18n middleware for sitemap and robots
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+    return NextResponse.next()
+  }
+
   // Generate nonce for CSP
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
 

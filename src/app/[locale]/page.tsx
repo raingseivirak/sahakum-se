@@ -13,10 +13,101 @@ import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-sec
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
+import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
 import { type Language } from '@/lib/constants';
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
+
+export async function generateMetadata({ params }: Props) {
+  const locale = params.locale
+
+  const siteInfo = {
+    sv: {
+      title: 'Sahakum Khmer | Kambodjanernas gemenskap i Sverige',
+      description: 'Vi hjälper kambodjaner att integreras i det svenska samhället genom gemenskapsaktiviteter, kulturutbyte och stöd. Gemenskap • Kultur • Integration',
+      keywords: 'kambodja, sverige, gemenskap, kultur, integration, kambodjanska föreningen, stockholm, khmer, sahakum'
+    },
+    en: {
+      title: 'Sahakum Khmer | Cambodian Community in Sweden',
+      description: 'We help Cambodians integrate into Swedish society through community activities, cultural exchange and support. Community • Culture • Integration',
+      keywords: 'cambodia, sweden, community, culture, integration, cambodian association, stockholm, khmer, sahakum'
+    },
+    km: {
+      title: 'សហគមខ្មែរ | សហគមន៍ខ្មែរនៅស៊ុយអែត',
+      description: 'យើងជួយប្រជាជនកម្ពុជាធ្វើសមាហរណកម្មទៅក្នុងសង្គមស៊ុយអែត តាមរយៈសកម្មភាពសហគមន៍ ការផ្លាស់ប្តូរវប្បធម៌ និងការគាំទ្រ។ សហគមន៍ • វប្បធម៌ • សមាហរណកម្ម',
+      keywords: 'កម្ពុជា, ស៊ុយអែត, សហគមន៍, វប្បធម៌, សមាហរណកម្ម, សមាគមកម្ពុជា, ស្តុកហូម, ខ្មែរ, សហគម'
+    }
+  }
+
+  const currentSite = siteInfo[locale] || siteInfo.en
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+  const canonicalUrl = `${baseUrl}/${locale}`
+
+  return {
+    title: currentSite.title,
+    description: currentSite.description,
+    keywords: currentSite.keywords,
+
+    // Canonical URL
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'sv': `${baseUrl}/sv`,
+        'en': `${baseUrl}/en`,
+        'km': `${baseUrl}/km`,
+      }
+    },
+
+    // Open Graph
+    openGraph: {
+      title: currentSite.title,
+      description: currentSite.description,
+      url: canonicalUrl,
+      siteName: 'Sahakum Khmer',
+      locale: locale,
+      type: 'website',
+      images: [
+        {
+          url: `${baseUrl}/media/images/sahakum-social-share.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Sahakum Khmer - Cambodian Community in Sweden',
+          type: 'image/jpeg',
+        }
+      ],
+    },
+
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      title: currentSite.title,
+      description: currentSite.description,
+      creator: '@sahakumkhmer',
+      site: '@sahakumkhmer',
+      images: [`${baseUrl}/media/images/sahakum-social-share.jpg`],
+    },
+
+    // Robots
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Additional metadata
+    other: {
+      'theme-color': '#0D1931',
+      'msapplication-TileColor': '#0D1931',
+    }
+  }
+}
 
 const translations = {
   sv: {
@@ -118,6 +209,9 @@ export default function HomePage({ params }: Props) {
 
   return (
     <div className={`min-h-screen bg-swedenBrand-neutral-white ${getFontClass()}`}>
+      {/* SEO Structured Data */}
+      <OrganizationStructuredData />
+
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 

@@ -7,6 +7,7 @@ import { LanguageAvailabilityNotice } from '@/components/ui/language-availabilit
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 import { Footer } from '@/components/layout/footer'
+import { ArticleStructuredData } from '@/components/seo/article-structured-data'
 
 interface BlogPostPageProps {
   params: {
@@ -178,6 +179,20 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
 
   return (
     <div className={`min-h-screen bg-swedenBrand-neutral-white ${fontClass}`}>
+      {/* SEO Structured Data */}
+      <ArticleStructuredData
+        title={post.translation.title}
+        description={post.translation.excerpt || post.translation.metaDescription || ''}
+        author={post.author.name}
+        publishedDate={post.publishedAt || post.createdAt}
+        modifiedDate={post.updatedAt || undefined}
+        imageUrl={post.featuredImg || undefined}
+        locale={params.locale}
+        slug={decodedSlug}
+        categories={post.categories.map(c => c.name)}
+        tags={post.tags.map(t => t.name)}
+      />
+
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 

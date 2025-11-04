@@ -40,5 +40,5 @@ Allow: /sv/
 Allow: /km/
 Allow: /media/images/
 
-# Sitemap location (optional)
-# Sitemap: https://yourdomain.com/sitemap.xml
+# Sitemap location
+Sitemap: https://www.sahakumkhmer.se/sitemap.xml
