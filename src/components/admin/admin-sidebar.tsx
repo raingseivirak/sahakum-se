@@ -24,6 +24,7 @@ import {
   Lock,
   Clock,
   Users as UsersIcon,
+  Lightbulb,
 } from "lucide-react"
 
 import {
@@ -116,6 +117,24 @@ const getNavigationItems = (locale: string, permissions: any) => {
             title: locale === 'km' ? 'ការចុះឈ្មោះព្រឹត្តិការណ៍' : locale === 'sv' ? 'Evenemangsan​mälningar' : 'Event Registrations',
             url: `/${locale}/admin/event-registrations`,
             requiresPermission: 'canCreateContent',
+          },
+        ],
+      },
+      {
+        title: locale === 'km' ? 'គម្រោង' : locale === 'sv' ? 'Initiativ' : 'Initiatives',
+        url: `/${locale}/admin/initiatives`,
+        icon: Lightbulb,
+        requiresPermission: 'canManageInitiatives', // BOARD and above
+        items: [
+          {
+            title: locale === 'km' ? 'គម្រោងទាំងអស់' : locale === 'sv' ? 'Alla initiativ' : 'All Initiatives',
+            url: `/${locale}/admin/initiatives`,
+            requiresPermission: 'canManageInitiatives',
+          },
+          {
+            title: locale === 'km' ? 'បង្កើតគម្រោង' : locale === 'sv' ? 'Skapa initiativ' : 'Create Initiative',
+            url: `/${locale}/admin/initiatives/create`,
+            requiresPermission: 'canManageInitiatives',
           },
         ],
       },

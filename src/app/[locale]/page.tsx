@@ -10,6 +10,7 @@ import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid
 import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
+import { InitiativesSection } from '@/components/homepage/initiatives-section';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
@@ -315,6 +316,9 @@ export default function HomePage({ params }: Props) {
 
         {/* Upcoming Events Section */}
         <UpcomingEventsSection locale={params.locale} />
+
+        {/* Initiatives Section */}
+        <InitiativesSection locale={params.locale} />
 
         {/* Dynamic Services Section */}
         <ServicesSection locale={params.locale} />

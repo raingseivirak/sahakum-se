@@ -30,6 +30,12 @@ model User {
   activityLogs               ActivityLog[]
   events                     Event[]
   eventRegistrations         EventRegistration[]
+  initiativesLed             Initiative[]              @relation("InitiativeProjectLead")
+  initiativeMemberships      InitiativeMember[]        @relation("InitiativeMemberUser")
+  assignedTasks              Task[]                    @relation("TaskAssignedTo")
+  initiativeUpdates          InitiativeUpdate[]        @relation("InitiativeUpdateAuthor")
+  initiativeJoinRequests     InitiativeJoinRequest[]   @relation("InitiativeJoinRequestUser")
+  reviewedJoinRequests       InitiativeJoinRequest[]   @relation("InitiativeJoinRequestReviewer")
 
   @@map("users")
 }
@@ -582,4 +588,220 @@ model BoardMemberTranslation {
 
   @@unique([boardMemberId, language])
   @@map("board_member_translations")
+}
+
+// ============================================
+// Initiatives/Projects Feature
+// ============================================
+
+model Initiative {
+  id                String                 @id @default(cuid())
+  slug              String                 @unique
+
+  // Publishing workflow (like pages/posts)
+  status            InitiativeStatus       @default(DRAFT)
+  visibility        Visibility             @default(PUBLIC)
+
+  // Project info
+  category          InitiativeCategory
+  startDate         DateTime
+  endDate           DateTime?              // null = ongoing
+
+  // Media
+  featuredImage     String?
+
+  // Team
+  projectLeadId     String
+  projectLead       User                   @relation("InitiativeProjectLead", fields: [projectLeadId], references: [id])
+
+  // Relations
+  translations      InitiativeTranslation[]
+  members           InitiativeMember[]
+  tasks             Task[]
+  updates           InitiativeUpdate[]
+  joinRequests      InitiativeJoinRequest[]
+
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([status])
+  @@index([visibility])
+  @@index([category])
+  @@index([projectLeadId])
+  @@map("initiatives")
+}
+
+model InitiativeTranslation {
+  id                String     @id @default(cuid())
+  initiativeId      String
+  language          String     // sv | en | km
+
+  title             String
+  shortDescription  String     // For cards (160 chars)
+  description       String     @db.Text  // Rich text, full details
+
+  seoTitle          String?
+  metaDescription   String?
+
+  initiative        Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@unique([initiativeId, language])
+  @@map("initiative_translations")
+}
+
+model InitiativeMember {
+  id                String      @id @default(cuid())
+  initiativeId      String
+  userId            String
+
+  role              MemberRole  @default(MEMBER)
+  joinedAt          DateTime    @default(now())
+
+  // What they're helping with (optional note)
+  contributionNote  String?     @db.Text
+
+  initiative        Initiative  @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  user              User        @relation("InitiativeMemberUser", fields: [userId], references: [id])
+
+  @@unique([initiativeId, userId])
+  @@index([userId])
+  @@map("initiative_members")
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  initiativeId    String
+
+  // Multilingual (show what's available - not all required)
+  titleEn         String?
+  titleSv         String?
+  titleKm         String?
+  descriptionEn   String?      @db.Text
+  descriptionSv   String?      @db.Text
+  descriptionKm   String?      @db.Text
+
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?        @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+
+  status          TaskStatus   @default(TODO)
+  priority        TaskPriority @default(MEDIUM)
+  dueDate         DateTime?
+  completedAt     DateTime?
+
+  order           Int          @default(0)  // For sorting
+
+  initiative      Initiative   @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([initiativeId])
+  @@index([assignedToId])
+  @@index([status])
+  @@map("tasks")
+}
+
+model InitiativeUpdate {
+  id            String      @id @default(cuid())
+  initiativeId  String
+  userId        String      // Who posted
+
+  title         String
+  content       String      @db.Text
+  type          UpdateType  @default(UPDATE)
+  images        String[]    // Array of image URLs
+
+  publishedAt   DateTime    @default(now())
+
+  initiative    Initiative  @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  author        User        @relation("InitiativeUpdateAuthor", fields: [userId], references: [id])
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([initiativeId])
+  @@index([userId])
+  @@map("initiative_updates")
+}
+
+model InitiativeJoinRequest {
+  id            String            @id @default(cuid())
+  initiativeId  String
+  userId        String
+  status        JoinRequestStatus @default(PENDING)
+  message       String?           @db.Text  // Optional message from the requester
+
+  reviewedAt    DateTime?
+  reviewedBy    String?
+  reviewNote    String?           @db.Text  // Optional note from reviewer
+
+  initiative    Initiative        @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  user          User              @relation("InitiativeJoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer      User?             @relation("InitiativeJoinRequestReviewer", fields: [reviewedBy], references: [id])
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([initiativeId, userId])  // One request per user per initiative
+  @@index([status])
+  @@index([initiativeId])
+  @@index([userId])
+  @@map("initiative_join_requests")
+}
+
+// Enums for Initiatives
+
+enum InitiativeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Visibility {
+  PUBLIC
+  MEMBERS_ONLY
+}
+
+enum InitiativeCategory {
+  CULTURAL_EVENT
+  BUSINESS
+  EDUCATION
+  TRANSLATION
+  SOCIAL
+  OTHER
+}
+
+enum MemberRole {
+  LEAD
+  CO_LEAD
+  MEMBER
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum UpdateType {
+  MILESTONE
+  UPDATE
+  ANNOUNCEMENT
 }

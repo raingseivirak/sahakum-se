@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Settings, LogOut, Shield } from 'lucide-react';
+import { User, Settings, LogOut, Shield, Home } from 'lucide-react';
 import { type Language } from '@/lib/constants';
 
 interface UserMenuProps {
@@ -22,6 +22,7 @@ interface UserMenuProps {
     admin: string;
     profile: string;
     settings: string;
+    my_account?: string;
   };
   currentUrl?: string;
 }
@@ -142,59 +143,52 @@ export function UserMenu({ locale, translations, currentUrl }: UserMenuProps) {
 
         {/* Navigation Section - Swedish Brand Rectangular Cards */}
         <div className="p-3 sm:p-5 space-y-2 sm:space-y-3 bg-gradient-to-b from-white to-slate-200/60">
+          {/* My Account - For ALL users */}
+          <DropdownMenuItem asChild>
+            <Link
+              href={`/${locale}/my-account`}
+              className="cursor-pointer group relative flex items-center w-full p-3 sm:p-4 bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 text-[var(--sahakum-navy)] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden rounded-none"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative flex items-center w-full">
+                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-[var(--sahakum-navy)]/20 mr-3 sm:mr-4 group-hover:bg-[var(--sahakum-navy)]/30 transition-colors rounded-none">
+                  <Home className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--sahakum-navy)]" />
+                </div>
+                <span className={`${fontClass} font-semibold text-sm sm:text-base tracking-wide`}>
+                  {translations.my_account || (locale === 'sv' ? 'Mitt Konto' : locale === 'km' ? 'គណនីរបស់ខ្ញុំ' : 'My Account')}
+                </span>
+                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-2 h-2 bg-[var(--sahakum-navy)]"></div>
+                </div>
+              </div>
+            </Link>
+          </DropdownMenuItem>
+
+          {/* Admin Dashboard - Only for users with admin roles */}
           {hasAdminAccess && (
-            <DropdownMenuItem asChild>
-              <Link
-                href="/en/admin"
-                className="cursor-pointer group relative flex items-center w-full p-3 sm:p-4 bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden rounded-none"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--sahakum-gold)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative flex items-center w-full">
-                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-[var(--sahakum-gold)]/20 mr-3 sm:mr-4 group-hover:bg-[var(--sahakum-gold)]/30 transition-colors rounded-none">
-                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--sahakum-gold)]" />
+            <>
+              <DropdownMenuSeparator className="bg-[var(--sahakum-navy)]/10" />
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/en/admin"
+                  className="cursor-pointer group relative flex items-center w-full p-3 sm:p-4 bg-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)]/90 text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden rounded-none"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--sahakum-gold)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex items-center w-full">
+                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-[var(--sahakum-gold)]/20 mr-3 sm:mr-4 group-hover:bg-[var(--sahakum-gold)]/30 transition-colors rounded-none">
+                      <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--sahakum-gold)]" />
+                    </div>
+                    <span className={`${fontClass} font-semibold text-sm sm:text-base tracking-wide`}>
+                      {locale === 'sv' ? 'Admin' : locale === 'km' ? 'អ្នកគ្រប់គ្រង' : 'Admin Dashboard'}
+                    </span>
+                    <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-2 h-2 bg-[var(--sahakum-gold)]"></div>
+                    </div>
                   </div>
-                  <span className={`${fontClass} font-semibold text-sm sm:text-base tracking-wide`}>{translations.admin}</span>
-                  <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-2 h-2 bg-[var(--sahakum-gold)]"></div>
-                  </div>
-                </div>
-              </Link>
-            </DropdownMenuItem>
+                </Link>
+              </DropdownMenuItem>
+            </>
           )}
-
-          <DropdownMenuItem asChild>
-            <Link
-              href={`/en/admin/profile`}
-              className="cursor-pointer group relative flex items-center w-full p-3 sm:p-4 bg-white hover:bg-gradient-to-r hover:from-white hover:to-[var(--sahakum-gold)]/10 text-[var(--sahakum-navy)] border-2 border-[var(--sahakum-navy)]/10 hover:border-[var(--sahakum-gold)]/30 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 rounded-none"
-            >
-              <div className="flex items-center w-full">
-                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 group-hover:bg-[var(--sahakum-gold)]/20 mr-3 sm:mr-4 transition-colors rounded-none">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--sahakum-navy)] group-hover:text-[var(--sahakum-gold)]" />
-                </div>
-                <span className={`${fontClass} font-semibold text-sm sm:text-base tracking-wide`}>{translations.profile}</span>
-                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-2 h-2 bg-[var(--sahakum-gold)]"></div>
-                </div>
-              </div>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem asChild>
-            <Link
-              href="/en/admin/settings"
-              className="cursor-pointer group relative flex items-center w-full p-3 sm:p-4 bg-white hover:bg-gradient-to-r hover:from-white hover:to-[var(--sahakum-gold)]/10 text-[var(--sahakum-navy)] border-2 border-[var(--sahakum-navy)]/10 hover:border-[var(--sahakum-gold)]/30 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 rounded-none"
-            >
-              <div className="flex items-center w-full">
-                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 group-hover:bg-[var(--sahakum-gold)]/20 mr-3 sm:mr-4 transition-colors rounded-none">
-                  <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--sahakum-navy)] group-hover:text-[var(--sahakum-gold)]" />
-                </div>
-                <span className={`${fontClass} font-semibold text-sm sm:text-base tracking-wide`}>{translations.settings}</span>
-                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-2 h-2 bg-[var(--sahakum-gold)]"></div>
-                </div>
-              </div>
-            </Link>
-          </DropdownMenuItem>
         </div>
 
         {/* Sign Out Section - Swedish Brand Rectangular Destructive Action */}

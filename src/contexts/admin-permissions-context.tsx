@@ -21,6 +21,7 @@ export interface AdminPermissions {
   canManageServices: boolean
   canManageCategories: boolean
   canManageMedia: boolean
+  canManageInitiatives: boolean
 
   // System Management
   canManageUsers: boolean
@@ -73,6 +74,7 @@ export function AdminPermissionsProvider({ children }: AdminPermissionsProviderP
     canManageServices: false,
     canManageCategories: false,
     canManageMedia: false,
+    canManageInitiatives: false,
 
     // System Management
     canManageUsers: false,

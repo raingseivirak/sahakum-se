@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
       canManageServices: isEditor,
       canManageCategories: isEditor,
       canManageMedia: isModerator,
+      canManageInitiatives: isBoard,
 
       // System Management
       canManageUsers: isAdmin,

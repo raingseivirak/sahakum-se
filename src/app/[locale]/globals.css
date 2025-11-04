@@ -19,9 +19,10 @@
   font-display: swap;
 }
 
+/* Use Bold for semibold weight (600) since Semibold file is missing glyphs */
 @font-face {
   font-family: 'Sweden Sans';
-  src: url('/fonts/sweden-sans/SwedenSans-Semibold.woff2') format('woff2');
+  src: url('/fonts/sweden-sans/SwedenSans-Bold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;

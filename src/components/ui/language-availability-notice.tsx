@@ -6,7 +6,7 @@ import { Languages } from 'lucide-react'
 interface LanguageAvailabilityNoticeProps {
   currentLocale: string
   slug: string
-  type?: 'page' | 'event' | 'post'
+  type?: 'page' | 'event' | 'post' | 'initiative'
   className?: string
 }
 
@@ -28,6 +28,9 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, type = 'page',
         if (type === 'event') {
           // For events, slug is just the event slug
           apiUrl = `/api/public/events/${encodeURIComponent(slug)}/languages`
+        } else if (type === 'initiative') {
+          // For initiatives, slug is just the initiative slug
+          apiUrl = `/api/public/initiatives/${encodeURIComponent(slug)}/languages`
         } else if (type === 'post') {
           // For posts, slug is like "blog/post-slug"
           const postSlug = slug.replace('blog/', '')
@@ -60,14 +63,25 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, type = 'page',
   const otherLanguages = availableLanguages.filter(lang => lang !== currentLocale)
 
   const getLocalizedText = () => {
-    const contentType = type === 'event' ? {
-      sv: 'evenemanget',
-      en: 'event',
-      km: 'ព្រឹត្តិការណ៍'
-    } : {
-      sv: 'artikeln',
-      en: 'article',
-      km: 'អត្ថបទ'
+    let contentType
+    if (type === 'event') {
+      contentType = {
+        sv: 'evenemanget',
+        en: 'event',
+        km: 'ព្រឹត្តិការណ៍'
+      }
+    } else if (type === 'initiative') {
+      contentType = {
+        sv: 'initiativet',
+        en: 'initiative',
+        km: 'គម្រោង'
+      }
+    } else {
+      contentType = {
+        sv: 'artikeln',
+        en: 'article',
+        km: 'អត្ថបទ'
+      }
     }
 
     switch (currentLocale) {
@@ -85,6 +99,8 @@ export function LanguageAvailabilityNotice({ currentLocale, slug, type = 'page',
   const getLanguageUrl = (lang: string) => {
     if (type === 'event') {
       return `/${lang}/events/${slug}`
+    } else if (type === 'initiative') {
+      return `/${lang}/initiatives/${slug}`
     } else if (type === 'post') {
       return `/${lang}/${slug}` // slug already contains 'blog/'
     } else {

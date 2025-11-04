@@ -110,27 +110,28 @@ export default async function BoardPage({
                       {member.translations[0]?.position || 'Board Member'}
                     </div>
 
-                    {/* Name - Khmer on top */}
+                    {/* Name - Khmer (last first) only on KM locale */}
                     <div>
-                      {member.firstNameKhmer && member.lastNameKhmer && (
-                        <p className="text-xl font-bold text-[var(--sahakum-navy)] font-khmer mb-1">
-                          {member.firstNameKhmer} {member.lastNameKhmer}
-                        </p>
+                      {params.locale === 'km' && member.firstNameKhmer && member.lastNameKhmer ? (
+                        <h3 className="text-xl font-bold text-[var(--sahakum-navy)] font-khmer">
+                          {member.lastNameKhmer} {member.firstNameKhmer}
+                        </h3>
+                      ) : (
+                        <h3 className={`text-lg font-semibold text-[var(--sahakum-navy)] ${fontClass}`}>
+                          {member.firstName} {member.lastName}
+                        </h3>
                       )}
-                      <h3 className={`text-lg font-semibold text-sweden-neutral-600 ${fontClass}`}>
-                        {member.firstName} {member.lastName}
-                      </h3>
                     </div>
 
-                    {/* Education */}
-                    <div>
+                    {/* Education - Temporarily Hidden */}
+                    {/* <div>
                       <h4 className={`text-xs font-bold uppercase tracking-wide text-[var(--sahakum-navy)] mb-2 ${fontClass}`}>
                         {t('board.education')}
                       </h4>
                       <p className={`text-sm text-sweden-neutral-700 leading-relaxed ${fontClass}`}>
                         {member.translations[0]?.education}
                       </p>
-                    </div>
+                    </div> */}
 
                     {/* Vision - Clean Square Highlight */}
                     <div className="border-l-4 border-[var(--sahakum-gold)] bg-[var(--sahakum-navy)]/5 p-4">

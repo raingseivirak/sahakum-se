@@ -191,7 +191,17 @@ export default async function EventsPage({ params, searchParams }: EventsPagePro
   return (
     <div className={`min-h-screen bg-gradient-to-b from-white to-gray-50 ${fontClass}`}>
       <SwedenSkipNav locale={locale} />
-      <ScrollAwareHeader locale={locale} currentUrl={`/${locale}/events`} />
+      <ScrollAwareHeader
+        locale={locale}
+        currentUrl={`/${locale}/events`}
+        translations={{
+          sign_in: locale === 'km' ? 'ចូលប្រើប្រាស់' : locale === 'sv' ? 'Logga in' : 'Sign In',
+          sign_out: locale === 'km' ? 'ចាកចេញ' : locale === 'sv' ? 'Logga ut' : 'Sign Out',
+          admin: locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : locale === 'sv' ? 'Administratörspanel' : 'Admin Dashboard',
+          profile: locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : locale === 'sv' ? 'Min profil' : 'Profile',
+          settings: locale === 'km' ? 'ការកំណត់' : locale === 'sv' ? 'Inställningar' : 'Settings'
+        }}
+      />
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden py-16 lg:py-20">

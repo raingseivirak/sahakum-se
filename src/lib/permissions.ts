@@ -14,6 +14,7 @@ export type Permission =
   | 'view_members'
   | 'edit_members'
   | 'approve_membership'
+  | 'manage_initiatives'
   | 'manage_users'
   | 'manage_settings'
 
@@ -106,6 +107,9 @@ export class PermissionService {
         return ['BOARD', 'ADMIN'].includes(user.role)
 
       case 'approve_membership':
+        return ['BOARD', 'ADMIN'].includes(user.role)
+
+      case 'manage_initiatives':
         return ['BOARD', 'ADMIN'].includes(user.role)
 
       case 'manage_users':
