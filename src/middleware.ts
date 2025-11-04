@@ -4,6 +4,9 @@ import createIntlMiddleware from 'next-intl/middleware'
 
 const locales = ['sv', 'en', 'km']
 
+// Public paths that should not be localized
+const publicPaths = ['/sitemap.xml', '/robots.txt']
+
 const intlMiddleware = createIntlMiddleware({
   locales,
   defaultLocale: 'sv'
@@ -12,8 +15,8 @@ const intlMiddleware = createIntlMiddleware({
 async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip i18n middleware for sitemap and robots
-  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+  // Skip middleware completely for sitemap and robots
+  if (publicPaths.includes(pathname)) {
     return NextResponse.next()
   }
 
