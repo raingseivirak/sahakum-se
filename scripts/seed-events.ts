@@ -37,7 +37,7 @@ async function main() {
       currentAttendees: 0,
       isFree: true,
       organizer: 'Sahakum Khmer',
-      contactEmail: 'info@sahakumkhmer.se',
+      contactEmail: 'contact.sahakumkhmer.se@gmail.com',
       featuredImg: '/media/images/khmer-new-year.jpg',
       status: 'PUBLISHED',
       authorId: admin.id,

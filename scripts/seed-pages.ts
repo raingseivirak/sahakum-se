@@ -54,7 +54,7 @@ Founded in [Year], Sahakum Khmer has been a cornerstone of the Cambodian communi
 ## Contact Us
 **Address**: [Organization Address]
 **Phone**: [Phone Number]
-**Email**: info@sahakumkhmer.se
+**Email**: contact.sahakumkhmer.se@gmail.com
 **Visit Us**: [Office Hours and Location Details]
 
 Join us in building a stronger, more connected Cambodian-Swedish community.
@@ -88,7 +88,7 @@ Grundad [År], har Sahakum Khmer varit en hörnsten i den kambodjanska gemenskap
 ## Kontakta Oss
 **Adress**: [Organisationens Adress]
 **Telefon**: [Telefonnummer]
-**E-post**: info@sahakumkhmer.se
+**E-post**: contact.sahakumkhmer.se@gmail.com
 **Besök Oss**: [Öppettider och Platsdetaljer]
 
 Gå med oss i att bygga en starkare, mer sammankopplad kambodjansk-svensk gemenskap.
@@ -122,7 +122,7 @@ Gå med oss i att bygga en starkare, mer sammankopplad kambodjansk-svensk gemens
 ## ទាក់ទងយើង
 **អាសយដ្ឋាន**: [អាសយដ្ឋានអង្គការ]
 **ទូរសព្ទ**: [លេខទូរសព្ទ]
-**អ៊ីមែល**: info@sahakumkhmer.se
+**អ៊ីមែល**: contact.sahakumkhmer.se@gmail.com
 **មកលេងយើង**: [ម៉ោងធ្វើការ និងព័ត៌មានលម្អិតអំពីទីតាំង]
 
 ចូលរួមជាមួយយើងក្នុងការកសាងសហគមន៍ខ្មែរ-ស៊ុយអែតដែលរឹងមាំ និងភ្ជាប់ទំនាក់ទំនងកាន់តែច្រើន។
@@ -958,7 +958,7 @@ Finding the right support when you need it is crucial for successful integration
 
 Remember, asking for help is not a sign of weakness - it's a smart way to navigate your new life in Sweden. These resources exist to support you and your family's success and integration.
 
-For immediate assistance or questions about any of these resources, contact Sahakum Khmer at info@sahakumkhmer.se or visit our office during regular hours.
+For immediate assistance or questions about any of these resources, contact Sahakum Khmer at contact.sahakumkhmer.se@gmail.com or visit our office during regular hours.
             `
           },
           {
@@ -1143,7 +1143,7 @@ Att hitta rätt stöd när du behöver det är avgörande för framgångsrik int
 
 Kom ihåg att be om hjälp är inte ett tecken på svaghet - det är ett smart sätt att navigera ditt nya liv i Sverige. Dessa resurser finns för att stödja dig och din familjs framgång och integration.
 
-För omedelbar hjälp eller frågor om någon av dessa resurser, kontakta Sahakum Khmer på info@sahakumkhmer.se eller besök vårt kontor under ordinarie öppettider.
+För omedelbar hjälp eller frågor om någon av dessa resurser, kontakta Sahakum Khmer på contact.sahakumkhmer.se@gmail.com eller besök vårt kontor under ordinarie öppettider.
             `
           },
           {
@@ -1328,7 +1328,7 @@ För omedelbar hjälp eller frågor om någon av dessa resurser, kontakta Sahaku
 
 ចូរចងចាំថា ការសុំជំនួយមិនមែនជាសញ្ញានៃភាពខ្សោយទេ - វាគឺជាវិធីឆ្លាតវៃក្នុងការដើរតាមជីវិតថ្មីរបស់អ្នកនៅស៊ុយអែត។ ធនធានទាំងនេះមានដើម្បីគាំទ្រអ្នក និងជោគជ័យ និងការរួមបញ្ចូលរបស់គ្រួសារអ្នក។
 
-សម្រាប់ជំនួយបន្ទាន់ ឬសំណួរអំពីធនធានណាមួយក្នុងចំណោមនេះ សូមទាក់ទងមកសហគម ខ្មែរនៅ info@sahakumkhmer.se ឬមកលេងការិយាល័យរបស់យើងក្នុងម៉ោងធម្មតា។
+សម្រាប់ជំនួយបន្ទាន់ ឬសំណួរអំពីធនធានណាមួយក្នុងចំណោមនេះ សូមទាក់ទងមកសហគម ខ្មែរនៅ contact.sahakumkhmer.se@gmail.com ឬមកលេងការិយាល័យរបស់យើងក្នុងម៉ោងធម្មតា។
             `
           }
         ]

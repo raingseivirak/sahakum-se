@@ -90,8 +90,8 @@ export function Footer() {
           <div className="col-span-1 md:col-span-1">
             <h4 className="font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base">{t('contact')}</h4>
             <div className="text-xs md:text-sm text-gray-600 space-y-0.5 md:space-y-1">
-              <p className="break-all">info@sahakumkhmer.se</p>
-              <p>+46 xxx xxx xxx</p>
+              <p className="break-all">contact.sahakumkhmer.se@gmail.com</p>
+              {/*<p>+46 xxx xxx xxx</p>*/}
             </div>
           </div>
 

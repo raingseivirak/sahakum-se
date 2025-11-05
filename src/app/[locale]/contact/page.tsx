@@ -207,24 +207,24 @@ export default function ContactPage({ params }: ContactPageProps) {
                   </SwedenBody>
                 </div>
 
-                <div>
-                  <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
-                    {t('office.phone')}
-                  </h4>
-                  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
-                    <a href="tel:+46XXXXXXXXX" className="hover:text-[var(--sahakum-gold)] transition-colors">
-                      +46 XX XXX XX XX
-                    </a>
-                  </SwedenBody>
-                </div>
+                {/*<div>*/}
+                {/*  <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>*/}
+                {/*    {t('office.phone')}*/}
+                {/*  </h4>*/}
+                {/*  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>*/}
+                {/*    <a href="tel:+46XXXXXXXXX" className="hover:text-[var(--sahakum-gold)] transition-colors">*/}
+                {/*      +46 XX XXX XX XX*/}
+                {/*    </a>*/}
+                {/*  </SwedenBody>*/}
+                {/*</div>*/}
 
                 <div>
                   <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
                     {t('office.email')}
                   </h4>
                   <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
-                    <a href="mailto:info@sahakumkhmer.se" className="hover:text-[var(--sahakum-gold)] transition-colors">
-                      info@sahakumkhmer.se
+                    <a href="mailto:contact.sahakumkhmer.se@gmail.com" className="hover:text-[var(--sahakum-gold)] transition-colors">
+                      contact.sahakumkhmer.se@gmail.com
                     </a>
                   </SwedenBody>
                 </div>

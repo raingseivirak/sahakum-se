@@ -33,7 +33,7 @@ async function main() {
       publishedAt: new Date(),
       authorId: admin.id,
       organizer: 'Sahakum Khmer',
-      contactEmail: 'info@sahakumkhmer.se',
+      contactEmail: 'contact.sahakumkhmer.se@gmail.com',
       translations: {
         create: [
           {
@@ -154,7 +154,7 @@ async function main() {
       publishedAt: new Date(),
       authorId: admin.id,
       organizer: 'Sahakum Khmer',
-      contactEmail: 'info@sahakumkhmer.se',
+      contactEmail: 'contact.sahakumkhmer.se@gmail.com',
       translations: {
         create: [
           {

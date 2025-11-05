@@ -319,7 +319,7 @@ export default function CreateEvent({ params }: CreateEventProps) {
                     <Input
                       id="contactEmail"
                       type="email"
-                      placeholder="info@sahakumkhmer.se"
+                      placeholder="contact.sahakumkhmer.se@gmail.com"
                       value={formData.contactEmail}
                       onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
                       className={fontClass}

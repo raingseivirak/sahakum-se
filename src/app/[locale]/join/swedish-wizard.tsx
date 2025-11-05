@@ -66,7 +66,7 @@ const translations = {
       contact: {
         title: "Questions?",
         description: "If you have any questions, feel free to contact us at",
-        email: "info@sahakumkhmer.se"
+        email: "contact.sahakumkhmer.se@gmail.com"
       },
       actions: {
         home: "Return to Homepage",
@@ -136,7 +136,7 @@ const translations = {
       contact: {
         title: "Frågor?",
         description: "Om du har några frågor, tveka inte att kontakta oss på",
-        email: "info@sahakumkhmer.se"
+        email: "contact.sahakumkhmer.se@gmail.com"
       },
       actions: {
         home: "Återgå till startsidan",
@@ -206,7 +206,7 @@ const translations = {
       contact: {
         title: "មានសំណួរ?",
         description: "ប្រសិនបើអ្នកមានសំណួរណាមួយ សូមកុំទាក់ទាក់ទងយើងតាម",
-        email: "info@sahakumkhmer.se"
+        email: "contact.sahakumkhmer.se@gmail.com"
       },
       actions: {
         home: "ត្រលប់ទៅទំព័រដើម",
