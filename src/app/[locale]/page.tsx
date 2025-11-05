@@ -119,6 +119,7 @@ const translations = {
     "common.learn_more": "Läs mer",
     "common.contact_us": "Kontakta oss",
     "common.view_events": "Se kommande evenemang",
+    "common.meet_board": "Möt vår styrelse",
     "nav.cambodia": "Kambodja",
     "nav.living_in_sweden": "Leva i Sverige",
     "nav.community": "Gemenskap",
@@ -144,6 +145,7 @@ const translations = {
     "common.learn_more": "Learn more",
     "common.contact_us": "Contact us",
     "common.view_events": "View upcoming events",
+    "common.meet_board": "Meet our board",
     "nav.cambodia": "Cambodia",
     "nav.living_in_sweden": "Living in Sweden",
     "nav.community": "Community",
@@ -169,6 +171,7 @@ const translations = {
     "common.learn_more": "អានបន្ថែម",
     "common.contact_us": "ទាក់ទងយើង",
     "common.view_events": "មើលព្រឹត្តិការណ៍ខាងមុខ",
+    "common.meet_board": "ជួបក្រុមប្រឹក្សា",
     "nav.cambodia": "កម្ពុជា",
     "nav.living_in_sweden": "រស់នៅក្នុងស៊ុយអែត",
     "nav.community": "សហគមន៍",
@@ -276,13 +279,23 @@ export default function HomePage({ params }: Props) {
                 <SwedenBody className="text-white/90 mb-2 max-w-3xl text-base lg:text-lg leading-relaxed" locale={params.locale}>
                   {t('home.hero_description')}
                 </SwedenBody>
-                <Link
-                  href={`/${params.locale}/events`}
-                  className="inline-flex items-center gap-1 text-sm text-[var(--sahakum-gold)] hover:text-[var(--sahakum-gold)]/80 transition-colors duration-200 group"
-                >
-                  <span>{t('common.view_events')}</span>
-                  <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                </Link>
+                <div className="flex flex-wrap items-center gap-4">
+                  <Link
+                    href={`/${params.locale}/events`}
+                    className="inline-flex items-center gap-1 text-sm text-[var(--sahakum-gold)] hover:text-[var(--sahakum-gold)]/80 transition-colors duration-200 group"
+                  >
+                    <span>{t('common.view_events')}</span>
+                    <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  </Link>
+                  <span className="text-white/40">•</span>
+                  <Link
+                    href={`/${params.locale}/board`}
+                    className="inline-flex items-center gap-1 text-sm text-white/80 hover:text-[var(--sahakum-gold)] transition-colors duration-200 group"
+                  >
+                    <span>{t('common.meet_board')}</span>
+                    <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  </Link>
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>

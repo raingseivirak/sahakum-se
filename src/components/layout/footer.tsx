@@ -14,6 +14,7 @@ const footerTranslations = {
     quick_links: 'Snabblänkar',
     about_us: 'Om oss',
     board: 'Styrelsen',
+    statutes: 'Stadgar',
     events: 'Evenemang',
     blog: 'Blogg',
     pages: 'Sidor'
@@ -27,6 +28,7 @@ const footerTranslations = {
     quick_links: 'Quick Links',
     about_us: 'About Us',
     board: 'Board of Directors',
+    statutes: 'Statutes',
     events: 'Events',
     blog: 'Blog',
     pages: 'Pages'
@@ -40,6 +42,7 @@ const footerTranslations = {
     quick_links: 'តំណរហ័ស',
     about_us: 'អំពីយើង',
     board: 'ក្រុមប្រឹក្សាភិបាល',
+    statutes: 'ជំពូក',
     events: 'ព្រឹត្តិការណ៍',
     blog: 'ប្លុក',
     pages: 'ទំព័រ'
@@ -73,6 +76,9 @@ export function Footer() {
               </a>
               <a href={`/${locale}/board`} className="hover:text-[var(--sahakum-gold)] transition-colors">
                 {t('board')}
+              </a>
+              <a href={`/${locale}/statutes`} className="hover:text-[var(--sahakum-gold)] transition-colors">
+                {t('statutes')}
               </a>
               <a href={`/${locale}/events`} className="hover:text-[var(--sahakum-gold)] transition-colors">
                 {t('events')}
