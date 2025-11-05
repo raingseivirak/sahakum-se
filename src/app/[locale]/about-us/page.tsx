@@ -27,7 +27,7 @@ const translations = {
       "Stödja nyanlända, inklusive delning av erfarenheter relaterade till utbildning, karriärmöjligheter och anpassning till livet i Sverige"
     ],
     "organization.title": "Vår organisation",
-    "organization.content": "Sahakum Khmer är en registrerad ideell förening i Sverige. Vi styrs av en engagerad styrelse och följer våra officiella stadgar.",
+    "organization.content": "Vi styrs av en engagerad styrelse och följer våra officiella stadgar.",
     "cta.join": "Bli medlem",
     "cta.board": "Möt vår styrelse",
     "cta.statutes": "Läs våra stadgar",
@@ -57,7 +57,7 @@ const translations = {
       "Support the newcomers, including sharing experiences related to education, career opportunities, and adapting to life in Sweden"
     ],
     "organization.title": "Our Organization",
-    "organization.content": "Sahakum Khmer is a registered non-profit association in Sweden. We are governed by a dedicated board of directors and follow our official statutes.",
+    "organization.content": "We are governed by a dedicated board of directors and follow our official statutes.",
     "cta.join": "Join Sahakum Khmer",
     "cta.board": "Meet our board",
     "cta.statutes": "Read our statutes",
@@ -87,7 +87,7 @@ const translations = {
       "គាំទ្រអ្នកមកថ្មី រួមទាំងការចែករំលែកបទពិសោធន៍ទាក់ទងនឹងការអប់រំ ឱកាសការងារ និងការសម្រប់ខ្លួនទៅនឹងជីវិតក្នុងប្រទេសស៊ុយអែត"
     ],
     "organization.title": "អង្គការរបស់យើង",
-    "organization.content": "សហគមខ្មែរ គឺជាសមាគមមិនរកប្រាក់ចំណេញដែលបានចុះបញ្ជីនៅស៊ុយអែត។ យើងត្រូវបានគ្រប់គ្រងដោយក្រុមប្រឹក្សាភិបាលដែលមានការប្តេជ្ញាចិត្ត ហើយធ្វើតាមជំពូកផ្លូវការរបស់យើង។",
+    "organization.content": "យើងត្រូវបានគ្រប់គ្រងដោយក្រុមប្រឹក្សាភិបាលដែលមានការប្តេជ្ញាចិត្ត ហើយធ្វើតាមជំពូកផ្លូវការរបស់យើង។",
     "cta.join": "ចូលរួមជាមួយសហគមខ្មែរ",
     "cta.board": "ជួបក្រុមប្រឹក្សារបស់យើង",
     "cta.statutes": "អានជំពូករបស់យើង",
