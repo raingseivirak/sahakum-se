@@ -208,9 +208,13 @@ export default async function HomePage({ params }: Props) {
   if (session?.user?.id) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { memberId: true }
+      select: {
+        member: {
+          select: { id: true }
+        }
+      }
     });
-    isMember = !!user?.memberId;
+    isMember = !!user?.member;
   }
 
   // Determine font class based on locale
