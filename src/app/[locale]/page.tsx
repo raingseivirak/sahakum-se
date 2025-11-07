@@ -16,6 +16,9 @@ import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
 import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
 import { type Language } from '@/lib/constants';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -195,8 +198,20 @@ interface Props {
   params: { locale: keyof typeof translations };
 }
 
-export default function HomePage({ params }: Props) {
+export default async function HomePage({ params }: Props) {
   const t = (key: string) => translations[params.locale]?.[key] || translations.sv[key] || key;
+
+  // Check if user is logged in and has a member record
+  const session = await getServerSession(authOptions);
+  let isMember = false;
+
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { memberId: true }
+    });
+    isMember = !!user?.memberId;
+  }
 
   // Determine font class based on locale
   const getFontClass = () => {
@@ -299,16 +314,19 @@ export default function HomePage({ params }: Props) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                <Link href={`/${params.locale}/join`}>
-                  <SwedenButton
-                    variant="primary"
-                    size="lg"
-                    locale={params.locale}
-                    className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
-                  >
-                    {t('common.join_us')}
-                  </SwedenButton>
-                </Link>
+                {/* Only show Join Us button if user is not logged in or not a member */}
+                {!isMember && (
+                  <Link href={`/${params.locale}/join`}>
+                    <SwedenButton
+                      variant="primary"
+                      size="lg"
+                      locale={params.locale}
+                      className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                    >
+                      {t('common.join_us')}
+                    </SwedenButton>
+                  </Link>
+                )}
                 <Link href={`/${params.locale}/contact`}>
                   <SwedenButton
                     variant="secondary"
