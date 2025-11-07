@@ -251,6 +251,23 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Log user account creation to activity log
+    await ActivityLogger.log({
+      userId: user.id,
+      action: 'user.created',
+      resourceType: 'USER',
+      resourceId: newUser.id,
+      description: `Created user account: ${newUser.name} (${newUser.email})`,
+      metadata: {
+        userEmail: newUser.email,
+        userName: newUser.name,
+        userRole: newUser.role,
+        createdBy: user.email
+      }
+    })
+
+    console.log(`User account created: ${newUser.email} with role ${newUser.role}`)
+
     // Send credentials email to the new user
     try {
       const emailTemplate = generateUserAccountCredentialsEmail({
