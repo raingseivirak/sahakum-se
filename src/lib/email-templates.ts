@@ -952,6 +952,201 @@ www.sahakumkhmer.se
   return { subject, html, text }
 }
 
+// Interface for user account credentials email data (for admin-created accounts)
+export interface UserAccountCredentialsEmailData {
+  name: string
+  email: string
+  password: string  // The password set by admin
+  role: string
+  baseUrl?: string
+}
+
+// Generate user account credentials email for admin-created accounts
+export function generateUserAccountCredentialsEmail(data: UserAccountCredentialsEmailData): { subject: string; html: string; text: string } {
+  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const loginUrl = `${baseUrl}/auth/signin`
+
+  const subject = 'Your Sahakum Khmer Account - Login Credentials'
+
+  const text = `
+Dear ${data.name},
+
+Your account has been created for the Sahakum Khmer administration system.
+
+Your Login Credentials:
+Email: ${data.email}
+Password: ${data.password}
+Role: ${data.role}
+
+IMPORTANT SECURITY NOTICE:
+Please change your password after your first login for security.
+
+Login here: ${loginUrl}
+
+This email contains sensitive information. Please keep it secure and delete it after changing your password.
+
+Need help? Contact us at info@sahakumkhmer.se
+
+Sahakum Khmer
+www.sahakumkhmer.se
+  `.trim()
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Account Credentials</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="width: 600px; max-width: 100%; background-color: white; border-collapse: collapse; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+          <!-- Header with Sahakum Logo -->
+          <tr>
+            <td style="background-color: ${SAHAKUM_NAVY}; padding: 40px; border-bottom: 4px solid ${SAHAKUM_GOLD};">
+              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 120px; vertical-align: middle; padding-right: 0;">
+                    <img src="${LOGO_URL}" alt="Sahakum Khmer Logo" width="96" height="96" style="display: block;" />
+                  </td>
+                  <td style="vertical-align: middle; padding-left: 0;">
+                    <div>
+                      <p style="margin: 0; color: white; font-size: 13px; font-weight: 500; letter-spacing: 1px; line-height: 1.2;">
+                        SWEDEN
+                      </p>
+                      <p style="margin: 2px 0 0 0; color: ${SAHAKUM_GOLD}; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">
+                        SAHAKUM KHMER
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Welcome Badge -->
+          <tr>
+            <td style="padding: 32px 40px 0 40px;">
+              <div style="background: linear-gradient(135deg, ${SAHAKUM_NAVY} 0%, #1a2847 100%); color: white; padding: 20px 24px; text-align: center; border-left: 4px solid ${SAHAKUM_GOLD};">
+                <p style="margin: 0; font-size: 18px; font-weight: 600;">
+                  Account Created
+                </p>
+                <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">
+                  Role: <strong>${data.role}</strong>
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 32px 40px;">
+
+              <!-- Greeting -->
+              <p style="margin: 0 0 24px 0; color: #333; font-size: 17px; line-height: 1.6;">
+                Dear <strong>${data.name}</strong>,
+              </p>
+
+              <!-- Account Created Message -->
+              <p style="margin: 0 0 24px 0; color: #333; font-size: 16px; line-height: 1.6;">
+                Your account has been created for the Sahakum Khmer administration system.
+              </p>
+
+              <!-- Credentials Section -->
+              <div style="background-color: #fffbea; padding: 24px; border: 2px solid ${SAHAKUM_GOLD}; margin-bottom: 24px;">
+                <p style="margin: 0 0 16px 0; color: ${SAHAKUM_NAVY}; font-size: 18px; font-weight: 600; text-align: center;">
+                  Your Login Credentials
+                </p>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; width: 40%; font-weight: 600; color: ${SAHAKUM_NAVY};">
+                      Email
+                    </td>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; color: #333; font-family: 'Courier New', monospace;">
+                      ${data.email}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; font-weight: 600; color: ${SAHAKUM_NAVY};">
+                      Password
+                    </td>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; color: ${SAHAKUM_NAVY}; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700;">
+                      ${data.password}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; font-weight: 600; color: ${SAHAKUM_NAVY};">
+                      Role
+                    </td>
+                    <td style="padding: 12px; background-color: white; border: 1px solid #e5e5e5; color: #333;">
+                      ${data.role}
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Security Warning -->
+              <div style="background-color: #fef2f2; padding: 20px; border-left: 4px solid #ef4444; margin-bottom: 32px;">
+                <p style="margin: 0 0 12px 0; color: #991b1b; font-size: 16px; font-weight: 600;">
+                  Important Security Notice
+                </p>
+                <p style="margin: 0; color: #991b1b; font-size: 14px; line-height: 1.6;">
+                  Please change your password after your first login for security. This email contains sensitive information - please delete it after changing your password.
+                </p>
+              </div>
+
+              <!-- CTA Button -->
+              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                <tr>
+                  <td align="center">
+                    <a href="${loginUrl}"
+                       style="display: inline-block; background-color: ${SAHAKUM_GOLD}; color: ${SAHAKUM_NAVY}; padding: 16px 32px; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 4px;">
+                      Login to Admin Panel →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Help Section -->
+              <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6; text-align: center; padding: 24px 0; border-top: 1px solid #e5e5e5;">
+                Need help? Contact us at <a href="mailto:info@sahakumkhmer.se" style="color: ${SAHAKUM_GOLD}; text-decoration: none; font-weight: 600;">info@sahakumkhmer.se</a>
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f5f5f5; padding: 32px 40px; border-top: 1px solid #e5e5e5;">
+              <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.5; text-align: center;">
+                This email contains sensitive information. Please keep it secure.
+              </p>
+              <p style="margin: 0; text-align: center;">
+                <a href="${baseUrl}" style="color: ${SAHAKUM_GOLD}; text-decoration: none; font-weight: 600; font-size: 14px;">
+                  www.sahakumkhmer.se
+                </a>
+              </p>
+              <p style="margin: 12px 0 0 0; color: #999; font-size: 12px; line-height: 1.5; text-align: center;">
+                Sahakum Khmer - Swedish-Cambodian Association in Sweden
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim()
+
+  return { subject, html, text }
+}
+
 // Interface for board voting notification email
 export interface BoardVotingNotificationEmailData {
   boardMemberName: string

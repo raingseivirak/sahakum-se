@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { ActivityLogger } from '@/lib/activity-logger'
 import { z } from 'zod'
 import bcryptjs from 'bcryptjs'
+import { sendEmail } from '@/lib/email'
+import { generateUserAccountCredentialsEmail } from '@/lib/email-templates'
 
 // Validation schema for User creation
 const userCreateSchema = z.object({
@@ -248,6 +250,30 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       }
     })
+
+    // Send credentials email to the new user
+    try {
+      const emailTemplate = generateUserAccountCredentialsEmail({
+        name: newUser.name || newUser.email,
+        email: newUser.email,
+        password: validatedData.password, // Send the plain text password (before hashing)
+        role: newUser.role,
+        baseUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://www.sahakumkhmer.se'
+      })
+
+      await sendEmail({
+        to: newUser.email,
+        subject: emailTemplate.subject,
+        text: emailTemplate.text,
+        html: emailTemplate.html,
+      })
+
+      console.log(`✅ Credentials email sent to ${newUser.email}`)
+    } catch (emailError) {
+      // Log email error but don't fail the user creation
+      console.error('Failed to send credentials email:', emailError)
+      // User creation succeeded, email failed - that's okay
+    }
 
     return NextResponse.json({ user: newUser }, { status: 201 })
   } catch (error) {
