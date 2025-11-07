@@ -1028,14 +1028,16 @@ export function MembershipRequestDetail({ request, locale, userRole }: Membershi
                     </Button>
                   )}
 
-                  {/* Approve & Create Member - ADMIN only, and only for exceptional override */}
+                  {/* Approve & Create Member - ADMIN only, for pending/review or approved-without-member edge case */}
                   {userRole === 'ADMIN' &&
-                   (request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && (
+                   (request.status === 'PENDING' || request.status === 'UNDER_REVIEW' || (request.status === 'APPROVED' && !request.createdMemberId)) && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="default" className={`bg-green-600 hover:bg-green-700 ${fontClass}`}>
                           <UserPlus className="h-4 w-4 mr-2" />
-                          {request.approvalSystem === 'MULTI_BOARD'
+                          {request.status === 'APPROVED' && !request.createdMemberId
+                            ? 'Create Member & User Account'
+                            : request.approvalSystem === 'MULTI_BOARD'
                             ? 'Override & Approve'
                             : 'Approve & Create Member'}
                         </Button>

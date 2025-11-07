@@ -67,9 +67,10 @@ export async function POST(
       )
     }
 
-    if (membershipRequest.status === 'APPROVED') {
+    // Allow re-approval if status is APPROVED but no member was created (edge case from old flow)
+    if (membershipRequest.status === 'APPROVED' && membershipRequest.createdMemberId) {
       return NextResponse.json(
-        { error: 'Request has already been approved' },
+        { error: 'Request has already been approved and member has been created' },
         { status: 400 }
       )
     }
