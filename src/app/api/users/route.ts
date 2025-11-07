@@ -18,10 +18,21 @@ const userCreateSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 })
 
-// GET /api/users - List all system users
+// GET /api/users - List all system users (optionally filtered by role)
 async function handleGET(request: NextRequest, context: AdminAuthContext) {
   try {
+    // Get role filter from query params
+    const { searchParams } = new URL(request.url)
+    const roleFilter = searchParams.get('role')
+
+    // Build where clause based on role filter
+    const whereClause: any = {}
+    if (roleFilter) {
+      whereClause.role = roleFilter
+    }
+
     const users = await prisma.user.findMany({
+      where: whereClause,
       select: {
         id: true,
         name: true,

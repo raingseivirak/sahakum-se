@@ -146,7 +146,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
   const fetchBoardMemberCount = async () => {
     try {
-      const response = await fetch('/api/users?role=BOARD&role=ADMIN')
+      const response = await fetch('/api/users?role=BOARD')
       if (response.ok) {
         const data = await response.json()
         setBoardMemberCount(data.users?.length || 0)
