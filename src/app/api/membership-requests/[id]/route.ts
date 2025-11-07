@@ -10,6 +10,32 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check if user is authenticated
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 })
+    }
+
+    // Get user and check for appropriate role (BOARD+ should be able to view membership requests)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true, name: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Require ADMIN or BOARD role to view sensitive membership request data
+    if (user.role !== 'ADMIN' && user.role !== 'BOARD') {
+      return NextResponse.json({
+        error: 'Insufficient privileges - Board or Admin access required',
+        required: ['ADMIN', 'BOARD'],
+        current: user.role
+      }, { status: 403 })
+    }
+
+    // User is authenticated and has appropriate role - fetch the request
     const membershipRequest = await prisma.membershipRequest.findUnique({
       where: { id: params.id },
       include: {
