@@ -269,9 +269,38 @@ export async function POST(request: NextRequest) {
       })
 
       console.log(`✅ Credentials email sent to ${newUser.email}`)
+
+      // Log successful email sending to activity log
+      await ActivityLogger.log({
+        userId: user.id,
+        action: 'user.credentials_email_sent',
+        resourceType: 'USER',
+        resourceId: newUser.id,
+        description: `Login credentials email sent to ${newUser.email}`,
+        metadata: {
+          userEmail: newUser.email,
+          userName: newUser.name,
+          userRole: newUser.role,
+          createdBy: user.email
+        }
+      })
     } catch (emailError) {
       // Log email error but don't fail the user creation
       console.error('Failed to send credentials email:', emailError)
+
+      // Log failed email attempt to activity log
+      await ActivityLogger.log({
+        userId: user.id,
+        action: 'user.credentials_email_failed',
+        resourceType: 'USER',
+        resourceId: newUser.id,
+        description: `Failed to send login credentials email to ${newUser.email}`,
+        metadata: {
+          userEmail: newUser.email,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+          createdBy: user.email
+        }
+      })
       // User creation succeeded, email failed - that's okay
     }
 
