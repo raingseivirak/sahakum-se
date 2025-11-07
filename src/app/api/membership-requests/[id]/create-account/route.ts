@@ -90,25 +90,49 @@ export async function POST(
         password: hashedPassword,
         role: 'USER', // Regular members get USER role
         isActive: true,
-        memberId: membershipRequest.createdMemberId,
       }
+    })
+
+    // Link the member to the newly created user
+    await prisma.member.update({
+      where: { id: membershipRequest.createdMemberId },
+      data: { userId: newUser.id }
     })
 
     console.log(`Manual user account created: ${newUser.email} for member #${membershipRequest.createdMember.memberNumber}`)
 
-    // Log activity
+    // Create timeline entry for user account creation
+    await prisma.membershipRequestStatusHistory.create({
+      data: {
+        membershipRequestId: requestId,
+        fromStatus: null,
+        toStatus: 'APPROVED',
+        changedBy: session.user.id,
+        notes: `User account created for member #${membershipRequest.createdMember.memberNumber} by ${session.user.name || session.user.email}`
+      }
+    })
+
+    // Log user account creation activity (matching automatic flow pattern)
     await ActivityLogger.log({
       userId: session.user.id,
-      action: 'membership_request.manual_user_account_created',
-      resourceType: 'MEMBERSHIP_REQUEST',
-      resourceId: requestId,
-      description: `Manually created user account for member #${membershipRequest.createdMember.memberNumber}`,
+      action: 'user.created',
+      resourceType: 'USER',
+      resourceId: newUser.id,
+      description: `Created user account for member ${membershipRequest.createdMember.memberNumber} from membership request ${membershipRequest.requestNumber}`,
+      newValues: {
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role,
+        userId: newUser.id,
+        memberId: membershipRequest.createdMemberId,
+        memberNumber: membershipRequest.createdMember.memberNumber
+      },
       metadata: {
+        sourceRequestId: requestId,
         requestNumber: membershipRequest.requestNumber,
         memberNumber: membershipRequest.createdMember.memberNumber,
-        memberEmail: membershipRequest.createdMember.email,
-        userId: newUser.id,
-        createdBy: session.user.email
+        createdBy: session.user.email,
+        manualCreation: true
       }
     })
 
@@ -137,10 +161,77 @@ export async function POST(
       })
 
       console.log(`Login credentials email sent to: ${membershipRequest.createdMember.email} (${language})`)
+
+      // Create timeline entry for credentials email
+      await prisma.membershipRequestStatusHistory.create({
+        data: {
+          membershipRequestId: requestId,
+          fromStatus: null,
+          toStatus: 'APPROVED',
+          changedBy: session.user.id,
+          notes: `Login credentials email sent to ${membershipRequest.createdMember.email}`
+        }
+      })
+
+      // Log successful email sending (matching automatic flow)
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action: 'user.credentials_email_sent',
+        resourceType: 'USER',
+        resourceId: newUser.id,
+        description: `Login credentials email sent to ${membershipRequest.createdMember.email}`,
+        metadata: {
+          userEmail: membershipRequest.createdMember.email,
+          memberNumber: membershipRequest.createdMember.memberNumber,
+          language,
+          createdBy: session.user.email
+        }
+      })
     } catch (emailError) {
       console.error('Failed to send credentials email:', emailError)
+
+      // Create timeline entry for failed email
+      await prisma.membershipRequestStatusHistory.create({
+        data: {
+          membershipRequestId: requestId,
+          fromStatus: null,
+          toStatus: 'APPROVED',
+          changedBy: session.user.id,
+          notes: `Failed to send credentials email to ${membershipRequest.createdMember.email}: ${emailError instanceof Error ? emailError.message : 'Unknown error'}`
+        }
+      })
+
+      // Log failed email attempt (matching automatic flow)
+      await ActivityLogger.log({
+        userId: session.user.id,
+        action: 'user.credentials_email_failed',
+        resourceType: 'USER',
+        resourceId: newUser.id,
+        description: `Failed to send login credentials email to ${membershipRequest.createdMember.email}`,
+        metadata: {
+          userEmail: membershipRequest.createdMember.email,
+          memberNumber: membershipRequest.createdMember.memberNumber,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+          createdBy: session.user.email
+        }
+      })
       // Don't fail the request if email fails - user account is created
     }
+
+    // Fetch updated member with user relation for frontend
+    const updatedMember = await prisma.member.findUnique({
+      where: { id: membershipRequest.createdMemberId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true
+          }
+        }
+      }
+    })
 
     return NextResponse.json({
       success: true,
@@ -148,12 +239,10 @@ export async function POST(
       user: {
         id: newUser.id,
         email: newUser.email,
-        name: newUser.name
+        name: newUser.name,
+        role: newUser.role
       },
-      member: {
-        id: membershipRequest.createdMember.id,
-        memberNumber: membershipRequest.createdMember.memberNumber
-      }
+      member: updatedMember
     })
 
   } catch (error) {

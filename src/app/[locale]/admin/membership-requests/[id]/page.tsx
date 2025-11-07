@@ -31,7 +31,15 @@ async function getMembershipRequest(id: string) {
             memberNumber: true,
             firstName: true,
             lastName: true,
-            email: true
+            email: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true
+              }
+            }
           }
         },
         statusHistory: {
