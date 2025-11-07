@@ -209,7 +209,7 @@ export async function DELETE(
       where: { id: params.id },
       include: {
         contentItems: { select: { id: true, type: true, slug: true } },
-        mediaFiles: { select: { id: true, filename: true } }
+        uploadedFiles: { select: { id: true, filename: true } }
       }
     })
 
@@ -343,8 +343,8 @@ export async function POST(
 
       // Also reassign any media files uploaded by this user
       const mediaUpdateResult = await prisma.mediaFile.updateMany({
-        where: { uploadedBy: params.id },
-        data: { uploadedBy: targetUserId }
+        where: { uploaderId: params.id },
+        data: { uploaderId: targetUserId }
       })
 
       return NextResponse.json({
