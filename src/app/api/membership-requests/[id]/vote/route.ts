@@ -102,12 +102,22 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user from database to verify role
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true, name: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
     // Check if user is a board member (only BOARD role can vote)
-    if (session.user.role !== 'BOARD') {
+    if (user.role !== 'BOARD') {
       return NextResponse.json(
         { error: 'Only board members can vote on membership requests' },
         { status: 403 }
@@ -475,7 +485,7 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
