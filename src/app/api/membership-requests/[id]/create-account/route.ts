@@ -88,7 +88,7 @@ export async function POST(
         firstName: membershipRequest.firstName,
         lastName: membershipRequest.lastName,
         password: hashedPassword,
-        role: 'MEMBER',
+        role: 'USER', // Regular members get USER role
         isActive: true,
         memberId: membershipRequest.createdMemberId,
       }
