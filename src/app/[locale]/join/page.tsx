@@ -31,6 +31,9 @@ const translations = {
     "form.title": "Medlemsansökan",
     "form.wizard_title": "Medlemsansökan",
     "form.wizard_description": "Fyll i guiden nedan för att ansöka om medlemskap.",
+    "learn_more.title": "Vill du veta mer om Sahakum Khmer?",
+    "learn_more.about_us": "Om oss",
+    "learn_more.statutes": "Stadgar",
     "nav.sign_in": "Logga in",
     "nav.sign_out": "Logga ut",
     "nav.admin": "Administratörspanel",
@@ -57,6 +60,9 @@ const translations = {
     "form.title": "Membership Application",
     "form.wizard_title": "Membership Application Form",
     "form.wizard_description": "Complete the wizard below to apply for membership.",
+    "learn_more.title": "Want to learn more about Sahakum Khmer?",
+    "learn_more.about_us": "About Us",
+    "learn_more.statutes": "Statutes",
     "nav.sign_in": "Sign In",
     "nav.sign_out": "Sign Out",
     "nav.admin": "Admin Dashboard",
@@ -83,6 +89,9 @@ const translations = {
     "form.title": "ពាក្យសុំសមាជិកភាព",
     "form.wizard_title": "ទម្រង់ពាក្យសុំសមាជិកភាព",
     "form.wizard_description": "បំពេញសំណូមពរខាងក្រោមដើម្បីដាក់ពាក្យសុំសមាជិកភាព។",
+    "learn_more.title": "ចង់ដឹងបន្ថែមអំពីសហគមខ្មែរ?",
+    "learn_more.about_us": "អំពីយើង",
+    "learn_more.statutes": "ជំពូក",
     "nav.sign_in": "ចូលប្រើប្រាស់",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
@@ -138,6 +147,18 @@ export default function JoinPage({ params }: JoinPageProps) {
               >
                 {params.locale === 'sv' ? 'Hem' :
                  params.locale === 'km' ? 'ទំព័រដើម' : 'Home'}
+              </Link>
+              <Link
+                href={`/${params.locale}/about-us`}
+                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
+              >
+                {t('learn_more.about_us')}
+              </Link>
+              <Link
+                href={`/${params.locale}/statutes`}
+                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
+              >
+                {t('learn_more.statutes')}
               </Link>
               <LanguageSwitcher
                 currentLocale={params.locale as Language}
@@ -275,7 +296,29 @@ export default function JoinPage({ params }: JoinPageProps) {
                     {t('page.description')}
                   </SwedenBody>
                 </div>
-<div className="p-8 border border-[var(--sahakum-navy)]/20 bg-white">
+
+                {/* Learn More Section */}
+                <div className="mb-8 p-4 bg-[var(--sahakum-gold)]/5 border-l-4 border-[var(--sahakum-gold)]">
+                  <p className={`text-sm text-[var(--sahakum-navy)]/80 mb-3 ${getFontClass()}`}>
+                    {t('learn_more.title')}
+                  </p>
+                  <div className="flex gap-4">
+                    <Link
+                      href={`/${params.locale}/about-us`}
+                      className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium underline"
+                    >
+                      {t('learn_more.about_us')}
+                    </Link>
+                    <Link
+                      href={`/${params.locale}/statutes`}
+                      className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium underline"
+                    >
+                      {t('learn_more.statutes')}
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="p-8 border border-[var(--sahakum-navy)]/20 bg-white">
                   <SwedenH3 className="text-[var(--sahakum-navy)] mb-4" locale={params.locale}>
                     {t('form.wizard_title')}
                   </SwedenH3>

@@ -365,9 +365,20 @@
   label[for="email"],
   label[for="password"],
   .font-sweden label,
-  form label,
-  [data-slot="card-content"] label {
+  form label:not(.font-khmer):not([class*="font-khmer"]),
+  [data-slot="card-content"] label:not(.font-khmer):not([class*="font-khmer"]) {
     font-family: 'Sweden Sans', var(--font-inter), system-ui, sans-serif !important;
+  }
+
+  /* Force Khmer font for labels with font-khmer class - HIGHEST SPECIFICITY */
+  label.font-khmer,
+  label[class*="font-khmer"],
+  .font-khmer label,
+  form label.font-khmer,
+  form label[class*="font-khmer"],
+  [data-slot="card-content"] label.font-khmer,
+  [data-slot="card-content"] label[class*="font-khmer"] {
+    font-family: var(--font-noto-khmer), 'Noto Sans Khmer', sans-serif !important;
   }
 
   /* Force Sweden Sans to load with highest priority */

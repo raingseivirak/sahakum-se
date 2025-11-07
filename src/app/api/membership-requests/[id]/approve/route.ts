@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ActivityLogger } from '@/lib/activity-logger'
+import { sendEmail } from '@/lib/email'
+import { generateApprovalEmail, generateMemberCredentialsEmail } from '@/lib/email-templates'
+import { generateTemporaryPassword, hashPassword } from '@/lib/password'
 
 // Function to generate unique member number
 async function generateMemberNumber(): Promise<string> {
@@ -56,6 +59,14 @@ export async function POST(
       )
     }
 
+    // Check if this request uses multi-board approval system
+    if (membershipRequest.approvalSystem === 'MULTI_BOARD') {
+      return NextResponse.json(
+        { error: 'This request uses board voting system. Please use the voting endpoint instead.' },
+        { status: 400 }
+      )
+    }
+
     if (membershipRequest.status === 'APPROVED') {
       return NextResponse.json(
         { error: 'Request has already been approved' },
@@ -82,15 +93,34 @@ export async function POST(
       )
     }
 
+    // Generate temporary password for User account
+    const temporaryPassword = generateTemporaryPassword()
+    const hashedPassword = await hashPassword(temporaryPassword)
+
     // Use a transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
       // Generate unique member number
       const memberNumber = await generateMemberNumber()
 
-      // Create new member
+      // Create User account for member login
+      const newUser = await tx.user.create({
+        data: {
+          email: membershipRequest.email,
+          name: `${membershipRequest.firstName} ${membershipRequest.lastName}`,
+          firstName: membershipRequest.firstName,
+          lastName: membershipRequest.lastName,
+          password: hashedPassword,
+          role: 'USER', // Regular member role
+          isActive: true,
+          profileImage: null
+        }
+      })
+
+      // Create new member linked to User account
       const newMember = await tx.member.create({
         data: {
           memberNumber,
+          userId: newUser.id, // Link to User account
           firstName: membershipRequest.firstName,
           lastName: membershipRequest.lastName,
           firstNameKhmer: membershipRequest.firstNameKhmer,
@@ -139,7 +169,7 @@ export async function POST(
         }
       })
 
-      return { member: newMember, request: updatedRequest }
+      return { member: newMember, request: updatedRequest, user: newUser, temporaryPassword }
     })
 
     // Log membership approval activity
@@ -148,7 +178,7 @@ export async function POST(
       action: 'membership_request.approved',
       resourceType: 'MEMBERSHIP_REQUEST',
       resourceId: params.id,
-      description: `Approved membership request for "${membershipRequest.firstName} ${membershipRequest.lastName}" and created member ${result.member.memberNumber}`,
+      description: `Approved membership request for "${membershipRequest.firstName} ${membershipRequest.lastName}" and created member ${result.member.memberNumber} with User account`,
       oldValues: {
         status: membershipRequest.status,
         requestNumber: membershipRequest.requestNumber
@@ -156,12 +186,15 @@ export async function POST(
       newValues: {
         status: 'APPROVED',
         memberNumber: result.member.memberNumber,
-        memberId: result.member.id
+        memberId: result.member.id,
+        userId: result.user.id
       },
       metadata: {
         requestNumber: membershipRequest.requestNumber,
         memberNumber: result.member.memberNumber,
         memberId: result.member.id,
+        userId: result.user.id,
+        userAccountCreated: true,
         membershipType: membershipRequest.requestedMemberType,
         adminNotes: adminNotes
       }
@@ -173,21 +206,79 @@ export async function POST(
       action: 'member.created',
       resourceType: 'MEMBER',
       resourceId: result.member.id,
-      description: `Created member ${result.member.memberNumber} from approved membership request`,
+      description: `Created member ${result.member.memberNumber} from approved membership request with linked User account`,
       newValues: {
         memberNumber: result.member.memberNumber,
         firstName: result.member.firstName,
         lastName: result.member.lastName,
         email: result.member.email,
         membershipType: result.member.membershipType,
-        active: result.member.active
+        active: result.member.active,
+        userId: result.user.id
       },
       metadata: {
         sourceRequestId: params.id,
         requestNumber: membershipRequest.requestNumber,
-        residenceStatus: result.member.residenceStatus
+        residenceStatus: result.member.residenceStatus,
+        userId: result.user.id,
+        userAccountLinked: true
       }
     })
+
+    // Send both approval email and credentials email to applicant
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+      const language = (membershipRequest.preferredLanguage || 'en') as 'en' | 'sv' | 'km'
+
+      // 1. Send approval email
+      const approvalEmailTemplate = generateApprovalEmail({
+        firstName: membershipRequest.firstName,
+        lastName: membershipRequest.lastName,
+        khmerFirstName: membershipRequest.firstNameKhmer || undefined,
+        khmerLastName: membershipRequest.lastNameKhmer || undefined,
+        email: membershipRequest.email,
+        requestNumber: membershipRequest.requestNumber,
+        memberNumber: result.member.memberNumber,
+        language,
+        baseUrl
+      })
+
+      await sendEmail({
+        to: membershipRequest.email,
+        subject: approvalEmailTemplate.subject,
+        html: approvalEmailTemplate.html,
+        text: approvalEmailTemplate.text
+      })
+
+      console.log(`Approval email sent to: ${membershipRequest.email} (${language})`)
+
+      // 2. Send credentials email with login information
+      const credentialsEmailTemplate = generateMemberCredentialsEmail({
+        firstName: membershipRequest.firstName,
+        lastName: membershipRequest.lastName,
+        khmerFirstName: membershipRequest.firstNameKhmer || undefined,
+        khmerLastName: membershipRequest.lastNameKhmer || undefined,
+        email: membershipRequest.email,
+        memberNumber: result.member.memberNumber,
+        temporaryPassword: result.temporaryPassword,
+        language,
+        baseUrl
+      })
+
+      await sendEmail({
+        to: membershipRequest.email,
+        subject: credentialsEmailTemplate.subject,
+        html: credentialsEmailTemplate.html,
+        text: credentialsEmailTemplate.text
+      })
+
+      console.log(`Member credentials email sent to: ${membershipRequest.email} (${language})`)
+
+    } catch (emailError) {
+      // Log email error but don't fail the approval
+      console.error('Failed to send approval/credentials emails:', emailError)
+      // Approval was successful even if emails failed
+    }
 
     return NextResponse.json({
       message: 'Membership request approved and member created successfully',

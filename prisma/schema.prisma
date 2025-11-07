@@ -26,6 +26,7 @@ model User {
   approvedMembershipRequests MembershipRequest[] @relation("MembershipRequestApprover")
   reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
   statusHistoryChanges       MembershipRequestStatusHistory[]
+  boardMemberVotes           BoardMemberVote[]   @relation("BoardMemberVotes")
   sessions                   Session[]
   activityLogs               ActivityLog[]
   events                     Event[]
@@ -36,6 +37,7 @@ model User {
   initiativeUpdates          InitiativeUpdate[]        @relation("InitiativeUpdateAuthor")
   initiativeJoinRequests     InitiativeJoinRequest[]   @relation("InitiativeJoinRequestUser")
   reviewedJoinRequests       InitiativeJoinRequest[]   @relation("InitiativeJoinRequestReviewer")
+  member                     Member?                   @relation("UserMember")
 
   @@map("users")
 }
@@ -230,6 +232,7 @@ model ServiceTranslation {
 
 model Member {
   id                 String              @id @default(cuid())
+  userId             String?             @unique
   memberNumber       String              @unique
   firstName          String
   lastName           String
@@ -253,6 +256,7 @@ model Member {
   emergencyPhone     String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+  user               User?               @relation("UserMember", fields: [userId], references: [id])
   membershipRequests MembershipRequest[]
 
   @@map("members")
@@ -291,10 +295,13 @@ model MembershipRequest {
   updatedAt           DateTime         @updatedAt
   adminNotes          String?
   rejectionReason     String?
+  preferredLanguage   String?          @default("en")
+  approvalSystem      ApprovalSystem   @default(SINGLE)
   approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
   createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
   reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
   statusHistory       MembershipRequestStatusHistory[]
+  boardVotes          BoardMemberVote[]
 
   @@map("membership_requests")
 }
@@ -312,6 +319,21 @@ model MembershipRequestStatusHistory {
 
   @@map("membership_request_status_history")
 }
+
+model BoardMemberVote {
+  id                    String            @id @default(cuid())
+  membershipRequestId   String
+  boardMemberId         String
+  vote                  VoteDecision
+  votedAt               DateTime          @default(now())
+  notes                 String?
+  membershipRequest     MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
+  boardMember           User              @relation("BoardMemberVotes", fields: [boardMemberId], references: [id])
+
+  @@unique([membershipRequestId, boardMemberId])
+  @@map("board_member_votes")
+}
+
 
 enum Role {
   USER
@@ -359,6 +381,25 @@ enum RequestStatus {
   ADDITIONAL_INFO_REQUESTED
   APPROVED
   REJECTED
+}
+
+enum ApprovalSystem {
+  SINGLE          // Legacy: Single approver (backward compatibility)
+  MULTI_BOARD     // New: Multiple board member votes required
+}
+
+enum ApprovalThreshold {
+  UNANIMOUS        // All board members must approve
+  MAJORITY         // More than 50% (handles odd numbers naturally)
+  SIMPLE_MAJORITY  // At least 50%, rounded up
+  ANY_TWO          // Minimum 2 approvals
+  SINGLE           // Just 1 approval (for legacy/testing)
+}
+
+enum VoteDecision {
+  APPROVE
+  REJECT
+  ABSTAIN
 }
 
 enum EventLocationType {

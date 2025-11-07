@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -30,6 +31,7 @@ import {
   X,
   Settings2,
   Info,
+  Users,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -101,6 +103,13 @@ const SETTINGS_SCHEMA = {
       { key: 'site_keywords', label: 'SEO Keywords', type: 'TEXT', placeholder: 'cambodian, swedish, association, community' },
       { key: 'default_language', label: 'Default Language', type: 'TEXT', placeholder: 'sv' },
     ]
+  },
+  membership: {
+    title: 'Membership',
+    icon: Users,
+    fields: [
+      { key: 'APPROVAL_THRESHOLD', label: 'Approval Threshold', type: 'TEXT', placeholder: 'MAJORITY' },
+    ]
   }
 }
 
@@ -111,6 +120,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [boardMemberCount, setBoardMemberCount] = useState<number>(0)
 
   const fetchSettings = async () => {
     setLoading(true)
@@ -131,6 +141,18 @@ export default function SettingsPage({ params }: SettingsPageProps) {
       setMessage({ type: 'error', text: err instanceof Error ? err.message : 'Failed to load settings' })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchBoardMemberCount = async () => {
+    try {
+      const response = await fetch('/api/users?role=BOARD&role=ADMIN')
+      if (response.ok) {
+        const data = await response.json()
+        setBoardMemberCount(data.users?.length || 0)
+      }
+    } catch (err) {
+      console.error('Failed to fetch board member count:', err)
     }
   }
 
@@ -179,8 +201,43 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     setFormData(prev => ({ ...prev, [key]: value }))
   }
 
+  const calculateThresholdRequirement = (threshold: string, totalMembers: number): number => {
+    switch (threshold) {
+      case 'UNANIMOUS':
+        return totalMembers
+      case 'MAJORITY':
+        return Math.floor(totalMembers / 2) + 1
+      case 'SIMPLE_MAJORITY':
+        return Math.ceil(totalMembers / 2)
+      case 'ANY_TWO':
+        return 2
+      case 'SINGLE':
+        return 1
+      default:
+        return 0
+    }
+  }
+
+  const getThresholdDescription = (threshold: string): string => {
+    switch (threshold) {
+      case 'UNANIMOUS':
+        return 'All board members must approve'
+      case 'MAJORITY':
+        return 'More than 50% of board members must approve'
+      case 'SIMPLE_MAJORITY':
+        return 'At least 50% of board members must approve (rounded up)'
+      case 'ANY_TWO':
+        return 'At least 2 board members must approve'
+      case 'SINGLE':
+        return 'At least 1 board member must approve (for testing/legacy)'
+      default:
+        return ''
+    }
+  }
+
   useEffect(() => {
     fetchSettings()
+    fetchBoardMemberCount()
   }, [])
 
   if (loading) {
@@ -269,7 +326,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
         {/* Settings Tabs */}
         <Tabs defaultValue="organization" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             {Object.entries(SETTINGS_SCHEMA).map(([key, config]) => {
               const Icon = config.icon
               return (
@@ -283,7 +340,117 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
 {Object.entries(SETTINGS_SCHEMA).map(([categoryKey, config]) => (
             <TabsContent key={categoryKey} value={categoryKey}>
-              {categoryKey === 'permissions' ? (
+              {categoryKey === 'membership' ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                      <Users className="h-5 w-5" />
+                      Membership Approval Settings
+                    </CardTitle>
+                    <CardDescription className={fontClass}>
+                      Configure how membership requests are approved by board members
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="APPROVAL_THRESHOLD" className={fontClass}>
+                          Approval Threshold
+                        </Label>
+                        <Select
+                          value={formData['APPROVAL_THRESHOLD'] || 'MAJORITY'}
+                          onValueChange={(value) => handleInputChange('APPROVAL_THRESHOLD', value)}
+                        >
+                          <SelectTrigger id="APPROVAL_THRESHOLD" className={fontClass}>
+                            <SelectValue placeholder="Select threshold" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="UNANIMOUS" className={fontClass}>
+                              Unanimous (All board members)
+                            </SelectItem>
+                            <SelectItem value="MAJORITY" className={fontClass}>
+                              Majority (More than 50%)
+                            </SelectItem>
+                            <SelectItem value="SIMPLE_MAJORITY" className={fontClass}>
+                              Simple Majority (At least 50%)
+                            </SelectItem>
+                            <SelectItem value="ANY_TWO" className={fontClass}>
+                              Any Two (Minimum 2 approvals)
+                            </SelectItem>
+                            <SelectItem value="SINGLE" className={fontClass}>
+                              Single (1 approval - for testing)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-sm text-muted-foreground">
+                          {getThresholdDescription(formData['APPROVAL_THRESHOLD'] || 'MAJORITY')}
+                        </p>
+                      </div>
+
+                      {/* Real-time preview */}
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className={`font-semibold text-blue-800 mb-3 ${fontClass}`}>Current Configuration Preview</h4>
+                        <div className="space-y-3 text-sm text-blue-700">
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <Users className="h-4 w-4" />
+                            <span>
+                              <strong>Active Board Members:</strong> {boardMemberCount}
+                            </span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <CheckCircle className="h-4 w-4" />
+                            <span>
+                              <strong>Required Approvals:</strong>{' '}
+                              {calculateThresholdRequirement(
+                                formData['APPROVAL_THRESHOLD'] || 'MAJORITY',
+                                boardMemberCount
+                              )}{' '}
+                              out of {boardMemberCount} board members
+                            </span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${fontClass}`}>
+                            <Info className="h-4 w-4" />
+                            <span>
+                              <strong>Threshold:</strong> {formData['APPROVAL_THRESHOLD'] || 'MAJORITY'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Explanation of each threshold */}
+                      <div className="space-y-3">
+                        <h4 className={`font-semibold ${fontClass}`}>Threshold Options Explained:</h4>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className={fontClass}>
+                            <strong>Unanimous:</strong> All {boardMemberCount} board members must approve. Use for critical decisions.
+                          </div>
+                          <div className={fontClass}>
+                            <strong>Majority:</strong> More than 50% ({Math.floor(boardMemberCount / 2) + 1} out of {boardMemberCount}). Recommended for most organizations.
+                          </div>
+                          <div className={fontClass}>
+                            <strong>Simple Majority:</strong> At least 50% ({Math.ceil(boardMemberCount / 2)} out of {boardMemberCount}). Similar to majority but rounds up.
+                          </div>
+                          <div className={fontClass}>
+                            <strong>Any Two:</strong> Minimum 2 approvals needed. Use for small boards or less critical decisions.
+                          </div>
+                          <div className={fontClass}>
+                            <strong>Single:</strong> Just 1 approval needed. For testing purposes or legacy single-approval system.
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Important notes */}
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription className={fontClass}>
+                          <strong>Note:</strong> New membership requests will use the multi-board approval system with this threshold.
+                          Existing requests using the single-approval system will continue to work unchanged.
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : categoryKey === 'permissions' ? (
                 <div className="space-y-6">
                   {/* Permission Overview Table */}
                   <Card>

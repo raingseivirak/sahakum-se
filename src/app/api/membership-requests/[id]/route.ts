@@ -236,3 +236,105 @@ export async function PUT(
     )
   }
 }
+
+// DELETE /api/membership-requests/[id] - Delete membership request (ADMIN only)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    // Check authentication
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user is ADMIN (only admins can delete)
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Only administrators can delete membership requests' },
+        { status: 403 }
+      )
+    }
+
+    // Check if request exists
+    const existingRequest = await prisma.membershipRequest.findUnique({
+      where: { id: params.id },
+      include: {
+        createdMember: {
+          select: { id: true, memberNumber: true }
+        }
+      }
+    })
+
+    if (!existingRequest) {
+      return NextResponse.json(
+        { error: 'Membership request not found' },
+        { status: 404 }
+      )
+    }
+
+    // Prevent deleting if a member was already created
+    if (existingRequest.createdMemberId) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete request that has already created a member',
+          details: `Member ${existingRequest.createdMember?.memberNumber} was created from this request`
+        },
+        { status: 400 }
+      )
+    }
+
+    // Delete the request and all related records in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete board member votes (if any)
+      await tx.boardMemberVote.deleteMany({
+        where: { membershipRequestId: params.id }
+      })
+
+      // Delete status history
+      await tx.membershipRequestStatusHistory.deleteMany({
+        where: { membershipRequestId: params.id }
+      })
+
+      // Delete the membership request
+      await tx.membershipRequest.delete({
+        where: { id: params.id }
+      })
+    })
+
+    // Log the deletion activity
+    await ActivityLogger.log({
+      userId: session.user.id,
+      action: 'membership_request.deleted',
+      resourceType: 'MEMBERSHIP_REQUEST',
+      resourceId: params.id,
+      description: `Deleted membership request for "${existingRequest.firstName} ${existingRequest.lastName}" (${existingRequest.requestNumber})`,
+      metadata: {
+        requestNumber: existingRequest.requestNumber,
+        applicantName: `${existingRequest.firstName} ${existingRequest.lastName}`,
+        applicantEmail: existingRequest.email,
+        status: existingRequest.status,
+        requestedMemberType: existingRequest.requestedMemberType,
+        approvalSystem: existingRequest.approvalSystem
+      }
+    })
+
+    return NextResponse.json({
+      message: 'Membership request deleted successfully',
+      deletedRequest: {
+        id: params.id,
+        requestNumber: existingRequest.requestNumber,
+        applicantName: `${existingRequest.firstName} ${existingRequest.lastName}`
+      }
+    })
+
+  } catch (error) {
+    console.error('Delete membership request error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete membership request' },
+      { status: 500 }
+    )
+  }
+}

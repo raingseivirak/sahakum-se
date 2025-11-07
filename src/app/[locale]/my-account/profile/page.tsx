@@ -5,7 +5,9 @@ import { Metadata } from "next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { User, Mail, Calendar, Shield } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { User, Mail, Calendar, Shield, Lock } from "lucide-react"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "My Profile | Sahakum Khmer",
@@ -120,6 +122,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       en: 'Events',
       sv: 'Evenemang',
       km: 'ព្រឹត្តិការណ៍'
+    },
+    changePassword: {
+      en: 'Change Password',
+      sv: 'Ändra Lösenord',
+      km: 'ប្តូរពាក្យសម្ងាត់'
+    },
+    security: {
+      en: 'Security',
+      sv: 'Säkerhet',
+      km: 'សុវត្ថិភាព'
+    },
+    involvement: {
+      en: 'Your involvement in the community',
+      sv: 'Ditt engagemang i gemenskapen',
+      km: 'ការចូលរួមរបស់អ្នកក្នុងសហគមន៍'
     }
   }
 
@@ -135,7 +152,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString(locale === 'sv' ? 'sv-SE' : 'en-US', {
+    const localeCode = locale === 'sv' ? 'sv-SE' : locale === 'km' ? 'km-KH' : 'en-US'
+    return new Date(date).toLocaleDateString(localeCode, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -233,6 +251,27 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </Badge>
               </div>
             </div>
+
+            {/* Security Section */}
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <span className={`text-sm text-muted-foreground ${fontClass}`}>
+                    {t('security')}
+                  </span>
+                </div>
+                <Link href={`/${locale}/my-account/change-password`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`border-[var(--sahakum-navy)] text-[var(--sahakum-navy)] hover:bg-[var(--sahakum-navy)] hover:text-white ${fontClass}`}
+                  >
+                    {t('changePassword')}
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -241,7 +280,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <CardHeader>
             <CardTitle className={fontClass}>{t('activitySummary')}</CardTitle>
             <CardDescription className={fontClass}>
-              Your involvement in the community
+              {t('involvement')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

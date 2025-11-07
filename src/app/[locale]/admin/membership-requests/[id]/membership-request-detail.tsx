@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -39,8 +39,56 @@ import {
   Eye,
   UserPlus,
   AlertCircle,
+  MailCheck,
+  RefreshCw,
+  Users,
+  ThumbsUp,
+  ThumbsDown,
+  MinusCircle,
+  Trash2,
 } from "lucide-react"
 import Link from "next/link"
+
+interface BoardMemberVote {
+  id: string
+  vote: 'APPROVE' | 'REJECT' | 'ABSTAIN'
+  votedAt: Date | string
+  notes?: string | null
+  boardMember: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }
+}
+
+interface VoteStatus {
+  approvalSystem: 'SINGLE' | 'MULTI_BOARD'
+  status: string
+  votes: BoardMemberVote[]
+  voteCounts: {
+    approvals: number
+    rejections: number
+    abstentions: number
+    total: number
+    totalBoardMembers: number
+    threshold: string
+  }
+  currentUserVote: BoardMemberVote | null
+  hasVoted: boolean
+  pendingVoters: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }[]
+  allBoardMembers: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }[]
+}
 
 interface MembershipRequest {
   id: string
@@ -74,6 +122,8 @@ interface MembershipRequest {
   approvedBy?: string | null
   approvedAt?: Date | null
   createdMemberId?: string | null
+  approvalSystem?: 'SINGLE' | 'MULTI_BOARD'
+  preferredLanguage?: string | null
   reviewer?: {
     id: string
     name: string
@@ -108,6 +158,7 @@ interface MembershipRequest {
 interface MembershipRequestDetailProps {
   request: MembershipRequest
   locale: string
+  userRole?: string | null
 }
 
 const statusColors = {
@@ -128,7 +179,7 @@ const residenceStatusLabels = {
   OTHER: "Other",
 }
 
-export function MembershipRequestDetail({ request, locale }: MembershipRequestDetailProps) {
+export function MembershipRequestDetail({ request, locale, userRole }: MembershipRequestDetailProps) {
   const fontClass = 'font-sweden'
 
   // Debug: Log status history data
@@ -140,6 +191,26 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
   const [rejectionReason, setRejectionReason] = useState(request.rejectionReason || "")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [isResendingEmail, setIsResendingEmail] = useState(false)
+  const [emailSuccess, setEmailSuccess] = useState("")
+  const [emailError, setEmailError] = useState("")
+
+  // Board voting state
+  const [voteStatus, setVoteStatus] = useState<VoteStatus | null>(null)
+  const [isLoadingVotes, setIsLoadingVotes] = useState(false)
+  const [isVoting, setIsVoting] = useState(false)
+  const [voteNotes, setVoteNotes] = useState("")
+  const [voteError, setVoteError] = useState("")
+  const [voteSuccess, setVoteSuccess] = useState("")
+
+  // Delete state
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
+
+  // Create account state
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false)
+  const [accountSuccess, setAccountSuccess] = useState("")
+  const [accountError, setAccountError] = useState("")
 
   const formatDate = (date: Date | string) => {
     const d = typeof date === 'string' ? new Date(date) : date
@@ -174,6 +245,51 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
         return <XCircle className="h-4 w-4 text-red-600" />
       default:
         return <FileText className="h-4 w-4 text-gray-600" />
+    }
+  }
+
+  const getTimelineIcon = (notes: string | null, fromStatus: string | null, toStatus: string) => {
+    // Check if this is a vote event
+    if (notes?.includes('Board vote:')) {
+      if (notes.includes('APPROVE')) {
+        return <ThumbsUp className="h-3 w-3 text-green-600" />
+      } else if (notes.includes('REJECT')) {
+        return <ThumbsDown className="h-3 w-3 text-red-600" />
+      } else if (notes.includes('ABSTAIN')) {
+        return <MinusCircle className="h-3 w-3 text-gray-600" />
+      }
+    }
+
+    // Check if this is an email event
+    if (notes?.includes('email sent') || notes?.includes('email resent')) {
+      return <MailCheck className="h-3 w-3 text-blue-600" />
+    }
+
+    // Otherwise use status-based icon
+    return getStatusIcon(toStatus)
+  }
+
+  const getTimelineBgColor = (notes: string | null, toStatus: string) => {
+    // Check if this is a vote event
+    if (notes?.includes('Board vote:')) {
+      if (notes.includes('APPROVE')) return 'bg-green-100'
+      if (notes.includes('REJECT')) return 'bg-red-100'
+      if (notes.includes('ABSTAIN')) return 'bg-gray-100'
+    }
+
+    // Check if this is an email event
+    if (notes?.includes('email sent') || notes?.includes('email resent')) {
+      return 'bg-blue-100'
+    }
+
+    // Otherwise use status-based color
+    switch (toStatus) {
+      case 'UNDER_REVIEW': return 'bg-blue-100'
+      case 'ADDITIONAL_INFO_REQUESTED': return 'bg-orange-100'
+      case 'APPROVED': return 'bg-green-100'
+      case 'REJECTED': return 'bg-red-100'
+      case 'PENDING': return 'bg-yellow-100'
+      default: return 'bg-gray-100'
     }
   }
 
@@ -248,6 +364,154 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
     }
   }
 
+  const handleResendEmail = async (emailType: 'welcome' | 'approval') => {
+    setIsResendingEmail(true)
+    setEmailError("")
+    setEmailSuccess("")
+
+    try {
+      const response = await fetch(`/api/membership-requests/${request.id}/resend-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emailType }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to resend email')
+      }
+
+      const result = await response.json()
+      setEmailSuccess(`${emailType === 'welcome' ? 'Welcome' : 'Approval'} email sent successfully to ${result.sentTo}`)
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setEmailSuccess(""), 5000)
+
+    } catch (err) {
+      setEmailError(err instanceof Error ? err.message : 'An error occurred while sending email')
+
+      // Clear error message after 8 seconds
+      setTimeout(() => setEmailError(""), 8000)
+    } finally {
+      setIsResendingEmail(false)
+    }
+  }
+
+  // Fetch vote status for multi-board approval
+  const fetchVoteStatus = async () => {
+    if (request.approvalSystem !== 'MULTI_BOARD') return
+
+    setIsLoadingVotes(true)
+    try {
+      const response = await fetch(`/api/membership-requests/${request.id}/vote`)
+      if (response.ok) {
+        const data = await response.json()
+        setVoteStatus(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch vote status:', err)
+    } finally {
+      setIsLoadingVotes(false)
+    }
+  }
+
+  // Cast vote
+  const handleVote = async (vote: 'APPROVE' | 'REJECT' | 'ABSTAIN') => {
+    setIsVoting(true)
+    setVoteError("")
+    setVoteSuccess("")
+
+    try {
+      const response = await fetch(`/api/membership-requests/${request.id}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vote,
+          notes: voteNotes.trim() || null
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to cast vote')
+      }
+
+      const result = await response.json()
+      setVoteSuccess(`Vote cast successfully! ${result.thresholdMet ? 'Approval threshold has been met.' : ''}`)
+      setVoteNotes("")
+
+      // Refresh vote status and page
+      await fetchVoteStatus()
+      setTimeout(() => router.refresh(), 1000)
+
+    } catch (err) {
+      setVoteError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsVoting(false)
+    }
+  }
+
+  // Fetch vote status on mount if using multi-board approval
+  useEffect(() => {
+    fetchVoteStatus()
+  }, [request.id, request.approvalSystem])
+
+  // Delete membership request (admin only)
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    setDeleteError("")
+
+    try {
+      const response = await fetch(`/api/membership-requests/${request.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete membership request')
+      }
+
+      // Redirect to membership requests list
+      router.push(`/${locale}/admin/membership-requests`)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'An error occurred while deleting the request')
+      setIsDeleting(false)
+    }
+  }
+
+  const handleCreateAccount = async () => {
+    setIsCreatingAccount(true)
+    setAccountError("")
+    setAccountSuccess("")
+
+    try {
+      const response = await fetch(`/api/membership-requests/${request.id}/create-account`, {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user account')
+      }
+
+      setAccountSuccess(`User account created successfully! Login credentials sent to ${data.user.email}`)
+
+      // Refresh the page to show updated status
+      setTimeout(() => {
+        router.refresh()
+      }, 2000)
+    } catch (err) {
+      setAccountError(err instanceof Error ? err.message : 'An error occurred while creating user account')
+    } finally {
+      setIsCreatingAccount(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Alerts */}
@@ -262,6 +526,55 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700">{success}</AlertDescription>
+        </Alert>
+      )}
+
+      {emailError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{emailError}</AlertDescription>
+        </Alert>
+      )}
+
+      {emailSuccess && (
+        <Alert className="border-blue-200 bg-blue-50">
+          <MailCheck className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-700">{emailSuccess}</AlertDescription>
+        </Alert>
+      )}
+
+      {voteError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{voteError}</AlertDescription>
+        </Alert>
+      )}
+
+      {voteSuccess && (
+        <Alert className="border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-700">{voteSuccess}</AlertDescription>
+        </Alert>
+      )}
+
+      {accountError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{accountError}</AlertDescription>
+        </Alert>
+      )}
+
+      {accountSuccess && (
+        <Alert className="border-green-200 bg-green-50">
+          <UserPlus className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-700">{accountSuccess}</AlertDescription>
+        </Alert>
+      )}
+
+      {deleteError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{deleteError}</AlertDescription>
         </Alert>
       )}
 
@@ -458,107 +771,451 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Status Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle className={fontClass}>Review & Actions</CardTitle>
-              <CardDescription className={fontClass}>
-                Update request status and add review notes
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className={`text-sm font-medium ${fontClass}`}>Status</label>
-                {request.status === 'APPROVED' ? (
-                  <div className="p-3 border rounded-md bg-green-50 border-green-200">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className={`text-green-800 font-medium ${fontClass}`}>
-                        Approved (via approval process)
+          {/* Board Voting Card - Only for MULTI_BOARD approval */}
+          {request.approvalSystem === 'MULTI_BOARD' && voteStatus && (
+            <Card>
+              <CardHeader>
+                <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                  <Users className="h-5 w-5" />
+                  Board Voting
+                </CardTitle>
+                <CardDescription className={fontClass}>
+                  {voteStatus.voteCounts.threshold} approval required
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Vote Progress */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className={fontClass}>Progress</span>
+                    <span className={`font-semibold ${fontClass}`}>
+                      {voteStatus.voteCounts.total} / {voteStatus.voteCounts.totalBoardMembers} votes cast
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${(voteStatus.voteCounts.total / voteStatus.voteCounts.totalBoardMembers) * 100}%`
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Vote Counts */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 bg-green-50 rounded-md border border-green-200">
+                    <div className="flex items-center justify-center gap-1">
+                      <ThumbsUp className="h-4 w-4 text-green-600" />
+                      <span className={`text-2xl font-bold text-green-600 ${fontClass}`}>
+                        {voteStatus.voteCounts.approvals}
                       </span>
                     </div>
+                    <p className={`text-xs text-green-700 ${fontClass}`}>Approve</p>
                   </div>
-                ) : (
-                  <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger className={fontClass}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className={`bg-white border border-gray-200 shadow-lg ${fontClass}`}>
-                      <SelectItem value="PENDING" className={`hover:bg-gray-50 ${fontClass}`}>Pending</SelectItem>
-                      <SelectItem value="UNDER_REVIEW" className={`hover:bg-gray-50 ${fontClass}`}>Under Review</SelectItem>
-                      <SelectItem value="ADDITIONAL_INFO_REQUESTED" className={`hover:bg-gray-50 ${fontClass}`}>Additional Info Requested</SelectItem>
-                      <SelectItem value="APPROVED" className={`hover:bg-gray-50 ${fontClass}`}>Approved</SelectItem>
-                      <SelectItem value="REJECTED" className={`hover:bg-gray-50 ${fontClass}`}>Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="text-center p-2 bg-red-50 rounded-md border border-red-200">
+                    <div className="flex items-center justify-center gap-1">
+                      <ThumbsDown className="h-4 w-4 text-red-600" />
+                      <span className={`text-2xl font-bold text-red-600 ${fontClass}`}>
+                        {voteStatus.voteCounts.rejections}
+                      </span>
+                    </div>
+                    <p className={`text-xs text-red-700 ${fontClass}`}>Reject</p>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 rounded-md border border-gray-200">
+                    <div className="flex items-center justify-center gap-1">
+                      <MinusCircle className="h-4 w-4 text-gray-600" />
+                      <span className={`text-2xl font-bold text-gray-600 ${fontClass}`}>
+                        {voteStatus.voteCounts.abstentions}
+                      </span>
+                    </div>
+                    <p className={`text-xs text-gray-700 ${fontClass}`}>Abstain</p>
+                  </div>
+                </div>
+
+                {/* Current User Voting Interface */}
+                {!voteStatus.hasVoted && (request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && (
+                  <div className="space-y-3 pt-2 border-t">
+                    <p className={`font-medium text-sm ${fontClass}`}>Cast Your Vote</p>
+                    <Textarea
+                      placeholder="Optional notes about your vote..."
+                      value={voteNotes}
+                      onChange={(e) => setVoteNotes(e.target.value)}
+                      className={fontClass}
+                      rows={2}
+                      disabled={isVoting}
+                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        onClick={() => handleVote('APPROVE')}
+                        disabled={isVoting}
+                        className={`bg-green-600 hover:bg-green-700 ${fontClass}`}
+                        size="sm"
+                      >
+                        <ThumbsUp className="h-3 w-3 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => handleVote('REJECT')}
+                        disabled={isVoting}
+                        variant="destructive"
+                        className={fontClass}
+                        size="sm"
+                      >
+                        <ThumbsDown className="h-3 w-3 mr-1" />
+                        Reject
+                      </Button>
+                      <Button
+                        onClick={() => handleVote('ABSTAIN')}
+                        disabled={isVoting}
+                        variant="outline"
+                        className={fontClass}
+                        size="sm"
+                      >
+                        <MinusCircle className="h-3 w-3 mr-1" />
+                        Abstain
+                      </Button>
+                    </div>
+                  </div>
                 )}
-              </div>
 
-              <div>
-                <label className={`text-sm font-medium ${fontClass}`}>Admin Notes</label>
-                <Textarea
-                  placeholder="Add internal notes about this request..."
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  className={fontClass}
-                  rows={3}
-                  disabled={request.status === 'APPROVED'}
-                />
-              </div>
+                {/* Current User Already Voted */}
+                {voteStatus.hasVoted && voteStatus.currentUserVote && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className={`text-sm font-medium text-blue-800 ${fontClass}`}>
+                      You voted: {voteStatus.currentUserVote.vote}
+                    </p>
+                    {voteStatus.currentUserVote.notes && (
+                      <p className={`text-xs text-blue-700 mt-1 ${fontClass}`}>
+                        {voteStatus.currentUserVote.notes}
+                      </p>
+                    )}
+                  </div>
+                )}
 
-              {newStatus === 'REJECTED' && (
+                {/* Votes Cast */}
+                {voteStatus.votes.length > 0 && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <p className={`font-medium text-sm ${fontClass}`}>
+                      Votes Cast ({voteStatus.votes.length})
+                    </p>
+                    <div className="max-h-40 overflow-y-auto space-y-2">
+                      {voteStatus.votes.map((vote) => (
+                        <div key={vote.id} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
+                          <div className="flex items-center gap-2">
+                            {vote.vote === 'APPROVE' && <ThumbsUp className="h-3 w-3 text-green-600" />}
+                            {vote.vote === 'REJECT' && <ThumbsDown className="h-3 w-3 text-red-600" />}
+                            {vote.vote === 'ABSTAIN' && <MinusCircle className="h-3 w-3 text-gray-600" />}
+                            <span className={fontClass}>{vote.boardMember.name}</span>
+                          </div>
+                          <Badge
+                            variant={vote.vote === 'APPROVE' ? 'default' : vote.vote === 'REJECT' ? 'destructive' : 'outline'}
+                            className={fontClass}
+                          >
+                            {vote.vote}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pending Voters */}
+                {voteStatus.pendingVoters.length > 0 && (request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <p className={`font-medium text-sm ${fontClass}`}>
+                      Pending Votes ({voteStatus.pendingVoters.length})
+                    </p>
+                    <div className="max-h-32 overflow-y-auto space-y-1">
+                      {voteStatus.pendingVoters.map((voter) => (
+                        <div key={voter.id} className="flex items-center gap-2 text-sm p-2 bg-yellow-50 rounded">
+                          <Clock className="h-3 w-3 text-yellow-600" />
+                          <span className={fontClass}>{voter.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Review & Actions - Visible to BOARD and ADMIN */}
+          {(userRole === 'ADMIN' || userRole === 'BOARD') && (
+            <Card>
+              <CardHeader>
+                <CardTitle className={fontClass}>Review & Actions</CardTitle>
+                <CardDescription className={fontClass}>
+                  {userRole === 'ADMIN' && request.approvalSystem === 'MULTI_BOARD'
+                    ? 'Admin controls for exceptional cases (normal approval via board voting above)'
+                    : 'Update request status and add review notes'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <label className={`text-sm font-medium ${fontClass}`}>Rejection Reason</label>
+                  <label className={`text-sm font-medium ${fontClass}`}>Status</label>
+                  {request.status === 'APPROVED' ? (
+                    <div className="p-3 border rounded-md bg-green-50 border-green-200">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className={`text-green-800 font-medium ${fontClass}`}>
+                          Approved (via approval process)
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <Select value={newStatus} onValueChange={setNewStatus}>
+                      <SelectTrigger className={fontClass}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className={`bg-white border border-gray-200 shadow-lg ${fontClass}`}>
+                        <SelectItem value="PENDING" className={`hover:bg-gray-50 ${fontClass}`}>Pending</SelectItem>
+                        <SelectItem value="UNDER_REVIEW" className={`hover:bg-gray-50 ${fontClass}`}>Under Review</SelectItem>
+                        <SelectItem value="ADDITIONAL_INFO_REQUESTED" className={`hover:bg-gray-50 ${fontClass}`}>Additional Info Requested</SelectItem>
+                        {/* Only show APPROVED/REJECTED options to ADMIN */}
+                        {userRole === 'ADMIN' && (
+                          <>
+                            <SelectItem value="APPROVED" className={`hover:bg-gray-50 ${fontClass}`}>Approved</SelectItem>
+                            <SelectItem value="REJECTED" className={`hover:bg-gray-50 ${fontClass}`}>Rejected</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                <div>
+                  <label className={`text-sm font-medium ${fontClass}`}>
+                    {userRole === 'ADMIN' ? 'Admin Notes' : 'Review Notes'}
+                  </label>
                   <Textarea
-                    placeholder="Explain why this request was rejected..."
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder={userRole === 'ADMIN'
+                      ? "Add internal notes about this request..."
+                      : "Add your review notes or comments..."}
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
                     className={fontClass}
                     rows={3}
+                    disabled={request.status === 'APPROVED'}
                   />
                 </div>
-              )}
 
-              <div className="flex flex-col gap-2">
-                {request.status !== 'APPROVED' && (
-                  <Button
-                    onClick={handleStatusUpdate}
-                    disabled={isUpdating}
-                    variant="outline"
-                    className={`border-2 border-sahakum-navy text-sahakum-navy bg-white hover:bg-sahakum-navy hover:text-sahakum-gold ${fontClass}`}
-                  >
-                    {isUpdating ? 'Updating...' : 'Update Status'}
-                  </Button>
+                {/* Rejection reason - ADMIN only */}
+                {userRole === 'ADMIN' && newStatus === 'REJECTED' && (
+                  <div>
+                    <label className={`text-sm font-medium ${fontClass}`}>Rejection Reason</label>
+                    <Textarea
+                      placeholder="Explain why this request was rejected..."
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      className={fontClass}
+                      rows={3}
+                    />
+                  </div>
                 )}
 
-                {(request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="default" className={`bg-green-600 hover:bg-green-700 ${fontClass}`}>
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Approve & Create Member
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className={fontClass}>Approve Membership Request</AlertDialogTitle>
-                        <AlertDialogDescription className={fontClass}>
-                          This will approve the request and automatically create a new member record.
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className={fontClass}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleApproval}
-                          disabled={isUpdating}
-                          className={`bg-green-600 hover:bg-green-700 ${fontClass}`}
+                <div className="flex flex-col gap-2">
+                  {/* Update Status button - available to both BOARD and ADMIN */}
+                  {request.status !== 'APPROVED' && (
+                    <Button
+                      onClick={handleStatusUpdate}
+                      disabled={isUpdating}
+                      variant="outline"
+                      className={`border-2 border-sahakum-navy text-sahakum-navy bg-white hover:bg-sahakum-navy hover:text-sahakum-gold ${fontClass}`}
+                    >
+                      {isUpdating ? 'Updating...' : 'Update Status'}
+                    </Button>
+                  )}
+
+                  {/* Approve & Create Member - ADMIN only, and only for exceptional override */}
+                  {userRole === 'ADMIN' &&
+                   (request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="default" className={`bg-green-600 hover:bg-green-700 ${fontClass}`}>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          {request.approvalSystem === 'MULTI_BOARD'
+                            ? 'Override & Approve'
+                            : 'Approve & Create Member'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className={fontClass}>
+                            {request.approvalSystem === 'MULTI_BOARD'
+                              ? 'Admin Override - Approve Membership'
+                              : 'Approve Membership Request'}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className={fontClass}>
+                            {request.approvalSystem === 'MULTI_BOARD' ? (
+                              <>
+                                You are about to <strong>override the board voting process</strong> and approve this membership request directly.
+                                <br /><br />
+                                This action should only be used in exceptional cases and will be logged for audit purposes.
+                              </>
+                            ) : (
+                              <>
+                                This will approve the request and automatically create a new member record.
+                                This action cannot be undone.
+                              </>
+                            )}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className={fontClass}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleApproval}
+                            disabled={isUpdating}
+                            className={`bg-green-600 hover:bg-green-700 ${fontClass}`}
+                          >
+                            {isUpdating ? 'Approving...' : 'Approve & Create Member'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+
+                  {/* Create User Account Button - ADMIN only, when member exists but user account doesn't */}
+                  {userRole === 'ADMIN' && request.status === 'APPROVED' && request.createdMemberId && !request.createdMember?.user && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={`border-2 border-[var(--sahakum-gold)] text-[var(--sahakum-navy)] bg-white hover:bg-[var(--sahakum-gold)] hover:text-white ${fontClass}`}
+                          disabled={isCreatingAccount}
                         >
-                          {isUpdating ? 'Approving...' : 'Approve & Create Member'}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          {isCreatingAccount ? 'Creating Account...' : 'Create User Account'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className={`text-[var(--sahakum-navy)] ${fontClass}`}>
+                            Create User Account
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className={fontClass}>
+                            This will create a user account for member #{request.createdMember?.memberNumber} and send login credentials to {request.createdMember?.email}.
+                            <br /><br />
+                            A temporary password will be generated and emailed to the member.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className={fontClass} disabled={isCreatingAccount}>
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleCreateAccount}
+                            disabled={isCreatingAccount}
+                            className={`bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 text-[var(--sahakum-navy)] ${fontClass}`}
+                          >
+                            {isCreatingAccount ? 'Creating...' : 'Yes, Create Account'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+
+                  {/* Delete Button - ADMIN only */}
+                  {userRole === 'ADMIN' && !request.createdMemberId && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={`border-2 border-red-600 text-red-600 bg-white hover:bg-red-600 hover:text-white ${fontClass}`}
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          {isDeleting ? 'Deleting...' : 'Delete Request'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-white border border-gray-200 shadow-lg">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className={`text-red-600 ${fontClass}`}>
+                            Delete Membership Request
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className={fontClass}>
+                            Are you sure you want to delete this membership request? This will permanently remove:
+                            <ul className="list-disc list-inside mt-2 space-y-1">
+                              <li>Request #{request.requestNumber}</li>
+                              <li>All board member votes</li>
+                              <li>Status history</li>
+                              <li>All associated data</li>
+                            </ul>
+                            <br />
+                            <strong className="text-red-600">This action cannot be undone.</strong>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className={fontClass} disabled={isDeleting}>
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className={`bg-red-600 hover:bg-red-700 ${fontClass}`}
+                          >
+                            {isDeleting ? 'Deleting...' : 'Yes, Delete Request'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Email Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className={`flex items-center gap-2 ${fontClass}`}>
+                <MailCheck className="h-5 w-5" />
+                Email Notifications
+              </CardTitle>
+              <CardDescription className={fontClass}>
+                Resend email notifications to the applicant
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-sm text-gray-600 mb-4">
+                <p className={fontClass}>
+                  <strong>Applicant Email:</strong> {request.email}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={() => handleResendEmail('welcome')}
+                  disabled={isResendingEmail}
+                  variant="outline"
+                  className={`border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white ${fontClass}`}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isResendingEmail ? 'animate-spin' : ''}`} />
+                  {isResendingEmail ? 'Sending...' : 'Resend Welcome Email'}
+                </Button>
+
+                {request.status === 'APPROVED' && (
+                  <Button
+                    onClick={() => handleResendEmail('approval')}
+                    disabled={isResendingEmail}
+                    variant="outline"
+                    className={`border-2 border-green-600 text-green-600 bg-white hover:bg-green-600 hover:text-white ${fontClass}`}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isResendingEmail ? 'animate-spin' : ''}`} />
+                    {isResendingEmail ? 'Sending...' : 'Resend Approval Email'}
+                  </Button>
+                )}
+              </div>
+
+              <div className="text-xs text-gray-500 mt-3 space-y-1">
+                <p className={fontClass}>
+                  • <strong>Welcome Email:</strong> Confirmation sent when application is submitted
+                </p>
+                {request.status === 'APPROVED' && (
+                  <p className={fontClass}>
+                    • <strong>Approval Email:</strong> Congratulations email with member number
+                  </p>
                 )}
               </div>
             </CardContent>
@@ -576,53 +1233,75 @@ export function MembershipRequestDetail({ request, locale }: MembershipRequestDe
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {/* Status History (most recent first) */}
                 {request.statusHistory && request.statusHistory.length > 0 && (
-                  request.statusHistory.map((history, index) => (
-                    <div key={history.id} className="flex items-start gap-2 py-2 border-b border-gray-100 last:border-b-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        history.toStatus === 'UNDER_REVIEW' ? 'bg-blue-100' :
-                        history.toStatus === 'ADDITIONAL_INFO_REQUESTED' ? 'bg-orange-100' :
-                        history.toStatus === 'APPROVED' ? 'bg-green-100' :
-                        history.toStatus === 'REJECTED' ? 'bg-red-100' :
-                        history.toStatus === 'PENDING' ? 'bg-yellow-100' :
-                        'bg-gray-100'
-                      }`}>
-                        {getStatusIcon(history.toStatus)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className={`font-medium text-sm ${fontClass}`}>
-                            {history.fromStatus ? `${history.fromStatus.replace('_', ' ')} → ` : ''}
-                            {history.toStatus.replace('_', ' ')}
-                          </p>
-                          {index === 0 && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                              Current
-                            </span>
-                          )}
+                  request.statusHistory.map((history, index) => {
+                    const isVoteEvent = history.notes?.includes('Board vote:')
+                    const isEmailEvent = history.notes?.includes('email sent') || history.notes?.includes('email resent')
+                    const isStatusChange = history.fromStatus !== null && history.fromStatus !== history.toStatus
+
+                    return (
+                      <div key={history.id} className="flex items-start gap-2 py-2 border-b border-gray-100 last:border-b-0">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${getTimelineBgColor(history.notes, history.toStatus)}`}>
+                          {getTimelineIcon(history.notes, history.fromStatus, history.toStatus)}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className={`text-xs text-gray-600 ${fontClass}`}>
-                            {formatDate(history.changedAt)}
-                          </p>
-                          {history.changedByUser && (
-                            <>
-                              <span className="text-gray-400">•</span>
-                              <p className={`text-xs text-gray-500 ${fontClass}`}>
-                                {history.changedByUser.name}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                        {history.notes && (
-                          <div className="mt-1 p-2 bg-gray-50 rounded text-xs">
-                            <p className={`text-gray-700 ${fontClass}`}>
-                              {history.notes}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className={`font-medium text-sm ${fontClass}`}>
+                              {isVoteEvent ? (
+                                // Vote event title
+                                history.notes?.split(' - ')[0]
+                              ) : isEmailEvent ? (
+                                // Email event title
+                                history.notes?.split(' to ')[0]
+                              ) : (
+                                // Status change title
+                                <>
+                                  {history.fromStatus ? `${history.fromStatus.replace('_', ' ')} → ` : ''}
+                                  {history.toStatus.replace('_', ' ')}
+                                </>
+                              )}
                             </p>
+                            {index === 0 && !isVoteEvent && !isEmailEvent && (
+                              <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                                Current
+                              </span>
+                            )}
                           </div>
-                        )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className={`text-xs text-gray-600 ${fontClass}`}>
+                              {formatDate(history.changedAt)}
+                            </p>
+                            {history.changedByUser && (
+                              <>
+                                <span className="text-gray-400">•</span>
+                                <p className={`text-xs text-gray-500 ${fontClass}`}>
+                                  {history.changedByUser.name}
+                                </p>
+                              </>
+                            )}
+                          </div>
+                          {history.notes && (isVoteEvent || isEmailEvent) && (
+                            <div className="mt-1 p-2 bg-gray-50 rounded text-xs">
+                              <p className={`text-gray-700 ${fontClass}`}>
+                                {isVoteEvent && history.notes.includes(' - ')
+                                  ? history.notes.split(' - ').slice(1).join(' - ')
+                                  : isEmailEvent
+                                    ? `Sent to: ${history.notes.split(' to ')[1]}`
+                                    : history.notes
+                                }
+                              </p>
+                            </div>
+                          )}
+                          {history.notes && !isVoteEvent && !isEmailEvent && (
+                            <div className="mt-1 p-2 bg-gray-50 rounded text-xs">
+                              <p className={`text-gray-700 ${fontClass}`}>
+                                {history.notes}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  })
                 )}
 
                 {/* Request Submitted (shown at bottom since it's oldest) */}

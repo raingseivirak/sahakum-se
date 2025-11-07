@@ -1,6 +1,8 @@
 import { MembershipRequestDetail } from "./membership-request-detail"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -52,11 +54,14 @@ async function getMembershipRequest(id: string) {
 
 export default async function MembershipRequestDetailPage({ params }: MembershipRequestDetailPageProps) {
   const request = await getMembershipRequest(params.id)
+  const session = await getServerSession(authOptions)
   const fontClass = 'font-sweden'
 
   if (!request) {
     notFound()
   }
+
+  const userRole = session?.user?.role || null
 
   return (
     <div className={`space-y-4 ${fontClass}`}>
@@ -164,7 +169,7 @@ export default async function MembershipRequestDetailPage({ params }: Membership
         </div>
 
         {/* Request Detail Component */}
-        <MembershipRequestDetail request={request} locale={params.locale} />
+        <MembershipRequestDetail request={request} locale={params.locale} userRole={userRole} />
       </div>
     </div>
   )

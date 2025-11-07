@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { withModeratorAccess } from '@/lib/admin-auth-middleware'
 import { ActivityLogger } from '@/lib/activity-logger'
+import { sendEmail } from '@/lib/email'
+import { generateNewMembershipRequestEmail, generateApplicantWelcomeEmail } from '@/lib/email-templates'
 
 // Validation schema for Membership Request
 const membershipRequestSchema = z.object({
@@ -35,6 +37,9 @@ const membershipRequestSchema = z.object({
 
   // Requested membership type
   requestedMemberType: z.enum(["REGULAR", "VOLUNTEER"]).default("REGULAR"),
+
+  // Preferred language for communications (optional, defaults to 'en')
+  preferredLanguage: z.enum(['en', 'sv', 'km']).optional().default('en'),
 })
 
 // Function to generate unique request number
@@ -210,37 +215,141 @@ export async function POST(request: NextRequest) {
         interests: validatedData.interests || null,
         skills: validatedData.skills || null,
         requestedMemberType: validatedData.requestedMemberType,
+        preferredLanguage: validatedData.preferredLanguage,
+        approvalSystem: 'MULTI_BOARD', // New requests use board voting system
         status: 'PENDING'
       }
     })
 
-    // Log membership request creation activity
-    // Note: Since this is a public endpoint, we don't have a session user
-    // We'll create a special log entry indicating a public submission
-    await ActivityLogger.log({
-      userId: null, // No authenticated user for public submissions
-      action: 'membership_request.submitted',
-      resourceType: 'MEMBERSHIP_REQUEST',
-      resourceId: membershipRequest.id,
-      description: `New membership request submitted by "${validatedData.firstName} ${validatedData.lastName}" (${membershipRequest.requestNumber})`,
-      newValues: {
-        requestNumber: membershipRequest.requestNumber,
+    // Note: We don't log activity for public submissions since there's no authenticated user
+    // The membership request itself serves as the record
+    console.log(`New public membership request: ${membershipRequest.requestNumber} from ${validatedData.email}`)
+
+    // Send email notification to board members
+    try {
+      // Fetch board members from database (only BOARD role for voting)
+      const boardMembers = await prisma.user.findMany({
+        where: {
+          role: 'BOARD',
+          isActive: true
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      })
+
+      // Send notification if we have recipients
+      if (boardMembers.length > 0) {
+        const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+        const adminUrl = `${baseUrl}/en/admin/membership-requests/${membershipRequest.id}`
+
+        // Get approval threshold from settings
+        const approvalThresholdSetting = await prisma.setting.findUnique({
+          where: { key: 'APPROVAL_THRESHOLD' }
+        })
+        const approvalThreshold = (approvalThresholdSetting?.value || 'MAJORITY') as string
+
+        // Calculate required approvals based on threshold
+        const totalBoardMembers = boardMembers.length
+        const requiredApprovals = (() => {
+          switch (approvalThreshold) {
+            case 'UNANIMOUS':
+              return totalBoardMembers
+            case 'MAJORITY':
+              return Math.floor(totalBoardMembers / 2) + 1
+            case 'SIMPLE_MAJORITY':
+              return Math.ceil(totalBoardMembers / 2)
+            case 'ANY_TWO':
+              return 2
+            case 'SINGLE':
+              return 1
+            default:
+              return Math.floor(totalBoardMembers / 2) + 1
+          }
+        })()
+
+        // Import the new board voting notification template
+        const { generateBoardVotingNotificationEmail } = await import('@/lib/email-templates')
+
+        // Send individual emails to each board member
+        const emailPromises = boardMembers.map(async (boardMember) => {
+          const emailTemplate = generateBoardVotingNotificationEmail({
+            boardMemberName: boardMember.name,
+            applicantFirstName: validatedData.firstName,
+            applicantLastName: validatedData.lastName,
+            applicantKhmerFirstName: validatedData.firstNameKhmer,
+            applicantKhmerLastName: validatedData.lastNameKhmer,
+            applicantEmail: validatedData.email,
+            requestNumber: membershipRequest.requestNumber,
+            approvalThreshold,
+            totalBoardMembers,
+            requiredApprovals,
+            adminUrl,
+            baseUrl
+          })
+
+          return sendEmail({
+            to: boardMember.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+            text: emailTemplate.text
+          })
+        })
+
+        await Promise.all(emailPromises)
+
+        console.log(`Board voting notifications sent to ${boardMembers.length} board members`)
+      } else {
+        console.warn('No board members found to notify about membership request')
+      }
+    } catch (emailError) {
+      // Log email error but don't fail the request
+      console.error('Failed to send board voting notification emails:', emailError)
+      // Continue anyway - the request was created successfully
+    }
+
+    // Send welcome email to applicant
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+      const language = validatedData.preferredLanguage || 'en'
+
+      const welcomeEmailTemplate = generateApplicantWelcomeEmail({
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
+        khmerFirstName: validatedData.firstNameKhmer,
+        khmerLastName: validatedData.lastNameKhmer,
         email: validatedData.email,
-        status: 'PENDING',
-        requestedMemberType: validatedData.requestedMemberType,
-        residenceStatus: validatedData.residenceStatus
-      },
-      metadata: {
         requestNumber: membershipRequest.requestNumber,
-        requestedMemberType: validatedData.requestedMemberType,
-        residenceStatus: validatedData.residenceStatus,
-        city: validatedData.city,
-        country: validatedData.country,
-        isPublicSubmission: true
-      }
-    })
+        language: language as 'en' | 'sv' | 'km',
+        baseUrl
+      })
+
+      await sendEmail({
+        to: validatedData.email,
+        subject: welcomeEmailTemplate.subject,
+        html: welcomeEmailTemplate.html,
+        text: welcomeEmailTemplate.text
+      })
+
+      // Create timeline entry for welcome email
+      await prisma.membershipRequestStatusHistory.create({
+        data: {
+          membershipRequestId: membershipRequest.id,
+          fromStatus: null,
+          toStatus: 'PENDING',
+          changedBy: null,
+          notes: `Welcome email sent to ${validatedData.email}`
+        }
+      })
+
+      console.log(`Welcome email sent to applicant: ${validatedData.email} (${language})`)
+    } catch (emailError) {
+      // Log email error but don't fail the request
+      console.error('Failed to send welcome email to applicant:', emailError)
+      // Continue anyway - the request was created successfully
+    }
 
     return NextResponse.json({
       message: "Membership request submitted successfully",

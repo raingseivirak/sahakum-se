@@ -354,10 +354,16 @@ export function SwedishWizard({ locale }: SwedishWizardProps) {
     setIsSubmitting(true)
     setSubmitError('')
     try {
+      // Include preferred language based on current locale
+      const submissionData = {
+        ...formData,
+        preferredLanguage: locale as 'en' | 'sv' | 'km'
+      }
+
       const response = await fetch("/api/membership-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       })
 
       if (response.ok) {

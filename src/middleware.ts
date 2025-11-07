@@ -74,7 +74,7 @@ async function middleware(request: NextRequest) {
     response.headers.set('Expires', '0')
   }
 
-  // For admin routes, check authentication
+  // For admin routes, check authentication and role
   if (pathname.includes("/admin")) {
     return withAuth(
       function authMiddleware(req) {
@@ -92,6 +92,30 @@ async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL("/", req.url))
         }
 
+        return response
+      },
+      {
+        callbacks: {
+          authorized: ({ token }) => !!token,
+        },
+      }
+    )(request)
+  }
+
+  // For member portal routes (/my-account/*), check authentication
+  if (pathname.includes("/my-account")) {
+    return withAuth(
+      function authMiddleware(req) {
+        const token = req.nextauth.token
+
+        // If no token, redirect to sign in
+        if (!token) {
+          const signInUrl = new URL("/auth/signin", req.url)
+          signInUrl.searchParams.set("callbackUrl", req.url)
+          return NextResponse.redirect(signInUrl)
+        }
+
+        // All authenticated users can access member portal
         return response
       },
       {

@@ -25,6 +25,7 @@ import {
   Clock,
   Users as UsersIcon,
   Lightbulb,
+  Mail,
 } from "lucide-react"
 
 import {
@@ -225,6 +226,12 @@ const getNavigationItems = (locale: string, permissions: any) => {
         url: `/${locale}/admin/users`,
         icon: Users,
         requiresPermission: 'canManageUsers', // ADMIN only
+      },
+      {
+        title: 'Email Templates',
+        url: `/${locale}/admin/email-templates`,
+        icon: Mail,
+        requiresPermission: 'canAccessSettings', // EDITOR and above
       },
       {
         title: 'Activity Log',
