@@ -121,11 +121,18 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
   const [searchTerm, setSearchTerm] = useState("")
   const [totalCount, setTotalCount] = useState(0)
 
+  // Pagination state
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+  const limit = 20 // Show 20 requests per page
+
   const fetchRequests = async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
       if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
+      params.append('page', page.toString())
+      params.append('limit', limit.toString())
 
       const response = await fetch(`/api/membership-requests?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch requests')
@@ -133,6 +140,7 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
       const data = await response.json()
       setRequests(data.requests)
       setTotalCount(data.pagination.total)
+      setTotalPages(data.pagination.pages)
     } catch (error) {
       console.error('Error fetching requests:', error)
     } finally {
@@ -142,7 +150,7 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
 
   useEffect(() => {
     fetchRequests()
-  }, [statusFilter])
+  }, [statusFilter, page])
 
   const filteredRequests = requests.filter(request => {
     const searchLower = searchTerm.toLowerCase()
@@ -280,7 +288,10 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
               </div>
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(value) => {
+              setStatusFilter(value)
+              setPage(1) // Reset to first page when filter changes
+            }}>
               <SelectTrigger className={`w-full md:w-48 ${fontClass}`}>
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -406,6 +417,44 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
           </div>
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className={`text-sm text-gray-600 ${fontClass}`}>
+            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, totalCount)} of {totalCount} requests
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPage(page - 1)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              disabled={page === 1}
+              className={fontClass}
+            >
+              Previous
+            </Button>
+            <div className={`flex items-center gap-2 px-4 ${fontClass}`}>
+              <span className="text-sm text-gray-600">
+                Page {page} of {totalPages}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPage(page + 1)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              disabled={page === totalPages}
+              className={fontClass}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
