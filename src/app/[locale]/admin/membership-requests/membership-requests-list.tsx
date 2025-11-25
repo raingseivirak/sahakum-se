@@ -138,6 +138,7 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
   const [searchTerm, setSearchTerm] = useState("")
   const [totalCount, setTotalCount] = useState(0)
   const [totalBoardMembers, setTotalBoardMembers] = useState(0)
+  const [approvalThreshold, setApprovalThreshold] = useState<string>('MAJORITY')
 
   // Pagination state
   const [page, setPage] = useState(1)
@@ -150,10 +151,33 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
     return request.boardVotes.some(vote => vote.boardMember.id === session.user.id)
   }
 
-  // Helper function: Get vote count for request
+  // Helper function: Calculate required approvals based on threshold
+  const getRequiredApprovals = (): number => {
+    switch (approvalThreshold) {
+      case 'UNANIMOUS':
+        return totalBoardMembers
+      case 'MAJORITY':
+        // More than 50%
+        return Math.floor(totalBoardMembers / 2) + 1
+      case 'SIMPLE_MAJORITY':
+        // At least 50%, rounded up
+        return Math.ceil(totalBoardMembers / 2)
+      case 'ANY_TWO':
+        return 2
+      case 'SINGLE':
+        return 1
+      default:
+        return Math.floor(totalBoardMembers / 2) + 1
+    }
+  }
+
+  // Helper function: Get vote count for request with required approvals
   const getVoteCount = (request: MembershipRequest): string => {
     const voteCount = request.boardVotes?.length || 0
-    return `${voteCount}/${totalBoardMembers}`
+    const approvals = request.boardVotes?.filter(v => v.vote === 'APPROVE').length || 0
+    const required = getRequiredApprovals()
+
+    return `${approvals}/${required} approvals (${voteCount}/${totalBoardMembers} voted)`
   }
 
   const fetchRequests = async () => {
@@ -190,9 +214,29 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
     }
   }
 
+  const fetchApprovalThreshold = async () => {
+    try {
+      const response = await fetch('/api/settings')
+      if (response.ok) {
+        const data = await response.json()
+        // Find APPROVAL_THRESHOLD setting
+        const thresholdSetting = Object.values(data.settings).flat().find(
+          (setting: any) => setting.key === 'APPROVAL_THRESHOLD'
+        ) as { value: string } | undefined
+
+        if (thresholdSetting?.value) {
+          setApprovalThreshold(thresholdSetting.value)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching approval threshold:', error)
+    }
+  }
+
   useEffect(() => {
     fetchRequests()
     fetchBoardMembersCount()
+    fetchApprovalThreshold()
   }, [statusFilter, page])
 
   const filteredRequests = requests.filter(request => {

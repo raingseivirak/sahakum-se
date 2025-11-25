@@ -171,7 +171,18 @@ export async function GET(request: NextRequest) {
     }
 
     // User is authenticated and has ADMIN or BOARD role - proceed with original handler
+    // Get role filter from query params
+    const { searchParams } = new URL(request.url)
+    const roleFilter = searchParams.get('role')
+
+    // Build where clause based on role filter
+    const whereClause: any = {}
+    if (roleFilter) {
+      whereClause.role = roleFilter
+    }
+
     const users = await prisma.user.findMany({
+      where: whereClause,
       select: {
         id: true,
         name: true,
