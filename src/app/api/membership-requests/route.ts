@@ -91,6 +91,13 @@ const getHandler = async (request: NextRequest) => {
           },
           createdMember: {
             select: { id: true, memberNumber: true, firstName: true, lastName: true }
+          },
+          boardVotes: {
+            include: {
+              boardMember: {
+                select: { id: true, name: true, email: true }
+              }
+            }
           }
         },
         orderBy: { createdAt: 'desc' },

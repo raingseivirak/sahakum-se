@@ -142,7 +142,7 @@ async function handlePOST(request: NextRequest, context: AdminAuthContext) {
   }
 }
 
-// GET /api/users - List all users (requires ADMIN role)
+// GET /api/users - List all users (requires ADMIN or BOARD role)
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated
@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 })
     }
 
-    // Get user and check for ADMIN role
+    // Get user and check for ADMIN or BOARD role
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { id: true, role: true, email: true, name: true }
@@ -161,15 +161,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    if (user.role !== 'ADMIN') {
+    // Allow ADMIN and BOARD members to view users list (for voting purposes)
+    if (user.role !== 'ADMIN' && user.role !== 'BOARD') {
       return NextResponse.json({
-        error: 'Insufficient privileges - Admin access required',
-        required: 'ADMIN',
+        error: 'Insufficient privileges - Admin or Board access required',
+        required: ['ADMIN', 'BOARD'],
         current: user.role
       }, { status: 403 })
     }
 
-    // User is authenticated and has ADMIN role - proceed with original handler
+    // User is authenticated and has ADMIN or BOARD role - proceed with original handler
     const users = await prisma.user.findMany({
       select: {
         id: true,

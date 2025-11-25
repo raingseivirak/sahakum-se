@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -40,8 +41,22 @@ import {
   RefreshCw,
   FileText,
   UserPlus,
+  AlertCircle,
+  Users,
 } from "lucide-react"
 import Link from "next/link"
+
+interface BoardVote {
+  id: string
+  vote: 'APPROVE' | 'REJECT' | 'ABSTAIN'
+  boardMember: {
+    id: string
+    name: string
+    email: string
+  }
+  votedAt: string
+  notes?: string
+}
 
 interface MembershipRequest {
   id: string
@@ -89,6 +104,7 @@ interface MembershipRequest {
     firstName: string
     lastName: string
   }
+  boardVotes?: BoardVote[]
 }
 
 interface MembershipRequestsListProps {
@@ -115,16 +131,30 @@ const residenceStatusLabels = {
 
 export function MembershipRequestsList({ locale }: MembershipRequestsListProps) {
   const fontClass = 'font-sweden'
+  const {data: session} = useSession()
   const [requests, setRequests] = useState<MembershipRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [totalCount, setTotalCount] = useState(0)
+  const [totalBoardMembers, setTotalBoardMembers] = useState(0)
 
   // Pagination state
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const limit = 20 // Show 20 requests per page
+
+  // Helper function: Check if current user voted on request
+  const hasCurrentUserVoted = (request: MembershipRequest): boolean => {
+    if (!session?.user?.id || !request.boardVotes) return false
+    return request.boardVotes.some(vote => vote.boardMember.id === session.user.id)
+  }
+
+  // Helper function: Get vote count for request
+  const getVoteCount = (request: MembershipRequest): string => {
+    const voteCount = request.boardVotes?.length || 0
+    return `${voteCount}/${totalBoardMembers}`
+  }
 
   const fetchRequests = async () => {
     try {
@@ -148,8 +178,21 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
     }
   }
 
+  const fetchBoardMembersCount = async () => {
+    try {
+      const response = await fetch('/api/users?role=BOARD')
+      if (response.ok) {
+        const data = await response.json()
+        setTotalBoardMembers(data.users?.length || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching board members count:', error)
+    }
+  }
+
   useEffect(() => {
     fetchRequests()
+    fetchBoardMembersCount()
   }, [statusFilter, page])
 
   const filteredRequests = requests.filter(request => {
@@ -335,6 +378,7 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
                   <TableHead className={fontClass}>Applicant</TableHead>
                   <TableHead className={fontClass}>Contact</TableHead>
                   <TableHead className={fontClass}>Residence</TableHead>
+                  <TableHead className={fontClass}>Votes</TableHead>
                   <TableHead className={fontClass}>Status</TableHead>
                   <TableHead className={fontClass}>Submitted</TableHead>
                   <TableHead className={fontClass}>Actions</TableHead>
@@ -375,6 +419,20 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
                       <Badge variant="outline" className="text-xs">
                         {residenceStatusLabels[request.residenceStatus as keyof typeof residenceStatusLabels]}
                       </Badge>
+                    </TableCell>
+                    <TableCell className={fontClass}>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3 text-gray-500" />
+                          <span className="text-sm">{getVoteCount(request)}</span>
+                        </div>
+                        {request.status === 'PENDING' && !hasCurrentUserVoted(request) && (
+                          <Badge className="bg-orange-100 text-orange-800 border-0 text-xs">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Action Required
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(request.status)}
