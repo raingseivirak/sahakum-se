@@ -173,11 +173,10 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
 
   // Helper function: Get vote count for request with required approvals
   const getVoteCount = (request: MembershipRequest): string => {
-    const voteCount = request.boardVotes?.length || 0
     const approvals = request.boardVotes?.filter(v => v.vote === 'APPROVE').length || 0
     const required = getRequiredApprovals()
 
-    return `${approvals}/${required} approvals (${voteCount}/${totalBoardMembers} voted)`
+    return `${approvals}/${required}`
   }
 
   const fetchRequests = async () => {
@@ -470,7 +469,7 @@ export function MembershipRequestsList({ locale }: MembershipRequestsListProps) 
                           <Users className="h-3 w-3 text-gray-500" />
                           <span className="text-sm">{getVoteCount(request)}</span>
                         </div>
-                        {request.status === 'PENDING' && !hasCurrentUserVoted(request) && (
+                        {(request.status === 'PENDING' || request.status === 'UNDER_REVIEW') && !hasCurrentUserVoted(request) && (
                           <Badge className="bg-orange-100 text-orange-800 border-0 text-xs">
                             <AlertCircle className="h-3 w-3 mr-1" />
                             Action Required
