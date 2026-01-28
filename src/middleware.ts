@@ -39,8 +39,10 @@ async function middleware(request: NextRequest) {
     // Scripts: In development, allow unsafe-inline for Next.js hot reload
     // In production, use nonce-based approach for security
     isDevelopment
-      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com`
-      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googletagmanager.com`,
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com blob:`
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googletagmanager.com blob:`,
+    // Workers: Allow PDF.js worker from self and blob
+    "worker-src 'self' blob:",
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",
@@ -49,7 +51,7 @@ async function middleware(request: NextRequest) {
     // Fonts: allow data URLs for Sweden Sans
     "font-src 'self' data:",
     // Connections: API calls and analytics
-    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com",
+    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com blob:",
     // Media: uploaded content
     "media-src 'self' blob:",
     // Block objects for security
