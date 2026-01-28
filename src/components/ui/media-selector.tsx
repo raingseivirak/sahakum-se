@@ -194,7 +194,7 @@ export function MediaSelector({
 
             {/* Media Grid with Custom Scrollbar */}
             <div
-              className="h-96 max-h-[60vh] w-full overflow-y-auto border border-gray-200 rounded-md bg-gray-50/30 scrollbar-custom"
+              className="h-96 max-h-[60vh] w-full overflow-y-auto border border-gray-200 rounded-md bg-white scrollbar-custom"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#D4932F #f1f5f9'
