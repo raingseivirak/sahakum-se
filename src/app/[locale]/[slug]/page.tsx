@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
@@ -7,7 +8,12 @@ import { LanguageAvailabilityNotice } from '@/components/ui/language-availabilit
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 import { Footer } from '@/components/layout/footer'
-import { PDFViewer } from '@/components/pdf/pdf-viewer'
+
+// Dynamically import PDFViewer to avoid SSR issues (pdfjs requires browser APIs)
+const PDFViewer = dynamic(
+  () => import('@/components/pdf/pdf-viewer').then(mod => ({ default: mod.PDFViewer })),
+  { ssr: false }
+)
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
