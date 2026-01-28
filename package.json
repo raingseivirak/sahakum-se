@@ -23,7 +23,7 @@
     "reset": "npm run db:reset && npm run db:seed",
     "deploy:preview": "vercel",
     "deploy:production": "vercel --prod",
-    "postinstall": "node scripts/setup-schema.js && prisma generate"
+    "postinstall": "node scripts/setup-schema.js && prisma generate && node scripts/copy-pdfjs-worker.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

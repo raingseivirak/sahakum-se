@@ -267,3 +267,5 @@ public/mockServiceWorker.js
 .netlify/
 
 cred.txt
+# Auto-generated PDF.js worker
+public/pdfjs/

@@ -18,8 +18,8 @@ import {
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+// Configure PDF.js worker - use local file to avoid CSP issues
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs'
 
 interface PDFViewerProps {
   url: string
@@ -128,10 +128,10 @@ export function PDFViewer({ url, title, className = '', language = 'en' }: PDFVi
   return (
     <Card className={`overflow-hidden ${className}`}>
       {/* Controls */}
-      <div className="border-b bg-gray-50 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="border-b bg-gray-50 p-3 md:p-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           {/* Page Navigation */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <Button
               onClick={previousPage}
               disabled={pageNumber <= 1 || loading}
@@ -160,7 +160,7 @@ export function PDFViewer({ url, title, className = '', language = 'en' }: PDFVi
           </div>
 
           {/* Zoom Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <Button
               onClick={zoomOut}
               disabled={scale <= 0.5 || loading}
@@ -193,7 +193,7 @@ export function PDFViewer({ url, title, className = '', language = 'en' }: PDFVi
             onClick={downloadPDF}
             variant="default"
             size="sm"
-            className={fontClass}
+            className={`${fontClass} w-full sm:w-auto`}
           >
             <Download className="h-4 w-4 mr-2" />
             {t.download}
@@ -202,7 +202,7 @@ export function PDFViewer({ url, title, className = '', language = 'en' }: PDFVi
       </div>
 
       {/* PDF Display */}
-      <div className="relative bg-gray-100 flex items-center justify-center min-h-[600px] overflow-auto">
+      <div className="relative bg-gray-100 flex items-center justify-center min-h-[400px] md:min-h-[600px] overflow-auto">
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 z-10">
             <Loader2 className="h-12 w-12 animate-spin text-sahakum-navy mb-4" />
@@ -210,7 +210,7 @@ export function PDFViewer({ url, title, className = '', language = 'en' }: PDFVi
           </div>
         )}
 
-        <div className="p-4">
+        <div className="p-2 md:p-4">
           <Document
             file={url}
             onLoadSuccess={onDocumentLoadSuccess}

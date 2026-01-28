@@ -135,18 +135,6 @@ export default async function DynamicPage({ params }: PageProps) {
                 className="mb-6"
               />
 
-              {/* PDF Viewer - Full Width */}
-              {page.pdfUrl && (
-                <div className="mb-8">
-                  <PDFViewer
-                    url={page.pdfUrl}
-                    title={page.translation.title}
-                    language={params.locale as 'sv' | 'en' | 'km'}
-                    className="w-full"
-                  />
-                </div>
-              )}
-
               {/* Swedish Sticky Layout - Like Join Page */}
               <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
                 {/* Featured Image - Sticky Side Panel */}
@@ -171,6 +159,30 @@ export default async function DynamicPage({ params }: PageProps) {
                   />
                 </div>
               </div>
+
+              {/* PDF Viewer - Below Content */}
+              {page.pdfUrl && (
+                <div className="mt-12 border-t pt-12">
+                  <div className="mb-6">
+                    <h2 className={`text-2xl font-semibold text-[var(--sahakum-navy)] mb-2 ${fontClass}`}>
+                      {params.locale === 'km' ? 'ឯកសារ PDF' : params.locale === 'sv' ? 'PDF-dokument' : 'PDF Document'}
+                    </h2>
+                    <p className={`text-gray-600 ${fontClass}`}>
+                      {params.locale === 'km'
+                        ? 'អានឯកសារដោយផ្ទាល់នៅទីនេះ ឬទាញយកវាទៅឧបករណ៍របស់អ្នក។'
+                        : params.locale === 'sv'
+                        ? 'Läs dokumentet direkt här eller ladda ner det till din enhet.'
+                        : 'Read the document directly here or download it to your device.'}
+                    </p>
+                  </div>
+                  <PDFViewer
+                    url={page.pdfUrl}
+                    title={page.translation.title}
+                    language={params.locale as 'sv' | 'en' | 'km'}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
           </Container>
         </section>
