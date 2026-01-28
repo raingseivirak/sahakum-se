@@ -192,7 +192,7 @@ export function MediaPicker({
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[80vh] bg-white">
         <DialogHeader>
           <DialogTitle className={fontClass}>Select Media</DialogTitle>
         </DialogHeader>
