@@ -86,6 +86,7 @@ model ContentItem {
   type         ContentType           @default(PAGE)
   status       Status                @default(DRAFT)
   featuredImg  String?
+  pdfUrl       String?
   authorId     String
   publishedAt  DateTime?
   createdAt    DateTime              @default(now())

@@ -7,6 +7,7 @@ import { LanguageAvailabilityNotice } from '@/components/ui/language-availabilit
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 import { Footer } from '@/components/layout/footer'
+import { PDFViewer } from '@/components/pdf/pdf-viewer'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -127,6 +128,18 @@ export default async function DynamicPage({ params }: PageProps) {
                 slug={params.slug}
                 className="mb-6"
               />
+
+              {/* PDF Viewer - Full Width */}
+              {page.pdfUrl && (
+                <div className="mb-8">
+                  <PDFViewer
+                    url={page.pdfUrl}
+                    title={page.translation.title}
+                    language={params.locale as 'sv' | 'en' | 'km'}
+                    className="w-full"
+                  />
+                </div>
+              )}
 
               {/* Swedish Sticky Layout - Like Join Page */}
               <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">

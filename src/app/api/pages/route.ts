@@ -10,6 +10,7 @@ const pageSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featuredImg: z.string().optional().nullable(),
+  pdfUrl: z.string().optional().nullable(),
   translations: z.array(z.object({
     language: z.string(),
     title: z.string().min(1, "Title is required"),
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         type: "PAGE",
         status: validatedData.status,
         featuredImg: validatedData.featuredImg || null,
+        pdfUrl: validatedData.pdfUrl || null,
         authorId: session.user.id,
         publishedAt: validatedData.status === "PUBLISHED" ? new Date() : null,
         translations: {
