@@ -55,6 +55,7 @@ const pageSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featuredImg: z.string().optional(),
+  pdfUrl: z.string().optional(),
   translations: z.object({
     sv: z.object({
       title: z.string().min(1, "Swedish title is required"),
@@ -105,6 +106,7 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
       slug: "",
       status: "DRAFT",
       featuredImg: "",
+      pdfUrl: "",
       translations: {
         sv: { title: "", content: "", excerpt: "", metaDescription: "" },
         en: { title: "", content: "", excerpt: "", metaDescription: "" },
@@ -147,6 +149,7 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
           slug: pageData.slug,
           status: pageData.status,
           featuredImg: pageData.featuredImg || "",
+          pdfUrl: pageData.pdfUrl || "",
           translations: translationsData
         })
       } catch (err) {
@@ -184,6 +187,7 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
         slug: data.slug,
         status: data.status,
         featuredImg: data.featuredImg || null,
+        pdfUrl: data.pdfUrl || null,
         translations
       }
 
@@ -308,6 +312,28 @@ export function EditPageForm({ locale, pageId }: EditPageFormProps) {
                   </FormControl>
                   <p className="text-sm text-muted-foreground">
                     Select an image from your media library or enter a URL. This will be displayed on the page and in social media previews.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pdfUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={fontClass}>PDF Document (Optional)</FormLabel>
+                  <FormControl>
+                    <MediaSelector
+                      value={field.value}
+                      onSelect={field.onChange}
+                      placeholder="Select PDF from media library"
+                      buttonText="Browse PDFs"
+                      accept="all"
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Select a PDF document to display on this page. The PDF will be shown with an interactive viewer below the page content.
                   </p>
                   <FormMessage />
                 </FormItem>

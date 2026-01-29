@@ -9,6 +9,7 @@ const pageUpdateSchema = z.object({
   slug: z.string().min(1, "Slug is required").optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
   featuredImg: z.string().optional().nullable(),
+  pdfUrl: z.string().optional().nullable(),
   translations: z.array(z.object({
     id: z.string().optional(),
     language: z.string(),
@@ -96,7 +97,8 @@ export async function PUT(
     const oldValues = {
       slug: existingPage.slug,
       status: existingPage.status,
-      featuredImg: existingPage.featuredImg
+      featuredImg: existingPage.featuredImg,
+      pdfUrl: existingPage.pdfUrl
     }
 
     // Update page
@@ -110,6 +112,9 @@ export async function PUT(
     }
     if (validatedData.featuredImg !== undefined) {
       updateData.featuredImg = validatedData.featuredImg || null
+    }
+    if (validatedData.pdfUrl !== undefined) {
+      updateData.pdfUrl = validatedData.pdfUrl || null
     }
 
     const page = await prisma.contentItem.update({
@@ -128,7 +133,8 @@ export async function PUT(
       const newValues = {
         slug: page.slug,
         status: page.status,
-        featuredImg: page.featuredImg
+        featuredImg: page.featuredImg,
+        pdfUrl: page.pdfUrl
       }
       const changedFields = getChangedFields(oldValues, newValues)
       const mainTranslation = existingPage.translations.find(t => t.language === 'en') || existingPage.translations[0]
