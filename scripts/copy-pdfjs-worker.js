@@ -7,9 +7,12 @@ if (!fs.existsSync(pdfJsDir)) {
   fs.mkdirSync(pdfJsDir, { recursive: true });
 }
 
-// Copy the PDF.js worker file
+// Copy the PDF.js worker file from react-pdf's bundled pdfjs-dist
+// This ensures version compatibility between react-pdf and the worker
 const workerSource = path.join(
   process.cwd(),
+  'node_modules',
+  'react-pdf',
   'node_modules',
   'pdfjs-dist',
   'build',
