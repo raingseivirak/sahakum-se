@@ -39,21 +39,23 @@ async function middleware(request: NextRequest) {
     // Scripts: In development, allow unsafe-inline for Next.js hot reload
     // In production, use nonce-based approach for security
     isDevelopment
-      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com blob:`
-      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googletagmanager.com blob:`,
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com blob: data:`
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googletagmanager.com blob: data:`,
     // Workers: Allow PDF.js worker from self and blob
-    "worker-src 'self' blob:",
+    "worker-src 'self' blob: data:",
+    // Child sources for workers (some browsers need this)
+    "child-src 'self' blob: data:",
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",
     // Images: allow data URLs for editor and external images
     "img-src 'self' data: blob: https:",
     // Fonts: allow data URLs for Sweden Sans
-    "font-src 'self' data:",
+    "font-src 'self' data: blob:",
     // Connections: API calls and analytics
-    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com blob:",
+    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com blob: data:",
     // Media: uploaded content
-    "media-src 'self' blob:",
+    "media-src 'self' blob: data:",
     // Block objects for security
     "object-src 'none'",
     // Restrict base URI
