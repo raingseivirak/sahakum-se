@@ -143,9 +143,10 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - fonts (font files)
+     * - pdfjs (PDF.js worker files)
      * - sitemap.xml (sitemap)
      * - robots.txt (robots file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|fonts|media|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|fonts|media|pdfjs|sitemap.xml|robots.txt).*)",
   ],
 }
