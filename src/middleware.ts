@@ -37,10 +37,11 @@ async function middleware(request: NextRequest) {
   const cspPolicy = [
     "default-src 'self'",
     // Scripts: In development, allow unsafe-inline for Next.js hot reload
-    // In production, use nonce-based approach for security
+    // In production, allow 'self' for Next.js chunks + nonce for inline scripts
+    // Note: We don't use 'strict-dynamic' because it breaks Next.js chunk loading on refresh
     isDevelopment
       ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com blob: data:`
-      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googletagmanager.com blob: data:`,
+      : `script-src 'self' 'nonce-${nonce}' https://*.googletagmanager.com blob: data:`,
     // Workers: Allow PDF.js worker from self and blob
     "worker-src 'self' blob: data:",
     // Child sources for workers (some browsers need this)
