@@ -125,11 +125,13 @@ function SignInContent() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {(error || urlError === 'AccountNotFound') && (
+              {(error || urlError === 'AccountNotFound' || urlError === 'OAuthAccountNotLinked') && (
                 <Alert variant="destructive">
                   <AlertDescription>
                     {error || (urlError === 'AccountNotFound'
                       ? 'No account found with this email. Please apply for membership first.'
+                      : urlError === 'OAuthAccountNotLinked'
+                      ? 'This email is already linked to another sign-in method. Please use your email and password.'
                       : '')}
                     {!error && urlError === 'AccountNotFound' && (
                       <Link href="/en/join" className="block mt-2 text-[#D4932F] hover:underline font-medium">

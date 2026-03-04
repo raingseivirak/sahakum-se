@@ -171,12 +171,14 @@ function SignInPageContent({ params }: SignInPageProps) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {(error || urlError === 'AccountNotFound') && (
+              {(error || urlError === 'AccountNotFound' || urlError === 'OAuthAccountNotLinked') && (
                 <div className="p-4 bg-red-50 border-l-4 border-red-400 text-sm text-red-700 font-sweden">
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-red-400 rounded-full mr-3"></div>
                     {error || (urlError === 'AccountNotFound'
                       ? 'No account found with this email. Please apply for membership first.'
+                      : urlError === 'OAuthAccountNotLinked'
+                      ? 'This email is already linked to another sign-in method. Please use your email and password.'
                       : '')}
                   </div>
                   {!error && urlError === 'AccountNotFound' && (

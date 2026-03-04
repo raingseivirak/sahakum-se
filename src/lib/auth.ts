@@ -7,6 +7,54 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { UserRole } from "@prisma/client"
 
+// Gmail: user@gmail.com and u.s.e.r@gmail.com are the same inbox - normalize for lookup
+function normalizeGmail(email: string): string {
+  const [local, domain] = email.toLowerCase().split("@")
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    return `${local.replace(/\./g, "")}@${domain}`
+  }
+  return email.toLowerCase()
+}
+
+async function findUserByEmailWithGmailNormalization(email: string) {
+  const normalized = normalizeGmail(email)
+  const gmailUsers = await prisma.user.findMany({
+    where: {
+      OR: [
+        { email: { endsWith: "@gmail.com" } },
+        { email: { endsWith: "@googlemail.com" } },
+      ],
+    },
+  })
+  return gmailUsers.find((u) => normalizeGmail(u.email) === normalized) ?? null
+}
+
+async function findMemberByEmailWithGmailNormalization(email: string) {
+  const member = await prisma.member.findFirst({ where: { email } })
+  if (member) return member
+  const normalized = normalizeGmail(email)
+  const gmailMembers = await prisma.member.findMany({
+    where: {
+      OR: [
+        { email: { endsWith: "@gmail.com" } },
+        { email: { endsWith: "@googlemail.com" } },
+      ],
+    },
+  })
+  return gmailMembers.find((m) => normalizeGmail(m.email) === normalized) ?? null
+}
+
+const baseAdapter = PrismaAdapter(prisma) as any
+const adapter = {
+  ...baseAdapter,
+  async getUserByEmail(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (user) return user
+    // Gmail: try normalized match (u.s.e.r@gmail.com matches user@gmail.com)
+    return findUserByEmailWithGmailNormalization(email)
+  },
+}
+
 const providers = [
   CredentialsProvider({
       name: "credentials",
@@ -47,35 +95,45 @@ const providers = [
         }
       }
     }),
-  // OAuth providers - only add if credentials are configured
-  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ? [
-        GoogleProvider({
-          clientId: process.env.GOOGLE_CLIENT_ID.trim(),
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET.trim(),
-          // Ensure redirect_uri matches exactly what's in Google Console
-          authorization: {
-            params: {
-              prompt: "consent",
-              access_type: "offline",
-              response_type: "code",
+  // OAuth providers - support separate dev credentials for local (avoids "OAuth client was not found")
+  ...(function () {
+    const isDev = process.env.NEXTAUTH_URL?.includes("localhost")
+    const clientId = (isDev && process.env.GOOGLE_CLIENT_ID_DEV)
+      ? process.env.GOOGLE_CLIENT_ID_DEV.trim()
+      : process.env.GOOGLE_CLIENT_ID?.trim()
+    const clientSecret = (isDev && process.env.GOOGLE_CLIENT_SECRET_DEV)
+      ? process.env.GOOGLE_CLIENT_SECRET_DEV.trim()
+      : process.env.GOOGLE_CLIENT_SECRET?.trim()
+    return clientId && clientSecret
+      ? [
+          GoogleProvider({
+            clientId,
+            clientSecret,
+            allowDangerousEmailAccountLinking: true,
+            authorization: {
+              params: {
+                prompt: "consent",
+                access_type: "offline",
+                response_type: "code",
+              },
             },
-          },
-        }),
-      ]
-    : []),
+          }),
+        ]
+      : []
+  })(),
   ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
     ? [
         FacebookProvider({
           clientId: process.env.FACEBOOK_CLIENT_ID,
           clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+          allowDangerousEmailAccountLinking: true, // Link to existing user when same email (e.g. credentials → OAuth)
         }),
       ]
     : []),
 ]
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  adapter,
   providers,
   session: {
     strategy: "jwt"
@@ -83,17 +141,21 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
+        // Debug: set NEXTAUTH_DEBUG_OAUTH=true in Vercel to log OAuth email (disable after debugging)
+        if (process.env.NEXTAUTH_DEBUG_OAUTH === "true") {
+          console.log("[OAuth]", account?.provider, "→ email:", user.email, "name:", user.name)
+        }
         if (!user.email) {
           return "/en/auth/signin?error=AccountNotFound"
         }
 
-        // Reject OAuth sign-in if email doesn't exist in our system (User or Member)
+        // Reject OAuth sign-in if email doesn't exist (use Gmail normalization for dot variants)
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
-        })
+        }) ?? await findUserByEmailWithGmailNormalization(user.email)
         const existingMember = await prisma.member.findFirst({
           where: { email: user.email },
-        })
+        }) ?? await findMemberByEmailWithGmailNormalization(user.email)
 
         if (!existingUser && !existingMember) {
           return "/en/auth/signin?error=AccountNotFound"
