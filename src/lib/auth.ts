@@ -141,10 +141,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
-        // Debug: set NEXTAUTH_DEBUG_OAUTH=true in Vercel to log OAuth email (disable after debugging)
-        if (process.env.NEXTAUTH_DEBUG_OAUTH === "true") {
-          console.log("[OAuth]", account?.provider, "→ email:", user.email, "name:", user.name)
-        }
         if (!user.email) {
           return "/en/auth/signin?error=AccountNotFound"
         }
