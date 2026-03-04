@@ -17,6 +17,8 @@ model User {
   role                       Role                @default(USER)
   password                   String?
   profileImage               String?
+  image                      String?             // OAuth profile image (Google/Facebook) - NextAuth adapter uses this
+  emailVerified              DateTime?           // OAuth email verification - NextAuth adapter uses this
   isActive                   Boolean             @default(true)
   createdAt                  DateTime            @default(now())
   updatedAt                  DateTime            @updatedAt

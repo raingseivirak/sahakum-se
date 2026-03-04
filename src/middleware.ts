@@ -39,7 +39,7 @@ async function middleware(request: NextRequest) {
     // Scripts: Next.js requires 'unsafe-inline' for dynamically generated inline scripts
     // The nonce system doesn't work properly with Next.js client-side navigation
     // This is a known limitation of Next.js + strict CSP
-    `script-src 'self' 'unsafe-inline' https://*.googletagmanager.com blob: data:`,
+    `script-src 'self' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : ""} https://*.googletagmanager.com blob: data:`,
     // Workers: Allow PDF.js worker from self and blob
     "worker-src 'self' blob: data:",
     // Child sources for workers (some browsers need this)
