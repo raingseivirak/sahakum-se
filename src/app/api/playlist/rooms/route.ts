@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { nanoid } from 'nanoid'
 import { prisma } from '@/lib/prisma'
 import {
   isServiceEnabled,
@@ -14,6 +13,14 @@ import crypto from 'crypto'
 
 function generateAdminToken(): string {
   return crypto.randomBytes(32).toString('hex')
+}
+
+function generateRoomCode(): string {
+  const digits = String(Math.floor(1000 + Math.random() * 9000))
+  const letters = 'ABCDEFGHJKMNPQRSTUVWXYZ'
+  const a = letters[Math.floor(Math.random() * letters.length)]
+  const b = letters[Math.floor(Math.random() * letters.length)]
+  return `${digits}${a}${b}`
 }
 
 export async function POST(req: NextRequest) {
@@ -43,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     const settings = await getServiceSettings()
-    const roomCode = nanoid(6).toUpperCase()
+    const roomCode = generateRoomCode()
     const adminToken = generateAdminToken()
 
     const expiresAt = calculateRoomExpiry(

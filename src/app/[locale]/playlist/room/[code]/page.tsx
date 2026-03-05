@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { Footer } from '@/components/layout/footer'
+import { Container } from '@/components/layout/grid'
 import { PlaylistRoom } from '@/components/playlist/playlist-room'
 
 interface RoomPageProps {
@@ -85,6 +87,23 @@ export default async function RoomPage({ params }: RoomPageProps) {
         currentUrl={`/${params.locale}/playlist/room/${params.code}`}
       />
       <main className="min-h-screen bg-gray-50">
+        <section className="bg-[var(--sahakum-navy)] text-white py-6">
+          <Container size="wide">
+            <div className="flex items-center justify-between">
+              <div>
+                <Link
+                  href={`/${params.locale}/playlist`}
+                  className={`text-gray-400 hover:text-[var(--sahakum-gold)] transition-colors text-sm ${params.locale === 'km' ? 'font-khmer' : 'font-sweden'}`}
+                >
+                  ← {t('title')}
+                </Link>
+                <h1 className={`text-2xl font-bold mt-1 ${params.locale === 'km' ? 'font-khmer' : 'font-sweden'}`}>
+                  {t('title')} <span className="font-mono text-[var(--sahakum-gold)]">{params.code}</span>
+                </h1>
+              </div>
+            </div>
+          </Container>
+        </section>
         <PlaylistRoom locale={params.locale} roomCode={params.code} t={translations} />
       </main>
       <Footer />

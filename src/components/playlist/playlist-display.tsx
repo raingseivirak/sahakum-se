@@ -105,21 +105,44 @@ export function PlaylistDisplay({ locale, roomCode, t }: PlaylistDisplayProps) {
   }, [])
 
   useEffect(() => {
+    function getFullscreenElement(): Element | null {
+      return (
+        document.fullscreenElement ??
+        (document as any).webkitFullscreenElement ??
+        null
+      )
+    }
     function onFsChange() {
-      setIsFullscreen(!!document.fullscreenElement)
+      setIsFullscreen(!!getFullscreenElement())
     }
     document.addEventListener('fullscreenchange', onFsChange)
+    document.addEventListener('webkitfullscreenchange', onFsChange)
     return () => {
       document.removeEventListener('fullscreenchange', onFsChange)
+      document.removeEventListener('webkitfullscreenchange', onFsChange)
       if (splashTimerRef.current) clearTimeout(splashTimerRef.current)
     }
   }, [])
 
   function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {})
+    const el = document.documentElement as any
+    const doc = document as any
+
+    const fsElement =
+      document.fullscreenElement ?? doc.webkitFullscreenElement ?? null
+
+    if (!fsElement) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {})
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen()
+      }
     } else {
-      document.exitFullscreen().catch(() => {})
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen()
+      }
     }
   }
 
