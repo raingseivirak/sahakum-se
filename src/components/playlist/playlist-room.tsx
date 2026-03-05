@@ -84,6 +84,7 @@ export interface PlaylistRoomTranslations {
   playing: string
   paused: string
   pressPlayHint: string
+  adminControls: string
   serviceUnavailable: string
   serviceUnavailableDesc: string
 }
@@ -497,39 +498,41 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-4">
       {/* Room Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-lg p-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-lg tracking-widest font-mono px-3 py-1">
-            {roomCode}
-          </Badge>
-          <Button variant="ghost" size="sm" onClick={handleCopyLink}>
+      <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Badge variant="outline" className="text-base sm:text-lg tracking-widest font-mono px-2 sm:px-3 py-1 flex-shrink-0">
+              {roomCode}
+            </Badge>
+            {isAdmin && (
+              <Badge className="bg-[var(--sahakum-gold)] text-white flex-shrink-0">Admin</Badge>
+            )}
+            {isRealtimeSupported && (
+              realtimeConnected ? (
+                <Wifi className="h-4 w-4 text-green-500 flex-shrink-0" title="Realtime connected" />
+              ) : (
+                <WifiOff className="h-4 w-4 text-gray-300 flex-shrink-0" title="Realtime disconnected" />
+              )
+            )}
+          </div>
+          {minutesLeft !== null && (
+            <Badge variant={minutesLeft < 10 ? 'destructive' : 'secondary'} className={`flex-shrink-0 ${fontClass}`}>
+              <Clock className="h-3 w-3 mr-1" />
+              {interpolate(t.expiresIn, { minutes: minutesLeft })}
+            </Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={handleCopyLink} className="h-8 px-2">
             {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
             <span className={`ml-1 text-xs ${fontClass}`}>
               {copied ? t.codeCopied : t.shareLink}
             </span>
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowQr(true)}>
+          <Button variant="ghost" size="sm" onClick={() => setShowQr(true)} className="h-8 px-2">
             <QrCode className="h-4 w-4" />
             <span className={`ml-1 text-xs ${fontClass}`}>{t.showQr}</span>
           </Button>
-          {isAdmin && (
-            <Badge className="bg-[var(--sahakum-gold)] text-white">Admin</Badge>
-          )}
-          {isRealtimeSupported && (
-            realtimeConnected ? (
-              <Wifi className="h-4 w-4 text-green-500" title="Realtime connected" />
-            ) : (
-              <WifiOff className="h-4 w-4 text-gray-300" title="Realtime disconnected" />
-            )
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {minutesLeft !== null && (
-            <Badge variant={minutesLeft < 10 ? 'destructive' : 'secondary'} className={fontClass}>
-              <Clock className="h-3 w-3 mr-1" />
-              {interpolate(t.expiresIn, { minutes: minutesLeft })}
-            </Badge>
-          )}
         </div>
       </div>
 
@@ -550,20 +553,20 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
             </CardHeader>
             <CardContent>
               {currentItem ? (
-                <div className="flex items-center gap-4 p-3 bg-[var(--sahakum-navy)] rounded-lg">
+                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[var(--sahakum-navy)] rounded-lg">
                   {currentItem.thumbnailUrl ? (
                     <img
                       src={currentItem.thumbnailUrl}
                       alt=""
-                      className="w-28 h-20 object-cover rounded flex-shrink-0"
+                      className="w-20 h-14 sm:w-28 sm:h-20 object-cover rounded flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-28 h-20 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
-                      <Music className="h-8 w-8 text-gray-500" />
+                    <div className="w-20 h-14 sm:w-28 sm:h-20 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
+                      <Music className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-lg truncate">
+                    <p className="text-white font-medium text-base sm:text-lg truncate">
                       {currentItem.title || currentItem.youtubeVideoId}
                     </p>
                     <p className="text-gray-400 text-sm">
@@ -605,7 +608,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Monitor className="h-5 w-5" />
-                  Admin Controls
+                  <span className={fontClass}>{t.adminControls}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -628,12 +631,12 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                 </p>
 
                 {/* Playback Controls */}
-                <div className="flex flex-wrap gap-2 pt-2 border-t">
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-2 border-t">
                   <Button
                     size="lg"
                     onClick={() => handleControl(isPlaying ? 'pause' : 'play')}
                     disabled={controlLoading !== null || (!currentItem && queuedItems.length === 0)}
-                    className="flex-1 bg-green-600 text-white hover:bg-green-700 h-11"
+                    className="col-span-2 sm:flex-1 bg-green-600 text-white hover:bg-green-700 h-11"
                   >
                     {controlLoading === 'play' || controlLoading === 'pause' ? (
                       <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -684,7 +687,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                     variant="outline"
                     onClick={() => setShowClearQueueDialog(true)}
                     disabled={controlLoading !== null || queuedItems.length === 0}
-                    className="border-red-300 text-red-600 hover:bg-red-50 h-11"
+                    className="col-span-2 border-red-300 text-red-600 hover:bg-red-50 h-11"
                   >
                     {controlLoading === 'clear' ? (
                       <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -774,7 +777,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                         (sessionToken && item.addedBy.id === participantId)) && (
                         <button
                           onClick={() => handleRemoveItem(item.id)}
-                          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
+                          className="sm:opacity-0 sm:group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
                           title={t.removeSong}
                         >
                           <X className="h-4 w-4" />

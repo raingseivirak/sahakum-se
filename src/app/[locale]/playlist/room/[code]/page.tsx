@@ -69,6 +69,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
     playing: t('playing'),
     paused: t('paused'),
     pressPlayHint: t('pressPlayHint'),
+    adminControls: t('adminControls'),
     serviceUnavailable: t('serviceUnavailable'),
     serviceUnavailableDesc: t('serviceUnavailableDesc'),
   }

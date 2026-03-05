@@ -98,6 +98,7 @@
     "noVideos": "No videos in queue yet",
     "addFirstVideo": "Add a YouTube video to get started",
     "nothingPlaying": "Nothing playing",
+    "adminControls": "Admin Controls",
     "serviceUnavailable": "Service Temporarily Unavailable",
     "serviceUnavailableDesc": "The playlist service is currently offline. Please check back later.",
     "loginRequired": "Login Required",

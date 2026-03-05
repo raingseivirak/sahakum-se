@@ -75,9 +75,9 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
         </Alert>
       )}
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto">
         <Card className="border-2 hover:border-[var(--sahakum-gold)] transition-colors">
-          <CardContent className="p-8 text-center space-y-4">
+          <CardContent className="p-5 sm:p-8 text-center space-y-4">
             <div className="w-16 h-16 bg-[var(--sahakum-navy)] rounded-full flex items-center justify-center mx-auto">
               <Music className="h-8 w-8 text-white" />
             </div>
@@ -106,7 +106,7 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
         </Card>
 
         <Card className="border-2 hover:border-[var(--sahakum-gold)] transition-colors">
-          <CardContent className="p-8 text-center space-y-4">
+          <CardContent className="p-5 sm:p-8 text-center space-y-4">
             <div className="w-16 h-16 bg-[var(--sahakum-gold)] rounded-full flex items-center justify-center mx-auto">
               <LogIn className="h-8 w-8 text-white" />
             </div>
@@ -120,7 +120,7 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
               placeholder={t.enterRoomCode}
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              className="text-center text-lg tracking-widest uppercase"
+              className={`text-center text-lg tracking-widest uppercase ${fontClass}`}
               maxLength={6}
               onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
             />

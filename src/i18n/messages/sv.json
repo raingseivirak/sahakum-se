@@ -98,6 +98,7 @@
     "noVideos": "Inga videor i kön ännu",
     "addFirstVideo": "Lägg till en YouTube-video för att komma igång",
     "nothingPlaying": "Inget spelas",
+    "adminControls": "Adminkontroller",
     "serviceUnavailable": "Tjänsten Tillfälligt Otillgänglig",
     "serviceUnavailableDesc": "Spellistetjänsten är för närvarande offline. Vänligen kom tillbaka senare.",
     "loginRequired": "Inloggning Krävs",
