@@ -129,6 +129,9 @@
     "loopListOff": "OFF",
     "nextUpIn": "Next up in {seconds}s",
     "login": "Login",
-    "createAccount": "Create Account"
+    "createAccount": "Create Account",
+    "customCodePlaceholder": "Custom code (optional), e.g. SENY2026",
+    "codeTaken": "This code is already in use",
+    "codeInvalid": "Code must be 4-10 letters/numbers"
   }
 }

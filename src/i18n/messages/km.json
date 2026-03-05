@@ -129,6 +129,9 @@
     "loopListOff": "បិទ",
     "nextUpIn": "បទបន្ទាប់ក្នុង {seconds}វិ",
     "login": "ចូលប្រើ",
-    "createAccount": "បង្កើតគណនី"
+    "createAccount": "បង្កើតគណនី",
+    "customCodePlaceholder": "កូដផ្ទាល់ខ្លួន (ស្រេចចិត្ត) ឧ. SENY2026",
+    "codeTaken": "កូដនេះត្រូវបានប្រើរួចហើយ",
+    "codeInvalid": "កូដត្រូវមាន ៤-១០ អក្សរ/លេខ"
   }
 }

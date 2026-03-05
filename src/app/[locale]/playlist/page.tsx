@@ -63,6 +63,9 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
     serviceUnavailable: t('serviceUnavailable'),
     atCapacity: t('atCapacity'),
     loginRequired: t('loginRequired'),
+    customCodePlaceholder: t('customCodePlaceholder'),
+    codeTaken: t('codeTaken'),
+    codeInvalid: t('codeInvalid'),
   }
 
   return (

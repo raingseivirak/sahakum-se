@@ -129,6 +129,9 @@
     "loopListOff": "AV",
     "nextUpIn": "Nästa om {seconds}s",
     "login": "Logga In",
-    "createAccount": "Skapa Konto"
+    "createAccount": "Skapa Konto",
+    "customCodePlaceholder": "Egen kod (valfri), t.ex. SENY2026",
+    "codeTaken": "Denna kod används redan",
+    "codeInvalid": "Koden måste vara 4-10 bokstäver/siffror"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +19,9 @@ export interface PlaylistLandingTranslations {
   serviceUnavailable: string
   atCapacity: string
   loginRequired: string
+  customCodePlaceholder: string
+  codeTaken: string
+  codeInvalid: string
 }
 
 interface PlaylistLandingProps {
@@ -27,7 +31,10 @@ interface PlaylistLandingProps {
 
 export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isLoggedIn = !!session?.user
   const [roomCode, setRoomCode] = useState('')
+  const [customCode, setCustomCode] = useState('')
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,8 +44,14 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
     setCreating(true)
     setError(null)
 
+    const trimmedCode = customCode.trim().toUpperCase()
+
     try {
-      const res = await fetch('/api/playlist/rooms', { method: 'POST' })
+      const res = await fetch('/api/playlist/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(trimmedCode ? { roomCode: trimmedCode } : {}),
+      })
       const data = await res.json()
 
       if (res.ok) {
@@ -48,6 +61,10 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
         setError(t.serviceUnavailable)
       } else if (res.status === 429) {
         setError(t.atCapacity)
+      } else if (res.status === 409) {
+        setError(t.codeTaken)
+      } else if (res.status === 400) {
+        setError(t.codeInvalid)
       } else if (res.status === 403) {
         setError(t.loginRequired)
       } else {
@@ -87,6 +104,15 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
             <p className={`text-gray-600 ${fontClass}`}>
               {t.createRoomDesc}
             </p>
+            {isLoggedIn && (
+              <Input
+                placeholder={t.customCodePlaceholder}
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                className={`text-center text-lg tracking-widest uppercase ${fontClass}`}
+                maxLength={10}
+              />
+            )}
             <Button
               size="lg"
               onClick={handleCreateRoom}
@@ -121,7 +147,7 @@ export function PlaylistLanding({ locale, t }: PlaylistLandingProps) {
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
               className={`text-center text-lg tracking-widest uppercase ${fontClass}`}
-              maxLength={6}
+              maxLength={10}
               onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
             />
             <Button

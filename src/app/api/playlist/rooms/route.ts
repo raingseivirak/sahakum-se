@@ -23,6 +23,8 @@ function generateRoomCode(): string {
   return `${digits}${a}${b}`
 }
 
+const CUSTOM_CODE_REGEX = /^[A-Z0-9]{4,10}$/
+
 export async function POST(req: NextRequest) {
   try {
     if (!(await isServiceEnabled())) {
@@ -49,8 +51,49 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    let body: { roomCode?: string } = {}
+    try {
+      body = await req.json()
+    } catch {
+      // No body or invalid JSON — use defaults
+    }
+
     const settings = await getServiceSettings()
-    const roomCode = generateRoomCode()
+    let roomCode: string
+
+    if (body.roomCode && typeof body.roomCode === 'string') {
+      const customCode = body.roomCode.trim().toUpperCase()
+
+      if (!isLoggedIn) {
+        return NextResponse.json(
+          { error: 'Login required to use a custom room code', code: 'LOGIN_REQUIRED' },
+          { status: 403 }
+        )
+      }
+
+      if (!CUSTOM_CODE_REGEX.test(customCode)) {
+        return NextResponse.json(
+          { error: 'Code must be 4-10 uppercase letters/numbers', code: 'CODE_INVALID' },
+          { status: 400 }
+        )
+      }
+
+      const existing = await prisma.playlistRoom.findUnique({
+        where: { roomCode: customCode },
+        select: { id: true },
+      })
+      if (existing) {
+        return NextResponse.json(
+          { error: 'This code is already in use', code: 'CODE_TAKEN' },
+          { status: 409 }
+        )
+      }
+
+      roomCode = customCode
+    } else {
+      roomCode = generateRoomCode()
+    }
+
     const adminToken = generateAdminToken()
 
     const expiresAt = calculateRoomExpiry(
