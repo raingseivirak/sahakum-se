@@ -36,6 +36,8 @@ import {
   ExternalLink,
   QrCode,
   Repeat,
+  Youtube,
+  Send,
 } from 'lucide-react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
@@ -496,7 +498,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
   const isPlaying = room?.playbackState?.isPlaying ?? false
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-4">
+    <div className="max-w-7xl mx-auto px-3 py-3 sm:p-4 space-y-3 sm:space-y-4 w-full overflow-x-hidden pb-20 sm:pb-4">
       {/* Room Header */}
       <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm space-y-2">
         <div className="flex items-center justify-between gap-2">
@@ -543,33 +545,33 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
         </Alert>
       )}
 
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 min-w-0">
         {/* Left Column: Now Playing Info + Controls + Add Video */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-3 sm:space-y-4 min-w-0 overflow-hidden">
           {/* Now Playing - Info card (no embedded video) */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="overflow-hidden py-3 sm:py-6 gap-2 sm:gap-6">
+            <CardHeader className="pb-0 sm:pb-2 px-3 sm:px-6">
               <CardTitle className={`text-lg ${fontClass}`}>{t.nowPlaying}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6">
               {currentItem ? (
-                <div className="flex items-center gap-3 sm:gap-4 p-3 bg-[var(--sahakum-navy)] rounded-lg">
+                <div className="flex items-start sm:items-center gap-3 p-2 sm:p-3 bg-[var(--sahakum-navy)] rounded-lg overflow-hidden">
                   {currentItem.thumbnailUrl ? (
                     <img
                       src={currentItem.thumbnailUrl}
                       alt=""
-                      className="w-20 h-14 sm:w-28 sm:h-20 object-cover rounded flex-shrink-0"
+                      className="w-16 h-11 sm:w-28 sm:h-20 object-cover rounded flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-20 h-14 sm:w-28 sm:h-20 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
-                      <Music className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500" />
+                    <div className="w-16 h-11 sm:w-28 sm:h-20 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
+                      <Music className="h-5 w-5 sm:h-8 sm:w-8 text-gray-500" />
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-base sm:text-lg truncate">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <p className="text-white font-medium text-sm sm:text-lg truncate">
                       {currentItem.title || currentItem.youtubeVideoId}
                     </p>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 text-xs sm:text-sm truncate">
                       {interpolate(t.addedBy, { name: currentItem.addedBy.nickname })}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -587,9 +589,9 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                   </div>
                 </div>
               ) : (
-                <div className="p-8 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="p-4 sm:p-8 bg-gray-50 rounded-lg flex items-center justify-center">
                   <div className="text-center text-gray-400">
-                    <Music className="h-12 w-12 mx-auto mb-2" />
+                    <Music className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2" />
                     <p className={fontClass}>{t.nothingPlaying}</p>
                     {isAdmin && queuedItems.length > 0 && (
                       <p className={`text-sm mt-2 text-gray-500 ${fontClass}`}>
@@ -604,14 +606,14 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
 
           {/* Admin: Display Screen Link + Controls */}
           {isAdmin && (
-            <Card className="border-[var(--sahakum-gold)] border-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Monitor className="h-5 w-5" />
-                  <span className={fontClass}>{t.adminControls}</span>
+            <Card className="border-[var(--sahakum-gold)] border-2 overflow-hidden py-3 sm:py-6 gap-2 sm:gap-6">
+              <CardHeader className="pb-0 sm:pb-2 px-3 sm:px-6">
+                <CardTitle className="text-lg flex items-center gap-2 min-w-0">
+                  <Monitor className="h-5 w-5 flex-shrink-0" />
+                  <span className={`truncate ${fontClass}`}>{t.adminControls}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
                 {/* Open Display Screen button */}
                 <Link
                   href={`/${locale}/playlist/room/${roomCode}/display`}
@@ -619,11 +621,11 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                   className="block"
                 >
                   <Button
-                    className="w-full bg-[var(--sahakum-navy)] text-white hover:bg-[var(--sahakum-navy)]/90 h-12 text-base"
+                    className="w-full bg-[var(--sahakum-navy)] text-white hover:bg-[var(--sahakum-navy)]/90 h-11 sm:h-12 text-sm sm:text-base !whitespace-normal shrink"
                   >
-                    <Monitor className="h-5 w-5 mr-2" />
-                    <span className={fontClass}>{t.openDisplayScreen}</span>
-                    <ExternalLink className="h-4 w-4 ml-2" />
+                    <Monitor className="h-5 w-5 mr-2 flex-shrink-0" />
+                    <span className={`line-clamp-1 ${fontClass}`}>{t.openDisplayScreen}</span>
+                    <ExternalLink className="h-4 w-4 ml-2 flex-shrink-0" />
                   </Button>
                 </Link>
                 <p className="text-xs text-gray-500 text-center">
@@ -631,87 +633,83 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                 </p>
 
                 {/* Playback Controls */}
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-2 border-t">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t overflow-hidden">
                   <Button
-                    size="lg"
                     onClick={() => handleControl(isPlaying ? 'pause' : 'play')}
                     disabled={controlLoading !== null || (!currentItem && queuedItems.length === 0)}
-                    className="col-span-2 sm:flex-1 bg-green-600 text-white hover:bg-green-700 h-11"
+                    className="col-span-2 bg-green-600 text-white hover:bg-green-700 h-10 sm:h-11 text-sm overflow-hidden"
                   >
                     {controlLoading === 'play' || controlLoading === 'pause' ? (
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-1.5 flex-shrink-0" />
                     ) : isPlaying ? (
-                      <Pause className="h-5 w-5 mr-2" />
+                      <Pause className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 flex-shrink-0" />
                     ) : (
-                      <Play className="h-5 w-5 mr-2" />
+                      <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 flex-shrink-0" />
                     )}
-                    <span className={fontClass}>{isPlaying ? t.pause : t.play}</span>
+                    <span className={`truncate ${fontClass}`}>{isPlaying ? t.pause : t.play}</span>
                   </Button>
                   <Button
-                    size="lg"
                     variant="outline"
                     onClick={() => handleControl('skip')}
                     disabled={controlLoading !== null || !currentItem}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-100 h-11"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-100 h-10 sm:h-11 text-sm overflow-hidden"
                   >
                     {controlLoading === 'skip' ? (
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-1.5 flex-shrink-0" />
                     ) : (
-                      <SkipForward className="h-5 w-5 mr-2" />
+                      <SkipForward className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 flex-shrink-0" />
                     )}
-                    <span className={fontClass}>{t.skip}</span>
+                    <span className={`truncate ${fontClass}`}>{t.skip}</span>
                   </Button>
                   <Button
-                    size="lg"
                     variant="outline"
                     onClick={() => handleControl('toggleLoop')}
                     disabled={controlLoading !== null}
-                    className={`h-11 ${
+                    className={`h-10 sm:h-11 text-sm overflow-hidden ${
                       room?.loopQueue
                         ? 'border-green-500 text-green-600 bg-green-50 hover:bg-green-100'
                         : 'border-gray-300 text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     {controlLoading === 'toggleLoop' ? (
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-1.5 flex-shrink-0" />
                     ) : (
-                      <Repeat className="h-5 w-5 mr-2" />
+                      <Repeat className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 flex-shrink-0" />
                     )}
-                    <span className={fontClass}>{t.loopList}</span>
-                    <span className="ml-1 text-xs">
+                    <span className={`truncate ${fontClass}`}>{t.loopList}</span>
+                    <span className="ml-1 text-xs flex-shrink-0">
                       {room?.loopQueue ? t.loopListOn : t.loopListOff}
                     </span>
                   </Button>
                   <Button
-                    size="lg"
                     variant="outline"
                     onClick={() => setShowClearQueueDialog(true)}
                     disabled={controlLoading !== null || queuedItems.length === 0}
-                    className="col-span-2 border-red-300 text-red-600 hover:bg-red-50 h-11"
+                    className="col-span-2 border-red-300 text-red-600 hover:bg-red-50 h-10 sm:h-11 text-sm overflow-hidden"
                   >
                     {controlLoading === 'clear' ? (
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-1.5 flex-shrink-0" />
                     ) : (
-                      <Trash2 className="h-5 w-5 mr-2" />
+                      <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 flex-shrink-0" />
                     )}
-                    <span className={fontClass}>{t.clearQueue}</span>
+                    <span className={`truncate ${fontClass}`}>{t.clearQueue}</span>
                   </Button>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Add Video */}
+          {/* Add Video — desktop card */}
           {(sessionToken || isAdmin) && (
-            <Card>
-              <CardContent className="p-4">
+            <Card className="overflow-hidden py-2 sm:py-4 hidden sm:block">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex gap-2">
                   <Input
                     placeholder={t.pasteYoutubeUrl}
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddVideo()}
-                    className={`flex-1 ${fontClass}`}
+                    className={`flex-1 text-sm ${fontClass}`}
                   />
                   <Button
                     onClick={handleAddVideo}
@@ -732,16 +730,16 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
         </div>
 
         {/* Right Column: Queue + Participants */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4 min-w-0 overflow-hidden">
           {/* Queue */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="overflow-hidden py-3 sm:py-6 gap-2 sm:gap-6">
+            <CardHeader className="pb-0 sm:pb-2 px-3 sm:px-6">
               <CardTitle className={`text-lg flex items-center justify-between ${fontClass}`}>
                 {t.queue}
                 <Badge variant="secondary">{queuedItems.length}</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6">
               {queuedItems.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Music className="h-8 w-8 mx-auto mb-2 text-gray-300" />
@@ -749,27 +747,27 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                   <p className={`text-sm mt-1 ${fontClass}`}>{t.addFirstVideo}</p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                <div className="space-y-1 sm:space-y-2 max-h-[350px] sm:max-h-[400px] overflow-y-auto">
                   {queuedItems.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 group"
+                      className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 group"
                     >
-                      <span className="text-sm text-gray-400 w-5 text-right">
+                      <span className="text-xs sm:text-sm text-gray-400 w-4 sm:w-5 text-right flex-shrink-0">
                         {index + 1}
                       </span>
                       {item.thumbnailUrl && (
                         <img
                           src={item.thumbnailUrl}
                           alt=""
-                          className="w-16 h-10 object-cover rounded"
+                          className="w-12 h-8 sm:w-16 sm:h-10 object-cover rounded flex-shrink-0"
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-xs sm:text-sm font-medium truncate">
                           {item.title || item.youtubeVideoId}
                         </p>
-                        <p className={`text-xs text-gray-400 ${fontClass}`}>
+                        <p className={`text-xs text-gray-400 truncate ${fontClass}`}>
                           {interpolate(t.addedBy, { name: item.addedBy.nickname })}
                         </p>
                       </div>
@@ -791,8 +789,8 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
           </Card>
 
           {/* Participants */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="overflow-hidden py-3 sm:py-6 gap-2 sm:gap-6">
+            <CardHeader className="pb-0 sm:pb-2 px-3 sm:px-6">
               <CardTitle className={`text-lg flex items-center justify-between ${fontClass}`}>
                 {t.participants}
                 <Badge variant="secondary">
@@ -801,14 +799,14 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6">
               <div className="space-y-2">
                 {room?.participants?.map((p) => (
-                  <div key={p.id} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[var(--sahakum-navy)] text-white flex items-center justify-center text-xs font-bold">
+                  <div key={p.id} className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-[var(--sahakum-navy)] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {p.nickname.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium">{p.nickname}</span>
+                    <span className="text-sm font-medium truncate">{p.nickname}</span>
                     {p.role === 'ADMIN' && (
                       <Badge className="bg-[var(--sahakum-gold)] text-white text-xs">
                         Admin
@@ -821,6 +819,38 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
           </Card>
         </div>
       </div>
+
+      {/* Mobile Add Video — sticky bottom bar */}
+      {(sessionToken || isAdmin) && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+          <div className="px-3 py-3 max-w-7xl mx-auto">
+            <div className="flex items-center gap-2">
+              <Youtube className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <div className="flex-1 relative min-w-0">
+                <Input
+                  placeholder={t.pasteYoutubeUrl}
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddVideo()}
+                  className={`w-full h-10 text-sm pr-12 ${fontClass}`}
+                />
+                <Button
+                  onClick={handleAddVideo}
+                  disabled={addingVideo || !videoUrl.trim()}
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-[var(--sahakum-navy)] text-white hover:bg-[var(--sahakum-navy)]/90 rounded-md"
+                >
+                  {addingVideo ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Code Modal */}
       {showQr && (

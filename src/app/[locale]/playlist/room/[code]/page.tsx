@@ -87,7 +87,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         }}
         currentUrl={`/${params.locale}/playlist/room/${params.code}`}
       />
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 overflow-x-hidden">
         <section className="bg-[var(--sahakum-navy)] text-white py-6">
           <Container size="wide">
             <div className="flex items-center justify-between">
