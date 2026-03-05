@@ -80,7 +80,7 @@ export function ScrollAwareHeader({
             <div className="flex items-center space-x-4">
               <Link
                 href={`/${locale}`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
+                className={`text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium ${locale === 'km' ? 'font-khmer' : 'font-sweden'}`}
               >
                 {locale === 'sv' ? 'Hem' :
                  locale === 'km' ? 'ទំព័រដើម' : 'Home'}
@@ -88,7 +88,7 @@ export function ScrollAwareHeader({
               {showBlogLink && (
                 <Link
                   href={`/${locale}/blog`}
-                  className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
+                  className={`text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium ${locale === 'km' ? 'font-khmer' : 'font-sweden'}`}
                 >
                   {locale === 'km' ? 'ប្លុក' : locale === 'en' ? 'Blog' : 'Blogg'}
                 </Link>
@@ -143,7 +143,7 @@ export function ScrollAwareHeader({
               <div className="flex items-center space-x-2">
                 <Link
                   href={showBlogLink ? `/${locale}/blog` : `/${locale}`}
-                  className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-xs font-medium"
+                  className={`text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-xs font-medium ${locale === 'km' ? 'font-khmer' : 'font-sweden'}`}
                 >
                   ← {showBlogLink ?
                     (locale === 'km' ? 'ប្លុក' : locale === 'en' ? 'Blog' : 'Blogg') :

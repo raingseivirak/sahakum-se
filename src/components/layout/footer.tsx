@@ -52,16 +52,17 @@ const footerTranslations = {
 export function Footer() {
   const params = useParams();
   const locale = (params?.locale as string) || 'sv';
+  const fontClass = locale === 'km' ? 'font-khmer' : 'font-sweden';
   const t = (key: string) => footerTranslations[locale as keyof typeof footerTranslations]?.[key] || footerTranslations.sv[key] || key;
 
   return (
-    <footer className="bg-gray-50 border-t">
+    <footer className={`bg-gray-50 border-t ${fontClass}`}>
       <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Mobile: Compact single-column layout, Desktop: 4 columns */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {/* Brand - Full width on mobile */}
           <div className="col-span-2 md:col-span-1">
-            <h3 className="font-semibold text-[var(--sweden-blue)] mb-1 md:mb-4 text-sm md:text-base">Sahakum Khmer</h3>
+            <h3 className={`font-semibold text-[var(--sweden-blue)] mb-1 md:mb-4 text-sm md:text-base ${fontClass}`}>Sahakum Khmer</h3>
             <p className="text-gray-600 text-xs md:text-sm">
               {t('tagline')}
             </p>
@@ -69,7 +70,7 @@ export function Footer() {
 
           {/* Quick Links - Full width on mobile for compact vertical space */}
           <div className="col-span-2 md:col-span-1">
-            <h4 className="font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base">{t('quick_links')}</h4>
+            <h4 className={`font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base ${fontClass}`}>{t('quick_links')}</h4>
             <div className="text-xs md:text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 md:flex-col md:space-y-2">
               <a href={`/${locale}/about-us`} className="hover:text-[var(--sahakum-gold)] transition-colors">
                 {t('about_us')}
@@ -94,7 +95,7 @@ export function Footer() {
 
           {/* Contact - Left column on mobile */}
           <div className="col-span-1 md:col-span-1">
-            <h4 className="font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base">{t('contact')}</h4>
+            <h4 className={`font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base ${fontClass}`}>{t('contact')}</h4>
             <div className="text-xs md:text-sm text-gray-600 space-y-0.5 md:space-y-1">
               <p className="break-all">contact.sahakumkhmer.se@gmail.com</p>
               {/*<p>+46 xxx xxx xxx</p>*/}
@@ -103,7 +104,7 @@ export function Footer() {
 
           {/* Social - Right column on mobile */}
           <div className="col-span-1 md:col-span-1">
-            <h4 className="font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base">{t('follow_us')}</h4>
+            <h4 className={`font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base ${fontClass}`}>{t('follow_us')}</h4>
             <div className="flex flex-col space-y-1 md:flex-row md:space-x-4 md:space-y-0 text-xs md:text-sm">
               <a href="#" className="text-[var(--sweden-blue)] hover:text-[var(--sweden-blue-light)]">
                 Facebook

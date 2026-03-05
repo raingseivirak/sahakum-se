@@ -41,6 +41,12 @@ model User {
   reviewedJoinRequests       InitiativeJoinRequest[]   @relation("InitiativeJoinRequestReviewer")
   member                     Member?                   @relation("UserMember")
 
+  // Playlist Service Relations
+  ownedPlaylistRooms         PlaylistRoom[]            @relation("PlaylistRoomOwner")
+  extendedPlaylistRooms      PlaylistRoom[]            @relation("PlaylistRoomExtender")
+  playlistParticipation      PlaylistParticipant[]     @relation("PlaylistParticipants")
+  playlistSettingsUpdates    PlaylistServiceSettings[] @relation("PlaylistSettingsUpdater")
+
   @@map("users")
 }
 
@@ -848,4 +854,132 @@ enum UpdateType {
   MILESTONE
   UPDATE
   ANNOUNCEMENT
+}
+
+// ============================================
+// Playlist Service Feature
+// ============================================
+
+model PlaylistServiceSettings {
+  id                    String   @id @default("playlist_service_settings")
+  serviceEnabled        Boolean  @default(true)
+  allowAnonRooms        Boolean  @default(true)
+  maxConcurrentRooms    Int      @default(100)
+  maxRoomDurationHours  Int      @default(4)
+  eveningCutoffHour     Int      @default(22)
+  roomCreationPerIpHour Int      @default(3)
+  videoAddPerUserSec    Int      @default(10)
+  updatedAt             DateTime @updatedAt
+  updatedBy             String?
+  updatedByUser         User?    @relation("PlaylistSettingsUpdater", fields: [updatedBy], references: [id])
+
+  @@map("playlist_service_settings")
+}
+
+model PlaylistRoom {
+  id                String                @id @default(cuid())
+  roomCode          String                @unique
+  ownerType         RoomOwnerType         @default(ANON)
+  ownerId           String?
+  owner             User?                 @relation("PlaylistRoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  adminSessionToken String                @unique
+  createdAt         DateTime              @default(now())
+  expiresAt         DateTime
+  extendedUntil     DateTime?
+  extendedBy        String?
+  extendedByUser    User?                 @relation("PlaylistRoomExtender", fields: [extendedBy], references: [id])
+  karaokeEnabled    Boolean               @default(false)
+  allowGuestsAdd    Boolean               @default(true)
+  autoplay          Boolean               @default(true)
+  loopQueue         Boolean               @default(false)
+  timezone          String                @default("Europe/Stockholm")
+  participants      PlaylistParticipant[]
+  queueItems        PlaylistQueueItem[]
+  playbackState     PlaylistPlaybackState?
+
+  @@index([roomCode])
+  @@index([ownerId])
+  @@index([expiresAt])
+  @@map("playlist_rooms")
+}
+
+model PlaylistParticipant {
+  id             String              @id @default(cuid())
+  roomId         String
+  room           PlaylistRoom        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  nickname       String
+  userId         String?
+  user           User?               @relation("PlaylistParticipants", fields: [userId], references: [id], onDelete: SetNull)
+  sessionToken   String              @unique
+  role           ParticipantRole     @default(PARTICIPANT)
+  joinedAt       DateTime            @default(now())
+  lastSeenAt     DateTime            @default(now())
+  isActive       Boolean             @default(true)
+  ipAddress      String?
+  addedItems     PlaylistQueueItem[] @relation("ItemAdder")
+  performedItems PlaylistQueueItem[] @relation("ItemPerformer")
+
+  @@index([roomId])
+  @@index([sessionToken])
+  @@map("playlist_participants")
+}
+
+model PlaylistQueueItem {
+  id                  String               @id @default(cuid())
+  roomId              String
+  room                PlaylistRoom         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  youtubeVideoId      String
+  youtubeUrl          String
+  title               String?
+  durationSeconds     Int?
+  thumbnailUrl        String?
+  queueOrder          Int
+  state               QueueItemState       @default(QUEUED)
+  addedById           String
+  addedBy             PlaylistParticipant  @relation("ItemAdder", fields: [addedById], references: [id], onDelete: Cascade)
+  addedAt             DateTime             @default(now())
+  performerId         String?
+  performer           PlaylistParticipant? @relation("ItemPerformer", fields: [performerId], references: [id], onDelete: SetNull)
+  slotDurationSeconds Int?
+  etaStart            DateTime?
+  etaEnd              DateTime?
+  playedAt            DateTime?
+  skippedAt           DateTime?
+
+  @@index([roomId, queueOrder])
+  @@index([roomId, state])
+  @@map("playlist_queue_items")
+}
+
+model PlaylistPlaybackState {
+  id              String       @id @default(cuid())
+  roomId          String       @unique
+  room            PlaylistRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  currentItemId   String?
+  positionSeconds Float        @default(0)
+  isPlaying       Boolean      @default(false)
+  lastUpdatedAt   DateTime     @default(now())
+  updatedBy       String?
+
+  @@index([roomId])
+  @@map("playlist_playback_states")
+}
+
+enum RoomOwnerType {
+  ANON
+  USER
+}
+
+enum ParticipantRole {
+  ADMIN
+  PARTICIPANT
+  DISPLAY
+}
+
+enum QueueItemState {
+  QUEUED
+  PLAYING
+  PLAYED
+  SKIPPED
+  REMOVED
 }

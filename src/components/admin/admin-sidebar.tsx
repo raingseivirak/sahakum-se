@@ -26,6 +26,7 @@ import {
   Users as UsersIcon,
   Lightbulb,
   Mail,
+  Music,
 } from "lucide-react"
 
 import {
@@ -240,6 +241,24 @@ const getNavigationItems = (locale: string, permissions: any) => {
         requiresPermission: 'canCreateContent', // AUTHORS and above (they can see their own activity)
       },
       {
+        title: 'Playlist Service',
+        url: `/${locale}/admin/playlist`,
+        icon: Music,
+        requiresPermission: 'canAccessSettings',
+        items: [
+          {
+            title: 'Rooms',
+            url: `/${locale}/admin/playlist`,
+            requiresPermission: 'canAccessSettings',
+          },
+          {
+            title: 'Settings',
+            url: `/${locale}/admin/playlist/settings`,
+            requiresPermission: 'canAccessSettings',
+          },
+        ],
+      },
+      {
         title: locale === 'km' ? 'ការកំណត់' : locale === 'sv' ? 'Inställningar' : 'Settings',
         url: `/${locale}/admin/settings`,
         icon: Settings,
@@ -426,12 +445,25 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
                 <SidebarMenu>
                   {navItems.system.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url, !!item.items)}>
                         <Link href={item.url} className="font-sweden">
                           <item.icon className="mr-2 h-4 w-4" />
                           <span>{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
+                      {item.items && (
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild isActive={isActive(subItem.url)} className="font-sweden">
+                                <Link href={subItem.url} className="font-sweden text-sm">
+                                  {subItem.title}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      )}
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>

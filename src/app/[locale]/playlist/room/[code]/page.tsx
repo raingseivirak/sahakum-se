@@ -1,0 +1,93 @@
+import { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
+import { Footer } from '@/components/layout/footer'
+import { PlaylistRoom } from '@/components/playlist/playlist-room'
+
+interface RoomPageProps {
+  params: { locale: string; code: string }
+}
+
+const navTranslations: Record<string, Record<string, string>> = {
+  sv: { sign_in: 'Logga in', sign_out: 'Logga ut', admin: 'Admin', profile: 'Profil', settings: 'Inställningar' },
+  en: { sign_in: 'Sign In', sign_out: 'Sign Out', admin: 'Admin', profile: 'Profile', settings: 'Settings' },
+  km: { sign_in: 'ចូលប្រើ', sign_out: 'ចាកចេញ', admin: 'អ្នកគ្រប់គ្រង', profile: 'ប្រវត្តិរូប', settings: 'ការកំណត់' },
+}
+
+export async function generateMetadata({ params }: RoomPageProps): Promise<Metadata> {
+  return {
+    title: `Room ${params.code} | Shared Playlist`,
+    robots: { index: false },
+  }
+}
+
+export default async function RoomPage({ params }: RoomPageProps) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'playlist' })
+  const nav = navTranslations[params.locale] || navTranslations.en
+
+  const translations = {
+    nicknameTaken: t('nicknameTaken'),
+    invalidYoutubeUrl: t('invalidYoutubeUrl'),
+    roomNotFound: t('roomNotFound'),
+    createRoom: t('createRoom'),
+    roomExpired: t('roomExpired'),
+    createNewRoom: t('createNewRoom'),
+    joinRoom: t('joinRoom'),
+    enterNickname: t('enterNickname'),
+    join: t('join'),
+    codeCopied: t('codeCopied'),
+    copyCode: t('copyCode'),
+    expiresIn: t('expiresIn', { minutes: '{minutes}' }),
+    displayMode: t('displayMode'),
+    nowPlaying: t('nowPlaying'),
+    nothingPlaying: t('nothingPlaying'),
+    play: t('play'),
+    pause: t('pause'),
+    skip: t('skip'),
+    clearQueueConfirm: t('clearQueueConfirm'),
+    clearQueueDescription: t('clearQueueDescription'),
+    clearQueue: t('clearQueue'),
+    cancel: t('cancel'),
+    pasteYoutubeUrl: t('pasteYoutubeUrl'),
+    add: t('add'),
+    queue: t('queue'),
+    noVideos: t('noVideos'),
+    addFirstVideo: t('addFirstVideo'),
+    addedBy: t('addedBy', { name: '{name}' }),
+    removeSong: t('removeSong'),
+    participants: t('participants'),
+    openDisplayScreen: t('openDisplayScreen'),
+    displayScreenHint: t('displayScreenHint'),
+    shareLink: t('shareLink'),
+    showQr: t('showQr'),
+    scanToJoin: t('scanToJoin'),
+    loopList: t('loopList'),
+    loopListOn: t('loopListOn'),
+    loopListOff: t('loopListOff'),
+    playing: t('playing'),
+    paused: t('paused'),
+    pressPlayHint: t('pressPlayHint'),
+    serviceUnavailable: t('serviceUnavailable'),
+    serviceUnavailableDesc: t('serviceUnavailableDesc'),
+  }
+
+  return (
+    <>
+      <ScrollAwareHeader
+        locale={params.locale}
+        translations={{
+          sign_in: nav.sign_in,
+          sign_out: nav.sign_out,
+          admin: nav.admin,
+          profile: nav.profile,
+          settings: nav.settings,
+        }}
+        currentUrl={`/${params.locale}/playlist/room/${params.code}`}
+      />
+      <main className="min-h-screen bg-gray-50">
+        <PlaylistRoom locale={params.locale} roomCode={params.code} t={translations} />
+      </main>
+      <Footer />
+    </>
+  )
+}

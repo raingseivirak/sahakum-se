@@ -39,11 +39,13 @@ async function middleware(request: NextRequest) {
     // Scripts: Next.js requires 'unsafe-inline' for dynamically generated inline scripts
     // The nonce system doesn't work properly with Next.js client-side navigation
     // This is a known limitation of Next.js + strict CSP
-    `script-src 'self' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : ""} https://*.googletagmanager.com blob: data:`,
+    `script-src 'self' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : ""} https://*.googletagmanager.com https://www.youtube.com blob: data:`,
     // Workers: Allow PDF.js worker from self and blob
     "worker-src 'self' blob: data:",
     // Child sources for workers (some browsers need this)
     "child-src 'self' blob: data:",
+    // Frame sources: allow YouTube embeds for playlist service
+    "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com",
     // Styles: For TipTap compatibility, we need unsafe-inline without nonce
     // This is a necessary compromise for rich text editor functionality
     "style-src 'self' 'unsafe-inline'",
@@ -52,7 +54,7 @@ async function middleware(request: NextRequest) {
     // Fonts: allow data URLs for Sweden Sans
     "font-src 'self' data: blob:",
     // Connections: API calls and analytics
-    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com blob: data:",
+    "connect-src 'self' https://*.google-analytics.com https://*.googletagmanager.com https://*.supabase.co wss://*.supabase.co blob: data:",
     // Media: uploaded content
     "media-src 'self' blob: data:",
     // Block objects for security
