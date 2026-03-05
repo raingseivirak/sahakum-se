@@ -17,7 +17,8 @@ const footerTranslations = {
     statutes: 'Stadgar',
     events: 'Evenemang',
     blog: 'Blogg',
-    pages: 'Sidor'
+    pages: 'Sidor',
+    playlist: 'Spellista'
   },
   en: {
     contact: 'Contact',
@@ -31,7 +32,8 @@ const footerTranslations = {
     statutes: 'Statutes',
     events: 'Events',
     blog: 'Blog',
-    pages: 'Pages'
+    pages: 'Pages',
+    playlist: 'Playlist'
   },
   km: {
     contact: 'ទំនាក់ទំនង',
@@ -45,7 +47,8 @@ const footerTranslations = {
     statutes: 'ជំពូក',
     events: 'ព្រឹត្តិការណ៍',
     blog: 'ប្លុក',
-    pages: 'ទំព័រ'
+    pages: 'ទំព័រ',
+    playlist: 'បញ្ជីចម្រៀង'
   }
 };
 
@@ -89,6 +92,9 @@ export function Footer() {
               </a>
               <a href={`/${locale}/pages`} className="hover:text-[var(--sahakum-gold)] transition-colors">
                 {t('pages')}
+              </a>
+              <a href={`/${locale}/playlist`} className="hover:text-[var(--sahakum-gold)] transition-colors">
+                {t('playlist')}
               </a>
             </div>
           </div>
