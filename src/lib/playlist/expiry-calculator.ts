@@ -64,3 +64,26 @@ export function getEffectiveExpiry(
 ): Date {
   return extendedUntil ?? expiresAt
 }
+
+/**
+ * Format remaining minutes into a human-friendly string.
+ *   0        -> "Expired"
+ *   1-59     -> "45m"
+ *   60-1439  -> "2h 15m"
+ *   1440+    -> "3d 4h"
+ */
+export function formatTimeRemaining(totalMinutes: number): string {
+  if (totalMinutes <= 0) return 'Expired'
+
+  const days = Math.floor(totalMinutes / 1440)
+  const hours = Math.floor((totalMinutes % 1440) / 60)
+  const mins = totalMinutes % 60
+
+  if (days > 0) {
+    return hours > 0 ? `${days}d ${hours}h` : `${days}d`
+  }
+  if (hours > 0) {
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`
+  }
+  return `${mins}m`
+}

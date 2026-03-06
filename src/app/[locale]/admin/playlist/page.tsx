@@ -53,6 +53,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { formatTimeRemaining } from '@/lib/playlist/expiry-calculator'
 
 interface Room {
   id: string
@@ -75,6 +76,17 @@ export default function PlaylistAdminPage() {
   const [loading, setLoading] = useState(true)
   const [extendingRoom, setExtendingRoom] = useState<string | null>(null)
   const [extendHours, setExtendHours] = useState('2')
+
+  const extendPresets = [
+    { label: '1 hour', value: 1 },
+    { label: '2 hours', value: 2 },
+    { label: '6 hours', value: 6 },
+    { label: '12 hours', value: 12 },
+    { label: '1 day', value: 24 },
+    { label: '3 days', value: 72 },
+    { label: '7 days', value: 168 },
+    { label: '30 days', value: 720 },
+  ]
   const [extendResult, setExtendResult] = useState<{ code: string; status: 'success' | 'error'; action?: string } | null>(null)
   const [expiringRoom, setExpiringRoom] = useState<string | null>(null)
   const [confirmExpireRoom, setConfirmExpireRoom] = useState<string | null>(null)
@@ -108,7 +120,7 @@ export default function PlaylistAdminPage() {
 
   async function handleExtend(roomCode: string) {
     const hours = parseInt(extendHours)
-    if (!hours || hours < 1 || hours > 12) return
+    if (!hours || hours < 1 || hours > 720) return
 
     try {
       const res = await fetch(`/api/playlist/rooms/${roomCode}/extend`, {
@@ -301,7 +313,7 @@ export default function PlaylistAdminPage() {
                         <TableCell>{room._count.queueItems}</TableCell>
                         <TableCell>
                           <Badge variant={minutesLeft < 30 ? 'destructive' : 'secondary'}>
-                            {minutesLeft} min
+                            {formatTimeRemaining(minutesLeft)}
                           </Badge>
                           {room.extendedUntil && (
                             <Badge className="ml-1 bg-blue-100 text-blue-700">Extended</Badge>
@@ -319,15 +331,17 @@ export default function PlaylistAdminPage() {
                             </Link>
                             {extendingRoom === room.roomCode ? (
                               <div className="flex items-center gap-1">
-                                <Input
-                                  type="number"
-                                  min="1"
-                                  max="12"
+                                <select
                                   value={extendHours}
                                   onChange={(e) => setExtendHours(e.target.value)}
-                                  className="w-16 h-8 text-xs"
-                                  placeholder="hrs"
-                                />
+                                  className="h-8 text-xs border rounded px-1 bg-white"
+                                >
+                                  {extendPresets.map((p) => (
+                                    <option key={p.value} value={p.value}>
+                                      {p.label}
+                                    </option>
+                                  ))}
+                                </select>
                                 <Button
                                   size="sm"
                                   variant="outline"

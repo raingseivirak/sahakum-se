@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Clock, Music, Pause, Play, Wifi, WifiOff, Maximize, Minimize, Repeat, Mic2 } from 'lucide-react'
 import { usePlaylistRealtime } from '@/hooks/usePlaylistRealtime'
 import type { PlaylistEventPayload } from '@/lib/playlist/supabase-realtime'
+import { formatTimeRemaining } from '@/lib/playlist/expiry-calculator'
 
 const NEXT_UP_COUNTDOWN_SECONDS = 10
 
@@ -448,9 +449,9 @@ export function PlaylistDisplay({ locale, roomCode, t }: PlaylistDisplayProps) {
             <div className={`flex items-center gap-1 sm:gap-2 text-xs sm:text-lg ${minutesLeft < 10 ? 'text-red-400' : 'text-gray-300'}`}>
               <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className={`hidden sm:inline ${fontClass}`}>
-                {interpolate(t.expiresIn, { minutes: minutesLeft })}
+                {formatTimeRemaining(minutesLeft)}
               </span>
-              <span className="sm:hidden">{minutesLeft}m</span>
+              <span className="sm:hidden">{formatTimeRemaining(minutesLeft)}</span>
             </div>
           )}
           <button

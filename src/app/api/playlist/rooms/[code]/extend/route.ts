@@ -18,9 +18,9 @@ export async function POST(
     const body = await req.json()
     const { hours } = body
 
-    if (!hours || typeof hours !== 'number' || hours < 1 || hours > 12) {
+    if (!hours || typeof hours !== 'number' || hours < 1 || hours > 720) {
       return NextResponse.json(
-        { error: 'Hours must be between 1 and 12' },
+        { error: 'Hours must be between 1 and 720 (30 days)' },
         { status: 400 }
       )
     }

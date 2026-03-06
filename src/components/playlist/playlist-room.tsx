@@ -43,6 +43,7 @@ import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { usePlaylistRealtime } from '@/hooks/usePlaylistRealtime'
 import type { PlaylistEventPayload } from '@/lib/playlist/supabase-realtime'
+import { formatTimeRemaining } from '@/lib/playlist/expiry-calculator'
 
 export interface PlaylistRoomTranslations {
   nicknameTaken: string
@@ -520,7 +521,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
           {minutesLeft !== null && (
             <Badge variant={minutesLeft < 10 ? 'destructive' : 'secondary'} className={`flex-shrink-0 ${fontClass}`}>
               <Clock className="h-3 w-3 mr-1" />
-              {interpolate(t.expiresIn, { minutes: minutesLeft })}
+              {formatTimeRemaining(minutesLeft)}
             </Badge>
           )}
         </div>
