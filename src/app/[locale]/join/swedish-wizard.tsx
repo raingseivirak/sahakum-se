@@ -6,6 +6,11 @@ import Link from "next/link"
 
 interface SwedishWizardProps {
   locale: string
+  initialData?: {
+    firstName?: string
+    lastName?: string
+    email?: string
+  }
 }
 
 const translations = {
@@ -221,14 +226,14 @@ const translations = {
   }
 }
 
-export function SwedishWizard({ locale }: SwedishWizardProps) {
+export function SwedishWizard({ locale, initialData }: SwedishWizardProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: initialData?.firstName || "",
+    lastName: initialData?.lastName || "",
+    email: initialData?.email || "",
     address: "",
     city: "",
     postalCode: "",

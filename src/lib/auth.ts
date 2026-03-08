@@ -69,7 +69,7 @@ const providers = [
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email
+            email: credentials.email.toLowerCase().trim()
           }
         })
 
@@ -144,18 +144,8 @@ export const authOptions: NextAuthOptions = {
         if (!user.email) {
           return "/en/auth/signin?error=AccountNotFound"
         }
-
-        // Reject OAuth sign-in if email doesn't exist (use Gmail normalization for dot variants)
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        }) ?? await findUserByEmailWithGmailNormalization(user.email)
-        const existingMember = await prisma.member.findFirst({
-          where: { email: user.email },
-        }) ?? await findMemberByEmailWithGmailNormalization(user.email)
-
-        if (!existingUser && !existingMember) {
-          return "/en/auth/signin?error=AccountNotFound"
-        }
+        // OAuth auto-creates accounts via PrismaAdapter; no gate needed.
+        // The createUser event below links to existing Member records.
       }
       return true
     },

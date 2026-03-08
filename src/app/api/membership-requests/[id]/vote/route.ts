@@ -260,33 +260,40 @@ export async function POST(
     let temporaryPassword: string | null = null
 
     if (thresholdResult.approved) {
-      // Generate temporary password for User account
-      temporaryPassword = generateTemporaryPassword()
-      const hashedPassword = await hashPassword(temporaryPassword)
+      // Check if a User account already exists (self-registered or OAuth)
+      const existingUser = await prisma.user.findUnique({
+        where: { email: membershipRequest.email },
+      })
+
+      let hashedPassword: string | undefined
+      if (!existingUser) {
+        temporaryPassword = generateTemporaryPassword()
+        hashedPassword = await hashPassword(temporaryPassword)
+      }
 
       const result = await prisma.$transaction(async (tx) => {
-        // Generate unique member number
         const memberNumber = await generateMemberNumber()
 
-        // Create User account for member login
-        const newUser = await tx.user.create({
-          data: {
-            email: membershipRequest.email,
-            name: `${membershipRequest.firstName} ${membershipRequest.lastName}`,
-            firstName: membershipRequest.firstName,
-            lastName: membershipRequest.lastName,
-            password: hashedPassword,
-            role: 'USER', // Regular member role
-            isActive: true,
-            profileImage: null
-          }
-        })
+        // Reuse existing User or create a new one
+        const userId = existingUser
+          ? existingUser.id
+          : (await tx.user.create({
+              data: {
+                email: membershipRequest.email,
+                name: `${membershipRequest.firstName} ${membershipRequest.lastName}`,
+                firstName: membershipRequest.firstName,
+                lastName: membershipRequest.lastName,
+                password: hashedPassword!,
+                role: 'USER',
+                isActive: true,
+                profileImage: null,
+              },
+            })).id
 
-        // Create new member linked to User account
         const newMember = await tx.member.create({
           data: {
             memberNumber,
-            userId: newUser.id, // Link to User account
+            userId,
             firstName: membershipRequest.firstName,
             lastName: membershipRequest.lastName,
             firstNameKhmer: membershipRequest.firstNameKhmer,
@@ -302,21 +309,20 @@ export async function POST(
             joinedAt: new Date(),
             active: true,
             bio: `Created from membership request ${membershipRequest.requestNumber} - Approved by board vote`,
-          }
+          },
         })
 
-        // Update membership request
         const updated = await tx.membershipRequest.update({
           where: { id: params.id },
           data: {
             status: 'APPROVED',
             approvedAt: new Date(),
             createdMemberId: newMember.id,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         })
 
-        return { member: newMember, request: updated, user: newUser }
+        return { member: newMember, request: updated, userId }
       })
 
       updatedRequest = result.request
@@ -404,12 +410,12 @@ export async function POST(
         action: 'membership_request.auto_approved',
         resourceType: 'MEMBERSHIP_REQUEST',
         resourceId: params.id,
-        description: `Membership request ${membershipRequest.requestNumber} auto-approved after reaching approval threshold. User account created.`,
+        description: `Membership request ${membershipRequest.requestNumber} auto-approved after reaching approval threshold.`,
         metadata: {
           requestNumber: membershipRequest.requestNumber,
           memberNumber: result.member.memberNumber,
-          userId: result.user.id,
-          userAccountCreated: true,
+          userId: result.userId,
+          userAccountCreated: !existingUser,
           credentialsEmailSent: !!temporaryPassword,
           threshold,
           approvals,

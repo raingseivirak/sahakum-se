@@ -56,6 +56,20 @@ interface EmailTranslations {
     needHelp: string
     footer: string
   }
+  registration: {
+    subject: string
+    greeting: string
+    accountCreated: string
+    whatYouCanDo: string
+    features: string[]
+    membershipCta: string
+    membershipDesc: string
+    applyButton: string
+    loginButton: string
+    needHelp: string
+    closing: string
+    footer: string
+  }
 }
 
 const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
@@ -110,6 +124,24 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'Login to Member Portal',
       needHelp: 'Need help? Contact us at',
       footer: 'This email contains sensitive information. Please keep it secure.'
+    },
+    registration: {
+      subject: 'Welcome to Sahakum Khmer!',
+      greeting: 'Dear',
+      accountCreated: 'Your account has been successfully created! You are now part of the Sahakum Khmer community.',
+      whatYouCanDo: 'What You Can Do Now',
+      features: [
+        'Explore our community events and news',
+        'Use our shared services like Karaoke Playlist',
+        'Stay connected with the Cambodian community in Sweden',
+      ],
+      membershipCta: 'Become a Member',
+      membershipDesc: 'Want full access? Apply for membership to unlock exclusive benefits, participate in events, and connect with other members.',
+      applyButton: 'Apply for Membership',
+      loginButton: 'Login to Your Account',
+      needHelp: 'Need help? Contact us at',
+      closing: 'We are happy to have you here!',
+      footer: 'This is an automated message from Sahakum Khmer.',
     }
   },
   sv: {
@@ -163,6 +195,24 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'Logga in på medlemsportalen',
       needHelp: 'Behöver du hjälp? Kontakta oss på',
       footer: 'Detta e-postmeddelande innehåller känslig information. Vänligen håll det säkert.'
+    },
+    registration: {
+      subject: 'Välkommen till Sahakum Khmer!',
+      greeting: 'Kära',
+      accountCreated: 'Ditt konto har skapats framgångsrikt! Du är nu en del av Sahakum Khmer-gemenskapen.',
+      whatYouCanDo: 'Vad du kan göra nu',
+      features: [
+        'Utforska våra gemenskapsevenemang och nyheter',
+        'Använd våra delade tjänster som Karaoke-spellista',
+        'Håll kontakten med den kambodjanska gemenskapen i Sverige',
+      ],
+      membershipCta: 'Bli medlem',
+      membershipDesc: 'Vill du ha full åtkomst? Ansök om medlemskap för att låsa upp exklusiva förmåner, delta i evenemang och ansluta till andra medlemmar.',
+      applyButton: 'Ansök om medlemskap',
+      loginButton: 'Logga in på ditt konto',
+      needHelp: 'Behöver du hjälp? Kontakta oss på',
+      closing: 'Vi är glada att ha dig här!',
+      footer: 'Detta är ett automatiskt meddelande från Sahakum Khmer.',
     }
   },
   km: {
@@ -216,6 +266,24 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'ចូលទៅកាន់ប្រព័ន្ធសមាជិក',
       needHelp: 'ត្រូវការជំនួយ? ទាក់ទងយើងខ្ញុំតាម',
       footer: 'អ៊ីមែលនេះមានព័ត៌មានសម្ងាត់។ សូមរក្សាទុកឱ្យមានសុវត្ថិភាព។'
+    },
+    registration: {
+      subject: 'សូមស្វាគមន៍មកកាន់ Sahakum Khmer!',
+      greeting: 'សូមគោរព',
+      accountCreated: 'គណនីរបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ! ឥឡូវនេះអ្នកជាផ្នែកមួយនៃសហគមន៍ Sahakum Khmer។',
+      whatYouCanDo: 'អ្វីដែលអ្នកអាចធ្វើបាន',
+      features: [
+        'ស្វែងយល់ព្រឹត្តិការណ៍និងព័ត៌មានសហគមន៍របស់យើង',
+        'ប្រើប្រាស់សេវាកម្មរួមរបស់យើងដូចជា Karaoke Playlist',
+        'រក្សាទំនាក់ទំនងជាមួយសហគមន៍ខ្មែរនៅស៊ុយអែត',
+      ],
+      membershipCta: 'ក្លាយជាសមាជិក',
+      membershipDesc: 'ចង់ទទួលបានសិទ្ធិពេញលេញ? ដាក់ពាក្យសុំសមាជិកភាពដើម្បីទទួលបានអត្ថប្រយោជន៍ពិសេស ចូលរួមព្រឹត្តិការណ៍ និងភ្ជាប់ទំនាក់ទំនងជាមួយសមាជិកផ្សេងទៀត។',
+      applyButton: 'ដាក់ពាក្យសុំសមាជិកភាព',
+      loginButton: 'ចូលគណនីរបស់អ្នក',
+      needHelp: 'ត្រូវការជំនួយ? ទាក់ទងយើងខ្ញុំតាម',
+      closing: 'យើងរីករាយដែលមានអ្នកនៅទីនេះ!',
+      footer: 'នេះជាសារស្វ័យប្រវត្តិពី Sahakum Khmer។',
     }
   }
 }
@@ -1359,6 +1427,149 @@ www.sahakumkhmer.se
             <td style="background-color: #f5f5f5; padding: 24px 40px; border-top: 1px solid #e5e5e5;">
               <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.5; text-align: center;">
                 This is an automated notification from Sahakum Khmer.<br>
+                <a href="https://www.sahakumkhmer.se" style="color: ${SAHAKUM_GOLD}; text-decoration: none;">www.sahakumkhmer.se</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim()
+
+  return { subject, html, text }
+}
+
+// ===== REGISTRATION WELCOME EMAIL =====
+
+export interface RegistrationWelcomeEmailData {
+  firstName: string
+  lastName: string
+  email: string
+  language?: Language
+  baseUrl?: string
+}
+
+export function generateRegistrationWelcomeEmail(data: RegistrationWelcomeEmailData): { subject: string; html: string; text: string } {
+  const lang = data.language || 'en'
+  const content = EMAIL_CONTENT[lang].registration
+  const fullName = `${data.firstName} ${data.lastName}`
+  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const loginUrl = `${baseUrl}/${lang}/auth/signin`
+  const joinUrl = `${baseUrl}/${lang}/join`
+
+  const fontFamily = lang === 'km'
+    ? "'Noto Sans Khmer', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+
+  const subject = content.subject
+
+  const text = `
+${content.greeting} ${fullName},
+
+${content.accountCreated}
+
+${content.whatYouCanDo}:
+${content.features.map((f, i) => `${i + 1}. ${f}`).join('\n')}
+
+${content.membershipCta}
+${content.membershipDesc}
+${content.applyButton}: ${joinUrl}
+
+${content.loginButton}: ${loginUrl}
+
+${content.closing}
+
+${content.needHelp} info@sahakumkhmer.se
+
+${content.footer}
+Sahakum Khmer
+www.sahakumkhmer.se
+  `.trim()
+
+  const html = `
+<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: ${fontFamily}; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 20px 0;">
+        <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color: ${SAHAKUM_NAVY}; padding: 32px 40px; text-align: center;">
+              <img src="${LOGO_URL}" alt="Sahakum Khmer" style="height: 48px; width: auto; margin-bottom: 16px;" />
+              <h1 style="margin: 0; color: ${SAHAKUM_GOLD}; font-size: 24px; font-weight: bold; letter-spacing: 1px;">
+                ${content.subject}
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px; color: #333; font-size: 16px; line-height: 1.6;">
+                ${content.greeting} <strong>${fullName}</strong>,
+              </p>
+
+              <p style="margin: 0 0 24px; color: #333; font-size: 16px; line-height: 1.6;">
+                ${content.accountCreated}
+              </p>
+
+              <!-- What you can do -->
+              <div style="background-color: #f8f9fa; border-left: 4px solid ${SAHAKUM_GOLD}; padding: 20px 24px; margin: 0 0 24px;">
+                <h3 style="margin: 0 0 12px; color: ${SAHAKUM_NAVY}; font-size: 16px;">
+                  ${content.whatYouCanDo}
+                </h3>
+                <ul style="margin: 0; padding: 0 0 0 20px; color: #555; font-size: 14px; line-height: 1.8;">
+                  ${content.features.map(f => `<li>${f}</li>`).join('\n                  ')}
+                </ul>
+              </div>
+
+              <!-- Login button -->
+              <div style="text-align: center; margin: 0 0 32px;">
+                <a href="${loginUrl}" style="display: inline-block; background-color: ${SAHAKUM_GOLD}; color: #ffffff; text-decoration: none; padding: 14px 32px; font-size: 16px; font-weight: bold; letter-spacing: 0.5px;">
+                  ${content.loginButton}
+                </a>
+              </div>
+
+              <!-- Membership CTA -->
+              <div style="background-color: ${SAHAKUM_NAVY}; padding: 24px; margin: 0 0 24px;">
+                <h3 style="margin: 0 0 8px; color: ${SAHAKUM_GOLD}; font-size: 18px;">
+                  ${content.membershipCta}
+                </h3>
+                <p style="margin: 0 0 16px; color: #ccc; font-size: 14px; line-height: 1.6;">
+                  ${content.membershipDesc}
+                </p>
+                <a href="${joinUrl}" style="display: inline-block; border: 2px solid ${SAHAKUM_GOLD}; color: ${SAHAKUM_GOLD}; text-decoration: none; padding: 10px 24px; font-size: 14px; font-weight: bold;">
+                  ${content.applyButton}
+                </a>
+              </div>
+
+              <p style="margin: 0 0 8px; color: #333; font-size: 16px; line-height: 1.6;">
+                ${content.closing}
+              </p>
+
+              <p style="margin: 24px 0 0; color: #666; font-size: 14px;">
+                ${content.needHelp} <a href="mailto:info@sahakumkhmer.se" style="color: ${SAHAKUM_GOLD}; text-decoration: none;">info@sahakumkhmer.se</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f5f5f5; padding: 24px 40px; border-top: 1px solid #e5e5e5;">
+              <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.5; text-align: center;">
+                ${content.footer}<br>
                 <a href="https://www.sahakumkhmer.se" style="color: ${SAHAKUM_GOLD}; text-decoration: none;">www.sahakumkhmer.se</a>
               </p>
             </td>

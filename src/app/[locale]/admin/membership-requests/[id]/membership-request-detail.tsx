@@ -499,7 +499,7 @@ export function MembershipRequestDetail({ request, locale, userRole }: Membershi
         throw new Error(data.error || 'Failed to create user account')
       }
 
-      setAccountSuccess(`User account created successfully! Login credentials sent to ${data.user.email}`)
+      setAccountSuccess(data.message || `User account linked for ${data.user.email}`)
 
       // Refresh the page to show updated status
       setTimeout(() => {

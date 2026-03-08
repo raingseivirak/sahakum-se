@@ -9,6 +9,8 @@ import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const translations = {
   sv: {
@@ -104,7 +106,8 @@ interface JoinPageProps {
   params: { locale: keyof typeof translations }
 }
 
-export default function JoinPage({ params }: JoinPageProps) {
+export default async function JoinPage({ params }: JoinPageProps) {
+  const session = await getServerSession(authOptions)
   const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key;
 
   // Determine font class based on locale
@@ -325,7 +328,33 @@ export default function JoinPage({ params }: JoinPageProps) {
                   <p className={`text-[var(--sahakum-navy)]/70 mb-6 ${getFontClass()}`}>
                     {t('form.wizard_description')}
                   </p>
-                  <SwedishWizard locale={params.locale} />
+                  {session?.user ? (
+                    <div className={`mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800 ${getFontClass()}`}>
+                      {params.locale === 'sv'
+                        ? `Du ansöker som ${session.user.name || session.user.email}`
+                        : params.locale === 'km'
+                        ? `អ្នកកំពុងដាក់ពាក្យជា ${session.user.name || session.user.email}`
+                        : `Applying as ${session.user.name || session.user.email}`}
+                    </div>
+                  ) : (
+                    <div className={`mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 ${getFontClass()}`}>
+                      {params.locale === 'sv' ? (
+                        <>Har du redan ett konto? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Logga in först</Link> för att koppla ditt medlemskap.</>
+                      ) : params.locale === 'km' ? (
+                        <>មានគណនីរួចហើយ? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">ចូលជាមុន</Link> ដើម្បីភ្ជាប់សមាជិកភាពរបស់អ្នក។</>
+                      ) : (
+                        <>Already have an account? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Sign in first</Link> to link your membership.</>
+                      )}
+                    </div>
+                  )}
+                  <SwedishWizard
+                    locale={params.locale}
+                    initialData={session?.user ? {
+                      firstName: (session.user as { firstName?: string }).firstName || session.user.name?.split(' ')[0] || '',
+                      lastName: (session.user as { lastName?: string }).lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
+                      email: session.user.email || '',
+                    } : undefined}
+                  />
                 </div>
               </div>
             </div>

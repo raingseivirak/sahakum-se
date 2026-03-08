@@ -176,15 +176,20 @@ function SignInPageContent({ params }: SignInPageProps) {
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-red-400 rounded-full mr-3"></div>
                     {error || (urlError === 'AccountNotFound'
-                      ? 'No account found with this email. Please apply for membership first.'
+                      ? 'No account found with this email.'
                       : urlError === 'OAuthAccountNotLinked'
                       ? 'This email is already linked to another sign-in method. Please use your email and password.'
                       : '')}
                   </div>
                   {!error && urlError === 'AccountNotFound' && (
-                    <Link href={`/${locale}/join`} className="block mt-2 text-sahakum-gold-600 hover:underline font-medium">
-                      Apply for membership →
-                    </Link>
+                    <div className="mt-2 space-y-1">
+                      <Link href={`/${locale}/auth/signup`} className="block text-sahakum-gold-600 hover:underline font-medium">
+                        Create an account &rarr;
+                      </Link>
+                      <Link href={`/${locale}/join`} className="block text-sahakum-gold-600 hover:underline font-medium">
+                        Apply for membership &rarr;
+                      </Link>
+                    </div>
                   )}
                 </div>
               )}
@@ -262,6 +267,19 @@ function SignInPageContent({ params }: SignInPageProps) {
                 </span>
               </Button>
             </form>
+
+            {/* Sign-up link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 font-sweden">
+                Don&apos;t have an account?{' '}
+                <Link
+                  href={`/${locale}/auth/signup`}
+                  className="text-sahakum-gold-600 hover:underline font-medium"
+                >
+                  Sign up
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
 
