@@ -34,7 +34,9 @@ export async function POST(
     }
 
     const currentExpiry = room.extendedUntil ?? room.expiresAt
-    const newExpiry = addHours(currentExpiry, hours)
+    const isExpired = currentExpiry.getTime() < Date.now()
+    const baseTime = isExpired ? new Date() : currentExpiry
+    const newExpiry = addHours(baseTime, hours)
 
     const updated = await prisma.playlistRoom.update({
       where: { roomCode: params.code },

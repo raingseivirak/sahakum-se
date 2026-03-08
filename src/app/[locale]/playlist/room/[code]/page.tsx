@@ -72,6 +72,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
     adminControls: t('adminControls'),
     serviceUnavailable: t('serviceUnavailable'),
     serviceUnavailableDesc: t('serviceUnavailableDesc'),
+    addVideo: t('addVideo'),
   }
 
   return (

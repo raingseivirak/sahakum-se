@@ -50,6 +50,7 @@ import {
   ExternalLink,
   PlusCircle,
   XCircle,
+  RefreshCw,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -90,6 +91,8 @@ export default function PlaylistAdminPage() {
   const [extendResult, setExtendResult] = useState<{ code: string; status: 'success' | 'error'; action?: string } | null>(null)
   const [expiringRoom, setExpiringRoom] = useState<string | null>(null)
   const [confirmExpireRoom, setConfirmExpireRoom] = useState<string | null>(null)
+  const [reactivatingRoom, setReactivatingRoom] = useState<string | null>(null)
+  const [reactivateHours, setReactivateHours] = useState('2')
 
   const fetchData = useCallback(async () => {
     try {
@@ -162,6 +165,31 @@ export default function PlaylistAdminPage() {
       setExtendResult({ code: roomCode, status: 'error', action: 'expired' })
     } finally {
       setExpiringRoom(null)
+    }
+
+    setTimeout(() => setExtendResult(null), 3000)
+  }
+
+  async function handleReactivate(roomCode: string) {
+    const hours = parseInt(reactivateHours)
+    if (!hours || hours < 1 || hours > 720) return
+
+    try {
+      const res = await fetch(`/api/playlist/rooms/${roomCode}/extend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hours }),
+      })
+
+      if (res.ok) {
+        setExtendResult({ code: roomCode, status: 'success', action: 'reactivated' })
+        setReactivatingRoom(null)
+        fetchData()
+      } else {
+        setExtendResult({ code: roomCode, status: 'error', action: 'reactivated' })
+      }
+    } catch {
+      setExtendResult({ code: roomCode, status: 'error', action: 'reactivated' })
     }
 
     setTimeout(() => setExtendResult(null), 3000)
@@ -257,10 +285,14 @@ export default function PlaylistAdminPage() {
               {extendResult.status === 'success'
                 ? extendResult.action === 'expired'
                   ? `Room ${extendResult.code} has been force-expired`
-                  : `Room ${extendResult.code} extended successfully`
+                  : extendResult.action === 'reactivated'
+                    ? `Room ${extendResult.code} reactivated successfully`
+                    : `Room ${extendResult.code} extended successfully`
                 : extendResult.action === 'expired'
                   ? `Failed to expire room ${extendResult.code}`
-                  : `Failed to extend room ${extendResult.code}`}
+                  : extendResult.action === 'reactivated'
+                    ? `Failed to reactivate room ${extendResult.code}`
+                    : `Failed to extend room ${extendResult.code}`}
             </AlertDescription>
           </Alert>
         )}
@@ -414,11 +446,12 @@ export default function PlaylistAdminPage() {
                     <TableHead>Expired At</TableHead>
                     <TableHead>Participants</TableHead>
                     <TableHead>Videos</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {expiredRooms.slice(0, 20).map((room) => (
-                    <TableRow key={room.id} className="opacity-60">
+                    <TableRow key={room.id} className="opacity-60 hover:opacity-100 transition-opacity">
                       <TableCell>
                         <code className="text-sm font-mono">{room.roomCode}</code>
                       </TableCell>
@@ -443,6 +476,49 @@ export default function PlaylistAdminPage() {
                       </TableCell>
                       <TableCell>{room._count.participants}</TableCell>
                       <TableCell>{room._count.queueItems}</TableCell>
+                      <TableCell>
+                        {reactivatingRoom === room.roomCode ? (
+                          <div className="flex items-center gap-1">
+                            <select
+                              value={reactivateHours}
+                              onChange={(e) => setReactivateHours(e.target.value)}
+                              className="h-8 text-xs border rounded px-1 bg-white"
+                            >
+                              {extendPresets.map((p) => (
+                                <option key={p.value} value={p.value}>
+                                  {p.label}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 text-xs border-green-300 text-green-700 hover:bg-green-50"
+                              onClick={() => handleReactivate(room.roomCode)}
+                            >
+                              Reactivate
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 text-xs"
+                              onClick={() => setReactivatingRoom(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-green-300 text-green-700 hover:bg-green-50"
+                            onClick={() => setReactivatingRoom(room.roomCode)}
+                          >
+                            <RefreshCw className="h-3 w-3 mr-1" />
+                            Reactivate
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

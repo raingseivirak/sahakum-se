@@ -90,6 +90,7 @@ export interface PlaylistRoomTranslations {
   adminControls: string
   serviceUnavailable: string
   serviceUnavailableDesc: string
+  addVideo: string
 }
 
 interface PlaylistRoomProps {
@@ -165,6 +166,9 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
   const [controlLoading, setControlLoading] = useState<string | null>(null)
   const [showClearQueueDialog, setShowClearQueueDialog] = useState(false)
   const [showQr, setShowQr] = useState(false)
+  const [mobileAddOpen, setMobileAddOpen] = useState(false)
+  const [previewVideoId, setPreviewVideoId] = useState<string | null>(null)
+  const [previewTitle, setPreviewTitle] = useState<string | null>(null)
 
   const isAdmin = !!adminToken
 
@@ -499,7 +503,7 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
   const isPlaying = room?.playbackState?.isPlaying ?? false
 
   return (
-    <div className="max-w-7xl mx-auto px-3 py-3 sm:p-4 space-y-3 sm:space-y-4 w-full overflow-x-hidden pb-20 sm:pb-4">
+    <div className="max-w-7xl mx-auto px-3 py-3 sm:p-4 space-y-3 sm:space-y-4 w-full overflow-x-hidden pb-24 sm:pb-4">
       {/* Room Header */}
       <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm space-y-2">
         <div className="flex items-center justify-between gap-2">
@@ -752,18 +756,33 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                   {queuedItems.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 group"
+                      className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 active:bg-gray-100 group cursor-pointer"
+                      onClick={() => {
+                        setPreviewVideoId(item.youtubeVideoId)
+                        setPreviewTitle(item.title || item.youtubeVideoId)
+                      }}
                     >
                       <span className="text-xs sm:text-sm text-gray-400 w-4 sm:w-5 text-right flex-shrink-0">
                         {index + 1}
                       </span>
-                      {item.thumbnailUrl && (
-                        <img
-                          src={item.thumbnailUrl}
-                          alt=""
-                          className="w-12 h-8 sm:w-16 sm:h-10 object-cover rounded flex-shrink-0"
-                        />
-                      )}
+                      <div className="relative flex-shrink-0">
+                        {item.thumbnailUrl ? (
+                          <>
+                            <img
+                              src={item.thumbnailUrl}
+                              alt=""
+                              className="w-12 h-8 sm:w-16 sm:h-10 object-cover rounded"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                              <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white fill-white" />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="w-12 h-8 sm:w-16 sm:h-10 bg-gray-100 rounded flex items-center justify-center">
+                            <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs sm:text-sm font-medium truncate">
                           {item.title || item.youtubeVideoId}
@@ -775,8 +794,11 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
                       {(isAdmin ||
                         (sessionToken && item.addedBy.id === participantId)) && (
                         <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="sm:opacity-0 sm:group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveItem(item.id)
+                          }}
+                          className="p-1.5 sm:opacity-0 sm:group-hover:opacity-100 text-gray-400 hover:text-red-500 active:text-red-600 transition-opacity"
                           title={t.removeSong}
                         >
                           <X className="h-4 w-4" />
@@ -821,36 +843,81 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
         </div>
       </div>
 
-      {/* Mobile Add Video — sticky bottom bar */}
+      {/* Mobile Add Video — FAB + bottom sheet */}
       {(sessionToken || isAdmin) && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-          <div className="px-3 py-3 max-w-7xl mx-auto">
-            <div className="flex items-center gap-2">
-              <Youtube className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <div className="flex-1 relative min-w-0">
-                <Input
-                  placeholder={t.pasteYoutubeUrl}
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddVideo()}
-                  className={`w-full h-10 text-sm pr-12 ${fontClass}`}
-                />
+        <>
+          {/* Backdrop */}
+          {mobileAddOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/40 sm:hidden"
+              onClick={() => setMobileAddOpen(false)}
+            />
+          )}
+
+          {/* Bottom sheet */}
+          <div
+            className={`fixed bottom-0 left-0 right-0 z-50 sm:hidden transition-transform duration-300 ease-out ${
+              mobileAddOpen ? 'translate-y-0' : 'translate-y-full'
+            }`}
+          >
+            <div className="bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.15)] px-4 pt-4 pb-8">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+              <div className="flex items-center gap-2 mb-3">
+                <Youtube className="h-6 w-6 text-red-600 flex-shrink-0" />
+                <h3 className={`text-base font-semibold ${fontClass}`}>{t.addVideo}</h3>
+              </div>
+              <Input
+                placeholder={t.pasteYoutubeUrl}
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAddVideo()
+                    setMobileAddOpen(false)
+                  }
+                }}
+                autoFocus={mobileAddOpen}
+                className={`w-full h-12 text-base mb-3 ${fontClass}`}
+              />
+              <div className="flex gap-2">
                 <Button
-                  onClick={handleAddVideo}
+                  variant="outline"
+                  onClick={() => setMobileAddOpen(false)}
+                  className={`flex-1 h-12 text-base ${fontClass}`}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  {t.cancel || 'Cancel'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleAddVideo()
+                    setMobileAddOpen(false)
+                  }}
                   disabled={addingVideo || !videoUrl.trim()}
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 bg-[var(--sahakum-navy)] text-white hover:bg-[var(--sahakum-navy)]/90 rounded-md"
+                  className={`flex-1 h-12 text-base bg-[var(--sahakum-navy)] text-white hover:bg-[var(--sahakum-navy)]/90 ${fontClass}`}
                 >
                   {addingVideo ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin mr-1" />
                   ) : (
-                    <Send className="h-4 w-4" />
+                    <Send className="h-5 w-5 mr-1" />
                   )}
+                  {t.add}
                 </Button>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* FAB button */}
+          {!mobileAddOpen && (
+            <button
+              onClick={() => setMobileAddOpen(true)}
+              className="fixed bottom-6 right-4 z-40 sm:hidden flex items-center gap-2 bg-[var(--sahakum-navy)] text-white pl-4 pr-5 py-3.5 rounded-full shadow-lg shadow-black/25 active:scale-95 transition-transform"
+            >
+              <Plus className="h-5 w-5" />
+              <span className={`text-sm font-medium ${fontClass}`}>{t.addVideo}</span>
+            </button>
+          )}
+        </>
       )}
 
       {/* QR Code Modal */}
@@ -886,6 +953,50 @@ export function PlaylistRoom({ locale, roomCode, t }: PlaylistRoomProps) {
               <X className="h-4 w-4 mr-2" />
               Close
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Video Preview Modal */}
+      {previewVideoId && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70"
+          onClick={() => setPreviewVideoId(null)}
+        >
+          <div
+            className="bg-black rounded-t-2xl sm:rounded-xl w-full sm:max-w-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3">
+              <p className="text-white text-sm sm:text-base font-medium truncate flex-1 mr-3">
+                {previewTitle}
+              </p>
+              <button
+                onClick={() => setPreviewVideoId(null)}
+                className="text-gray-400 hover:text-white active:text-white transition-colors p-2 -mr-2"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=0&rel=0&playsinline=1`}
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Video preview"
+              />
+            </div>
+            <div className="px-4 pb-[env(safe-area-inset-bottom,16px)] pt-3 sm:pb-4">
+              <Button
+                variant="outline"
+                onClick={() => setPreviewVideoId(null)}
+                className="w-full h-11 text-white border-gray-600 hover:bg-gray-800 active:bg-gray-700"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       )}
