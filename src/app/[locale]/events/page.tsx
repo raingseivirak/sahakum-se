@@ -58,7 +58,7 @@ async function getEvents(locale: string, category?: string, time: string = 'upco
   }
 
   const response = await fetch(`${baseUrl}/api/public/events?${params}`, {
-    cache: 'no-store'
+    next: { revalidate: 60 }
   })
 
   if (!response.ok) {
@@ -71,7 +71,7 @@ async function getEvents(locale: string, category?: string, time: string = 'upco
 async function getCategories() {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
   const response = await fetch(`${baseUrl}/api/categories`, {
-    cache: 'no-store'
+    next: { revalidate: 3600 }
   })
 
   if (!response.ok) {

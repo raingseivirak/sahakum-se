@@ -34,7 +34,11 @@ import {
   X,
 } from "lucide-react"
 import Link from "next/link"
-import { SwedenEditor } from "@/components/editor/sweden-editor"
+import dynamic from 'next/dynamic'
+const SwedenEditor = dynamic(
+  () => import('@/components/editor/sweden-editor').then(m => ({ default: m.SwedenEditor })),
+  { ssr: false }
+)
 import { MediaSelector } from "@/components/ui/media-selector"
 import { usePosts } from "@/hooks/use-posts"
 import { useCategories } from "@/hooks/use-categories"

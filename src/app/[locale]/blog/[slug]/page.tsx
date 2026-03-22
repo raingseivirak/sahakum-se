@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
@@ -43,7 +44,7 @@ async function getPostAvailableLanguages(slug: string) {
   }
 }
 
-async function getPost(slug: string, locale: string, isPreview = false, previewId?: string) {
+const getPost = cache(async function getPost(slug: string, locale: string, isPreview = false, previewId?: string) {
   try {
     let whereClause: any = {
       type: 'POST'
@@ -140,7 +141,7 @@ async function getPost(slug: string, locale: string, isPreview = false, previewI
     console.error('Error fetching post:', error)
     return null
   }
-}
+})
 
 function formatDate(dateString: string, locale: string): string {
   const date = new Date(dateString)

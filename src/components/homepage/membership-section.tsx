@@ -1,5 +1,3 @@
-"use client"
-
 import Link from 'next/link'
 import { SwedenH2, SwedenBody } from '@/components/ui/sweden-typography'
 import { SwedenButton } from '@/components/ui/sweden-motion'

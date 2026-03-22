@@ -1,99 +1,66 @@
-"use client"
-
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Container, Grid } from '@/components/layout/grid'
+import { Container } from '@/components/layout/grid'
 import { SwedenH2, SwedenBody } from '@/components/ui/sweden-typography'
-
-interface Page {
-  id: string
-  slug: string
-  featuredImg: string | null
-  translation: {
-    title: string
-    excerpt: string
-  }
-}
+import { prisma } from '@/lib/prisma'
 
 interface FeaturedContentGridProps {
   locale: string
   className?: string
 }
 
-// Default placeholder images for different page types
-const getPlaceholderImage = (slug: string): string => {
-  const placeholders = {
-    'about-us': '/images/placeholders/about-us-placeholder.jpg',
-    'cambodia': '/images/placeholders/cambodia-placeholder.jpg',
-    'living-in-sweden': '/images/placeholders/sweden-placeholder.jpg',
-    'support-resources': '/images/placeholders/support-placeholder.jpg',
-    'community': '/images/placeholders/community-placeholder.jpg',
-    'default': '/images/placeholders/default-placeholder.jpg'
-  }
+export async function FeaturedContentGrid({ locale, className = '' }: FeaturedContentGridProps) {
+  const rawPages = await prisma.contentItem.findMany({
+    where: { type: 'PAGE', status: 'PUBLISHED' },
+    include: {
+      translations: { where: { language: locale } }
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 4
+  })
 
-  return placeholders[slug as keyof typeof placeholders] || placeholders.default
-}
+  const pages = rawPages
+    .filter(p => p.translations.length > 0)
+    .map(p => ({
+      id: p.id,
+      slug: p.slug,
+      featuredImg: p.featuredImg,
+      translation: { title: p.translations[0].title, excerpt: p.translations[0].excerpt }
+    }))
 
-// Generate placeholder SVG for missing images
-const generatePlaceholderSVG = (title: string, color: string): string => {
-  const svg = `
-    <svg width="400" height="240" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="${color}"/>
-      <circle cx="200" cy="100" r="30" fill="white" opacity="0.3"/>
-      <text x="200" y="160" text-anchor="middle" fill="white" font-family="system-ui" font-size="16" font-weight="600">
-        ${title}
-      </text>
-    </svg>
-  `
-  return `data:image/svg+xml;base64,${btoa(svg)}`
-}
+  if (pages.length === 0) return null
 
-export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentGridProps) {
-  const [pages, setPages] = useState<Page[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchPages() {
-      try {
-        const response = await fetch(`/api/public/pages?language=${locale}&limit=4`)
-        if (response.ok) {
-          const data = await response.json()
-          setPages(data.pages || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch pages:', error)
-      } finally {
-        setLoading(false)
-      }
+  // Visit Sweden style varied column spans
+  const getColumnSpan = (idx: number, totalItems: number) => {
+    if (totalItems === 1) return 'md:col-span-6 lg:col-span-12'
+    if (totalItems === 2) {
+      return idx === 0 ? 'md:col-span-4 lg:col-span-8' : 'md:col-span-2 lg:col-span-4'
     }
-
-    fetchPages()
-  }, [locale])
-
-  if (loading) {
-    return (
-      <section className={`py-16 lg:py-24 ${className}`}>
-        <Container>
-          <div className="text-center mb-16">
-            <div className="h-8 bg-sahakum-navy-100 rounded w-64 mx-auto mb-6 animate-pulse"></div>
-            <div className="h-4 bg-sahakum-navy-100 rounded w-96 mx-auto animate-pulse"></div>
-          </div>
-          <Grid cols={4} gap={8}>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white shadow-md overflow-hidden animate-pulse">
-                <div className="h-48 bg-sahakum-navy-100"></div>
-                <div className="p-6">
-                  <div className="h-6 bg-sahakum-navy-100 rounded mb-3"></div>
-                  <div className="h-4 bg-sahakum-navy-100 rounded w-3/4"></div>
-                </div>
-              </div>
-            ))}
-          </Grid>
-        </Container>
-      </section>
-    )
+    if (totalItems === 3) {
+      if (idx === 0) return 'md:col-span-6 lg:col-span-6'
+      return 'md:col-span-3 lg:col-span-3'
+    }
+    if (idx === 0) return 'md:col-span-4 lg:col-span-8'
+    if (idx === 1) return 'md:col-span-2 lg:col-span-4'
+    if (idx === 2) return 'md:col-span-3 lg:col-span-6'
+    return 'md:col-span-3 lg:col-span-6'
   }
+
+  const getHeight = (idx: number, totalItems: number) => {
+    if (totalItems === 1) return 'h-80 md:h-96'
+    if (totalItems === 2) return idx === 0 ? 'h-80 md:h-96' : 'h-64 md:h-80'
+    if (totalItems === 3) return idx === 0 ? 'h-72 md:h-80' : 'h-64 md:h-72'
+    if (idx === 0) return 'h-80 md:h-96'
+    if (idx === 1) return 'h-80 md:h-96'
+    return 'h-72'
+  }
+
+  const colorThemes = [
+    'from-sahakum-gold-500 to-sahakum-gold-600',
+    'from-sweden-blue-500 to-sweden-blue-600',
+    'from-sahakum-navy-600 to-sahakum-navy-700',
+    'from-sahakum-gold-600 to-sahakum-navy-600'
+  ]
 
   return (
     <section className={`py-16 lg:py-24 ${className}`}>
@@ -111,49 +78,9 @@ export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentG
           </SwedenBody>
         </div>
 
-        {/* Visit Sweden inspired varied grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6">
           {pages.map((page, index) => {
-            // Cycle through color themes for visual variety
-            const colorThemes = [
-              'from-sahakum-gold-500 to-sahakum-gold-600',
-              'from-sweden-blue-500 to-sweden-blue-600',
-              'from-sahakum-navy-600 to-sahakum-navy-700',
-              'from-sahakum-gold-600 to-sahakum-navy-600'
-            ]
             const theme = colorThemes[index % colorThemes.length]
-
-            // Visit Sweden style varied column spans
-            const getColumnSpan = (idx: number, totalItems: number) => {
-              if (totalItems === 1) return 'md:col-span-6 lg:col-span-12' // Single item - full width
-              if (totalItems === 2) {
-                return idx === 0 ? 'md:col-span-4 lg:col-span-8' : 'md:col-span-2 lg:col-span-4'
-              }
-              if (totalItems === 3) {
-                if (idx === 0) return 'md:col-span-6 lg:col-span-6' // Featured item
-                return 'md:col-span-3 lg:col-span-3' // Others
-              }
-              // 4 or more items - original layout
-              if (idx === 0) return 'md:col-span-4 lg:col-span-8' // Featured item - larger
-              if (idx === 1) return 'md:col-span-2 lg:col-span-4' // Medium
-              if (idx === 2) return 'md:col-span-3 lg:col-span-6' // Medium-large
-              return 'md:col-span-3 lg:col-span-6' // Default
-            }
-
-            // Different heights for visual variety
-            const getHeight = (idx: number, totalItems: number) => {
-              if (totalItems === 1) return 'h-80 md:h-96' // Single item - tall
-              if (totalItems === 2) {
-                return idx === 0 ? 'h-80 md:h-96' : 'h-64 md:h-80' // Featured larger
-              }
-              if (totalItems === 3) {
-                return idx === 0 ? 'h-72 md:h-80' : 'h-64 md:h-72' // More balanced
-              }
-              // 4 or more items - better balanced heights
-              if (idx === 0) return 'h-80 md:h-96' // Featured item - taller
-              if (idx === 1) return 'h-80 md:h-96' // Match featured item height for first row balance
-              return 'h-72' // Medium
-            }
 
             return (
               <Link
@@ -161,19 +88,18 @@ export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentG
                 href={`/${locale}/${page.slug}`}
                 className={`group block bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden ${getColumnSpan(index, pages.length)}`}
               >
-                {/* Featured Image */}
                 <div className={`relative overflow-hidden ${getHeight(index, pages.length)}`}>
                   {page.featuredImg ? (
                     <Image
                       src={page.featuredImg}
                       alt={page.translation.title}
                       fill
+                      priority={index === 0}
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
                   ) : (
                     <div className={`w-full h-full bg-gradient-to-br ${theme} flex items-center justify-center relative overflow-hidden`}>
-                      {/* Minimalist geometric pattern */}
                       <div className="absolute inset-0 opacity-5">
                         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                           <defs>
@@ -184,16 +110,12 @@ export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentG
                           <rect width="100%" height="100%" fill={`url(#minimal-${index})`}/>
                         </svg>
                       </div>
-
-                      {/* Subtle corner accent - only on featured item */}
                       {index === 0 && (
                         <div className="absolute top-6 right-6 w-16 h-16 border border-white/15 transform rotate-12"></div>
                       )}
-
                     </div>
                   )}
 
-                  {/* Content overlay - show for ALL items */}
                   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                     <h3 className={`text-white text-xl lg:text-2xl font-semibold mb-3 ${
                       locale === 'km' ? 'font-khmer text-khmer-heading' : 'font-sweden text-sweden-heading'
@@ -205,8 +127,6 @@ export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentG
                     }`}>
                       {page.translation.excerpt}
                     </p>
-
-                    {/* Swedish rectangular button with Sahakum colors */}
                     <div className="inline-flex items-center bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-navy)] text-[var(--sahakum-navy)] hover:text-white px-4 py-2 text-sm font-medium transition-all duration-200 group-hover:scale-105">
                       <span className={locale === 'km' ? 'font-khmer' : 'font-sweden'}>
                         {locale === 'sv' ? 'Läs mer' :
@@ -219,16 +139,13 @@ export function FeaturedContentGrid({ locale, className = '' }: FeaturedContentG
                     </div>
                   </div>
 
-                  {/* Hover overlay for better interactivity */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-
               </Link>
             )
           })}
         </div>
 
-        {/* View all pages link */}
         {pages.length > 0 && (
           <div className="text-center mt-12">
             <Link

@@ -38,7 +38,9 @@ export async function GET(request: NextRequest) {
       }
     }))
 
-    return NextResponse.json({ services: transformedServices })
+    const res = NextResponse.json({ services: transformedServices })
+    res.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+    return res
   } catch (error) {
     console.error('Public services fetch error:', error)
     return NextResponse.json(

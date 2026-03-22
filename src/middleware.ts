@@ -72,7 +72,7 @@ async function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy', cspPolicy)
 
   // Anti-bot and privacy headers
-  if (pathname.includes("/admin") || pathname.includes("/auth") || pathname.includes("/api")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/auth") || pathname.startsWith("/api")) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, nocache, nosnippet, noimageindex')
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
     response.headers.set('Pragma', 'no-cache')
@@ -80,7 +80,7 @@ async function middleware(request: NextRequest) {
   }
 
   // For admin routes, check authentication and role
-  if (pathname.includes("/admin")) {
+  if (pathname.startsWith("/admin")) {
     return withAuth(
       function authMiddleware(req) {
         const token = req.nextauth.token
@@ -108,7 +108,7 @@ async function middleware(request: NextRequest) {
   }
 
   // For member portal routes (/my-account/*), check authentication
-  if (pathname.includes("/my-account")) {
+  if (pathname.startsWith("/my-account")) {
     return withAuth(
       function authMiddleware(req) {
         const token = req.nextauth.token

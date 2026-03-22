@@ -53,7 +53,7 @@ export function usePosts() {
         throw new Error('Failed to fetch posts')
       }
       const data = await response.json()
-      setPosts(data)
+      setPosts(data.posts ?? data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {

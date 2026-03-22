@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       }))
     }))
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       posts: transformedPosts,
       pagination: {
         page,
@@ -119,6 +119,8 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1
       }
     })
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+    return res
   } catch (error) {
     console.error('Error fetching posts:', error)
     return NextResponse.json(

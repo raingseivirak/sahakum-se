@@ -25,36 +25,49 @@ const postSchema = z.object({
 // GET /api/posts - List all posts
 async function handleGET(request: NextRequest, context: AdminAuthContext) {
   try {
-    const posts = await prisma.contentItem.findMany({
-      where: { type: "POST" },
-      include: {
-        author: {
-          select: { name: true, email: true }
-        },
-        translations: true,
-        categories: {
-          include: {
-            category: {
-              include: {
-                translations: true
-              }
-            }
-          }
-        },
-        tags: {
-          include: {
-            tag: {
-              include: {
-                translations: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: { updatedAt: "desc" }
-    })
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
+    const skip = (page - 1) * limit
 
-    return NextResponse.json(posts)
+    const [posts, total] = await Promise.all([
+      prisma.contentItem.findMany({
+        where: { type: "POST" },
+        include: {
+          author: {
+            select: { name: true, email: true }
+          },
+          translations: true,
+          categories: {
+            include: {
+              category: {
+                include: {
+                  translations: true
+                }
+              }
+            }
+          },
+          tags: {
+            include: {
+              tag: {
+                include: {
+                  translations: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { updatedAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.contentItem.count({ where: { type: "POST" } })
+    ])
+
+    return NextResponse.json({
+      posts,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    })
   } catch (error) {
     console.error("Error fetching posts:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

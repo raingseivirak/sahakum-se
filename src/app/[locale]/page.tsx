@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { Container, Grid } from '@/components/layout/grid';
-import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card';
+import { Suspense } from 'react';
+import { Container } from '@/components/layout/grid';
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenLead, SwedenBody } from '@/components/ui/sweden-typography';
 import { SwedenButton } from '@/components/ui/sweden-motion';
@@ -11,14 +10,12 @@ import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
 import { InitiativesSection } from '@/components/homepage/initiatives-section';
+import { JoinButton } from '@/components/homepage/join-button';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
 import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
 import { type Language } from '@/lib/constants';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -201,22 +198,6 @@ interface Props {
 export default async function HomePage({ params }: Props) {
   const t = (key: string) => translations[params.locale]?.[key] || translations.sv[key] || key;
 
-  // Check if user is logged in and has a member record
-  const session = await getServerSession(authOptions);
-  let isMember = false;
-
-  if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        member: {
-          select: { id: true }
-        }
-      }
-    });
-    isMember = !!user?.member;
-  }
-
   // Determine font class based on locale
   const getFontClass = () => {
     switch (params.locale) {
@@ -318,19 +299,11 @@ export default async function HomePage({ params }: Props) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                {/* Only show Join Us button if user is not logged in or not a member */}
-                {!isMember && (
-                  <Link href={`/${params.locale}/join`}>
-                    <SwedenButton
-                      variant="primary"
-                      size="lg"
-                      locale={params.locale}
-                      className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
-                    >
-                      {t('common.join_us')}
-                    </SwedenButton>
-                  </Link>
-                )}
+                <JoinButton
+                  locale={params.locale}
+                  label={t('common.join_us')}
+                  className="bg-[var(--sahakum-gold)] hover:bg-[var(--sahakum-gold)]/90 focus:ring-[var(--sahakum-gold)]/50 text-[var(--sahakum-navy)] font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                />
                 <Link href={`/${params.locale}/contact`}>
                   <SwedenButton
                     variant="secondary"
@@ -347,16 +320,24 @@ export default async function HomePage({ params }: Props) {
         </section>
 
         {/* Featured Content Section - Dynamic pages grid */}
-        <FeaturedContentGrid locale={params.locale} />
+        <Suspense fallback={<div className="py-16 lg:py-24 animate-pulse bg-gray-50" style={{minHeight: '400px'}} />}>
+          <FeaturedContentGrid locale={params.locale} />
+        </Suspense>
 
         {/* Upcoming Events Section */}
-        <UpcomingEventsSection locale={params.locale} />
+        <Suspense fallback={<div className="py-16 animate-pulse bg-white" style={{minHeight: '300px'}} />}>
+          <UpcomingEventsSection locale={params.locale} />
+        </Suspense>
 
         {/* Initiatives Section */}
-        <InitiativesSection locale={params.locale} />
+        <Suspense fallback={<div className="py-16 animate-pulse bg-white" style={{minHeight: '300px'}} />}>
+          <InitiativesSection locale={params.locale} />
+        </Suspense>
 
         {/* Dynamic Services Section */}
-        <ServicesSection locale={params.locale} />
+        <Suspense fallback={<div className="py-16 lg:py-24 animate-pulse bg-gray-50" style={{minHeight: '400px'}} />}>
+          <ServicesSection locale={params.locale} />
+        </Suspense>
 
         {/* Membership Section - Call to Action */}
         <MembershipSection locale={params.locale} />

@@ -78,7 +78,7 @@ async function getEvent(slug: string, locale: string, previewId?: string) {
 
   // Public mode - fetch from public API
   const response = await fetch(`${baseUrl}/api/public/events/${slug}?language=${locale}`, {
-    cache: 'no-store'
+    next: { revalidate: 60 }
   })
 
   if (!response.ok) {

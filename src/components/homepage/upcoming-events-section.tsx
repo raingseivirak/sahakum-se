@@ -49,7 +49,7 @@ const translations = {
 async function getUpcomingEvents(locale: string) {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
   const response = await fetch(`${baseUrl}/api/public/events?language=${locale}&time=upcoming&limit=3`, {
-    cache: 'no-store'
+    next: { revalidate: 300 }
   });
 
   if (!response.ok) {

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
@@ -25,7 +26,7 @@ interface PageProps {
   }
 }
 
-async function getPage(slug: string, locale: string) {
+const getPage = cache(async function getPage(slug: string, locale: string) {
   try {
     const page = await prisma.contentItem.findFirst({
       where: {
@@ -54,7 +55,7 @@ async function getPage(slug: string, locale: string) {
     console.error('Error fetching page:', error)
     return null
   }
-}
+})
 
 export default async function DynamicPage({ params }: PageProps) {
   const fontClass = params.locale === 'km' ? 'font-khmer' : 'font-sweden'

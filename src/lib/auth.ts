@@ -150,25 +150,40 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async jwt({ token, user, trigger, session }) {
+      // On initial sign-in, populate token from user object and fetch member status
       if (user) {
         token.role = user.role
         token.profileImage = (user as { profileImage?: string; image?: string }).profileImage ?? (user as { profileImage?: string; image?: string }).image
+        const member = await prisma.member.findFirst({
+          where: { userId: user.id },
+          select: { id: true }
+        })
+        token.isMember = !!member
+        token.tokenFetchedAt = Date.now()
       }
 
-      // Handle session updates (when update() is called)
+      // Handle session updates (when update() is called) — force a refresh next request
       if (trigger === "update" && session) {
         token.profileImage = session.profileImage
+        token.tokenFetchedAt = 0
       }
 
-      // Always fetch fresh user data to ensure profileImage is current (use image for OAuth users)
-      if (token.sub) {
+      // Refresh user data from DB at most once every 5 minutes
+      const REFRESH_INTERVAL_MS = 5 * 60 * 1000
+      const shouldRefresh = token.sub && (
+        !token.tokenFetchedAt ||
+        Date.now() - token.tokenFetchedAt > REFRESH_INTERVAL_MS
+      )
+      if (shouldRefresh) {
         const freshUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { profileImage: true, image: true, role: true, name: true, email: true }
+          where: { id: token.sub as string },
+          select: { profileImage: true, image: true, role: true, name: true, email: true, member: { select: { id: true } } }
         })
         if (freshUser) {
           token.profileImage = freshUser.profileImage ?? freshUser.image
           token.role = freshUser.role
+          token.isMember = !!freshUser.member
+          token.tokenFetchedAt = Date.now()
         }
       }
 
@@ -179,6 +194,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub
         session.user.role = token.role as UserRole
         session.user.profileImage = token.profileImage
+        session.user.isMember = token.isMember
       }
       return session
     }

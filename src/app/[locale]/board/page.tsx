@@ -6,6 +6,8 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { Footer } from '@/components/layout/footer'
 
+export const revalidate = 3600 // Board members rarely change — revalidate once per hour
+
 export async function generateMetadata({
   params,
 }: {

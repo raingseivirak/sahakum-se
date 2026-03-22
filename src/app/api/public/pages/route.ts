@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       pages: transformedPages,
       pagination: {
         page,
@@ -71,6 +71,8 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1
       }
     })
+    res.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600')
+    return res
   } catch (error) {
     console.error('Error fetching public pages:', error)
     return NextResponse.json(

@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
       bio: member.translations[0]?.bio || ''
     }))
 
-    return NextResponse.json(transformedMembers)
+    const res = NextResponse.json(transformedMembers)
+    res.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+    return res
   } catch (error) {
     console.error('Error fetching public board members:', error)
     return NextResponse.json(

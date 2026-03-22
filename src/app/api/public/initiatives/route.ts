@@ -73,7 +73,9 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(initiativesWithTranslation)
+    const res = NextResponse.json(initiativesWithTranslation)
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+    return res
   } catch (error) {
     console.error("Error fetching public initiatives:", error)
     return NextResponse.json(

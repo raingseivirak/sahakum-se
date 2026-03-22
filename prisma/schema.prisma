@@ -104,6 +104,9 @@ model ContentItem {
   author       User                  @relation(fields: [authorId], references: [id])
   translations ContentTranslation[]
 
+  @@index([type, status])
+  @@index([publishedAt])
+  @@index([authorId])
   @@map("content_items")
 }
 
@@ -312,6 +315,8 @@ model MembershipRequest {
   statusHistory       MembershipRequestStatusHistory[]
   boardVotes          BoardMemberVote[]
 
+  @@index([status])
+  @@index([email])
   @@map("membership_requests")
 }
 
@@ -527,6 +532,9 @@ model Event {
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
 
+  @@index([status, endDate])
+  @@index([startDate])
+  @@index([authorId])
   @@map("events")
 }
 

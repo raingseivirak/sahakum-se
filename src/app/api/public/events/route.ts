@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       events: transformedEvents,
       pagination: {
         page,
@@ -165,6 +165,8 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1
       }
     })
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+    return res
   } catch (error) {
     console.error('Error fetching events:', error)
     return NextResponse.json(

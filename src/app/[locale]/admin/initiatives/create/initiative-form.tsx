@@ -10,7 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { SwedenEditor } from "@/components/editor/sweden-editor"
+import dynamic from 'next/dynamic'
+const SwedenEditor = dynamic(
+  () => import('@/components/editor/sweden-editor').then(m => ({ default: m.SwedenEditor })),
+  { ssr: false }
+)
 import { MediaSelector } from "@/components/ui/media-selector"
 import {
   Select,

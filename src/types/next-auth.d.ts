@@ -10,6 +10,7 @@ declare module "next-auth" {
       image?: string
       role: UserRole
       profileImage?: string
+      isMember?: boolean
     }
   }
 
@@ -23,5 +24,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: UserRole
     profileImage?: string
+    isMember?: boolean
+    tokenFetchedAt?: number
   }
 }
