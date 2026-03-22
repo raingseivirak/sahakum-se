@@ -1,8 +1,7 @@
 'use client'
 
-import { createContext, useContext, ReactNode, useEffect, useState } from 'react'
+import { createContext, useContext, ReactNode, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
-import { Permission } from '@/lib/permissions'
 
 export interface AdminPermissions {
   // Content Management
@@ -51,97 +50,76 @@ interface AdminPermissionsContextType {
 
 const AdminPermissionsContext = createContext<AdminPermissionsContextType | undefined>(undefined)
 
+function computePermissions(role: string): AdminPermissions {
+  const isAdmin = role === 'ADMIN'
+  const isBoard = ['BOARD', 'ADMIN'].includes(role)
+  const isEditor = ['EDITOR', 'BOARD', 'ADMIN'].includes(role)
+  const isModerator = ['MODERATOR', 'EDITOR', 'BOARD', 'ADMIN'].includes(role)
+  const isAuthor = ['AUTHOR', 'MODERATOR', 'EDITOR', 'BOARD', 'ADMIN'].includes(role)
+
+  return {
+    // Content Management
+    canCreateContent: isAuthor,
+    canEditOwnContent: isAuthor,
+    canEditOthersContent: isEditor,
+    canDeleteOwnContent: isEditor,
+    canDeleteOthersContent: isEditor,
+    canPublishDirect: isEditor,
+    canApproveContent: isEditor,
+
+    // Organization Management
+    canViewMembershipRequests: isBoard,
+    canApproveMembership: isEditor,
+    canManageMembers: isBoard,
+    canManageServices: isEditor,
+    canManageCategories: isEditor,
+    canManageMedia: isModerator,
+    canManageInitiatives: isBoard,
+
+    // System Management
+    canManageUsers: isAdmin,
+    canManageSettings: isAdmin,
+    canAccessSettings: isEditor,
+    canViewAllUsers: isAdmin,
+
+    // User roles
+    isUser: role === 'USER',
+    isAuthor: role === 'AUTHOR',
+    isModerator: role === 'MODERATOR',
+    isEditor: role === 'EDITOR',
+    isBoard: role === 'BOARD',
+    isAdmin,
+
+    // Board member privileges (temporarily disabled)
+    isBoardMember: false,
+  }
+}
+
+const EMPTY_PERMISSIONS = computePermissions('USER')
+
 interface AdminPermissionsProviderProps {
   children: ReactNode
 }
 
 export function AdminPermissionsProvider({ children }: AdminPermissionsProviderProps) {
   const { data: session, status } = useSession()
-  const [permissions, setPermissions] = useState<AdminPermissions>({
-    // Content Management
-    canCreateContent: false,
-    canEditOwnContent: false,
-    canEditOthersContent: false,
-    canDeleteOwnContent: false,
-    canDeleteOthersContent: false,
-    canPublishDirect: false,
-    canApproveContent: false,
 
-    // Organization Management
-    canViewMembershipRequests: false,
-    canApproveMembership: false,
-    canManageMembers: false,
-    canManageServices: false,
-    canManageCategories: false,
-    canManageMedia: false,
-    canManageInitiatives: false,
-
-    // System Management
-    canManageUsers: false,
-    canManageSettings: false,
-    canAccessSettings: false,
-    canViewAllUsers: false,
-
-    // User roles
-    isUser: false,
-    isAuthor: false,
-    isModerator: false,
-    isEditor: false,
-    isBoard: false,
-    isAdmin: false,
-
-    // Board member privileges
-    isBoardMember: false,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchPermissions = async () => {
-    if (!session?.user?.id || status !== 'authenticated') {
-      setLoading(false)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/admin/permissions', {
-        headers: {
-          'Authorization': `Bearer ${session.user.id}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch permissions: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      setPermissions(data.permissions)
-    } catch (err) {
-      console.error('Error fetching admin permissions:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch permissions')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const permissions = useMemo(
+    () => computePermissions(session?.user?.role ?? 'USER'),
+    [session?.user?.role]
+  )
 
   const checkPermission = (permission: keyof AdminPermissions): boolean => {
     return permissions[permission] === true
   }
 
-  const refresh = async () => {
-    await fetchPermissions()
-  }
-
-  useEffect(() => {
-    fetchPermissions()
-  }, [session?.user?.id, status])
+  // No-op: permissions are derived from the JWT session, which is already cached
+  const refresh = async () => {}
 
   const contextValue: AdminPermissionsContextType = {
     permissions,
-    loading,
-    error,
+    loading: status === 'loading',
+    error: null,
     checkPermission,
     refresh,
   }

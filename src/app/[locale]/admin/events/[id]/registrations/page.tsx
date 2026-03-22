@@ -95,8 +95,12 @@ export default function EventRegistrationsPage({ params }: RegistrationsPageProp
       setLoading(true)
       setError(null)
       try {
-        // Fetch registrations
-        const response = await fetch(`/api/events/${params.id}/registrations`)
+        // Fetch registrations and event title in parallel
+        const [response, eventResponse] = await Promise.all([
+          fetch(`/api/events/${params.id}/registrations`),
+          fetch(`/api/events/${params.id}`)
+        ])
+
         if (!response.ok) {
           throw new Error('Failed to fetch registrations')
         }
@@ -104,8 +108,6 @@ export default function EventRegistrationsPage({ params }: RegistrationsPageProp
         setRegistrations(data.registrations)
         setSummary(data.summary)
 
-        // Fetch event title
-        const eventResponse = await fetch(`/api/events/${params.id}`)
         if (eventResponse.ok) {
           const eventData = await eventResponse.json()
           setEventTitle(eventData.translations?.[0]?.title || 'Event')

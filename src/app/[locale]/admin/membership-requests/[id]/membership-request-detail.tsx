@@ -182,8 +182,6 @@ const residenceStatusLabels = {
 export function MembershipRequestDetail({ request, locale, userRole }: MembershipRequestDetailProps) {
   const fontClass = 'font-sweden'
 
-  // Debug: Log status history data
-  console.log('Status history data:', request.statusHistory)
   const router = useRouter()
   const [isUpdating, setIsUpdating] = useState(false)
   const [newStatus, setNewStatus] = useState(request.status)

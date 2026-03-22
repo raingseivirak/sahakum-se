@@ -157,32 +157,17 @@ export function UsersList({ locale }: UsersListProps) {
 
   const checkUserContent = async (user: SystemUser) => {
     try {
-      // Try a dry-run delete to see if user has content
-      const response = await fetch(`/api/users/${user.id}`, {
-        method: 'DELETE'
-      })
-
+      const response = await fetch(`/api/users/${user.id}/content`)
       if (response.ok) {
-        // If DELETE succeeded, user has no content (but we don't want to actually delete)
+        const data = await response.json()
+        setUserHasContent(data.hasContent)
+        setContentDetails(data.contentItems)
+      } else {
         setUserHasContent(false)
         setContentDetails([])
-        // Refresh the users list since we accidentally deleted the user
-        await fetchUsers()
-      } else {
-        const errorData = await response.json()
-        if (errorData.contentItems && errorData.contentItems.length > 0) {
-          // User has content
-          setUserHasContent(true)
-          setContentDetails(errorData.contentItems)
-        } else {
-          // Some other error
-          setUserHasContent(false)
-          setContentDetails([])
-        }
       }
     } catch (err) {
       console.error('Failed to check user content:', err)
-      // If we can't check content, assume they don't have any for safety
       setUserHasContent(false)
       setContentDetails([])
     }

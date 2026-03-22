@@ -78,8 +78,6 @@ export function ProfileForm({ locale }: ProfileFormProps) {
         const response = await fetch('/api/admin/profile')
         if (response.ok) {
           const data = await response.json()
-          console.log('Profile data received:', data.user)
-
           // Reset form with user data
           const formData = {
             name: data.user.name || '',
@@ -87,13 +85,12 @@ export function ProfileForm({ locale }: ProfileFormProps) {
             firstName: data.user.firstName || '',
             lastName: data.user.lastName || '',
           }
-          console.log('Resetting form with:', formData)
 
           profileForm.reset(formData)
 
           // Force a re-render to ensure UI updates
           setTimeout(() => {
-            console.log('Form values after reset:', profileForm.getValues())
+            profileForm.getValues()
           }, 100)
         } else {
           console.error('Profile API failed:', response.status)
