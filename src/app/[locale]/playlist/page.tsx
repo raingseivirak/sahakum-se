@@ -15,7 +15,7 @@ interface PlaylistPageProps {
 const navTranslations: Record<string, Record<string, string>> = {
   sv: { sign_in: 'Logga in', sign_out: 'Logga ut', admin: 'Admin', profile: 'Profil', settings: 'Inställningar' },
   en: { sign_in: 'Sign In', sign_out: 'Sign Out', admin: 'Admin', profile: 'Profile', settings: 'Settings' },
-  km: { sign_in: 'ចូលប្រើ', sign_out: 'ចាកចេញ', admin: 'អ្នកគ្រប់គ្រង', profile: 'ប្រវត្តិរូប', settings: 'ការកំណត់' },
+  km: { sign_in: 'ចូល', sign_out: 'ចាកចេញ', admin: 'អ្នកគ្រប់គ្រង', profile: 'ប្រវត្តិរូប', settings: 'ការកំណត់' },
 }
 
 export async function generateMetadata({ params }: PlaylistPageProps): Promise<Metadata> {

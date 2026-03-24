@@ -99,7 +99,7 @@ const translations = {
     "services.culture_desc": "ចូលរួមក្នុងព្រឹត្តិការណ៍វប្បធម៌កម្ពុជា",
     "emergency.title": "ជំនួយបន្ទាន់",
     "emergency.description": "សម្រាប់ស្ថានការណ៍បន្ទាន់ សូមទាក់ទងលេខបន្ទាន់ ១១២ ជាមុនសិន។",
-    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_in": "ចូល",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
     "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",

@@ -92,7 +92,7 @@ const translations = {
     "cta.board": "ជួបក្រុមប្រឹក្សារបស់យើង",
     "cta.statutes": "អានជំពូករបស់យើង",
     "cta.contact": "ទាក់ទងយើង",
-    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_in": "ចូល",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
     "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",

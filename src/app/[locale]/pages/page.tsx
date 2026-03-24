@@ -41,7 +41,7 @@ const translations = {
     "pages.description": "រកមើលទំព័រ និងអត្ថបទទាំងអស់ដែលបានរៀបចំតាមភាសា។",
     "pages.no_content": "មិនមានមាតិកាអ្វីទេនៅពេលនេះ។",
     "pages.read_more": "អានបន្ថែម",
-    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_in": "ចូល",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
     "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",

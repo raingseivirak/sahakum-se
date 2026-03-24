@@ -32,7 +32,7 @@ const t = {
     aboutUs: 'អំពីយើង',
     blog: 'ប្លុក',
     contact: 'ទំនាក់ទំនង',
-    signIn: 'ចូលប្រើប្រាស់',
+    signIn: 'ចូល',
     signOut: 'ចាកចេញ',
     admin: 'ផ្ទាំងគ្រប់គ្រង',
     profile: 'ប្រវត្តិរូប',

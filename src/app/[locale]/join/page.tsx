@@ -92,7 +92,7 @@ const translations = {
     "learn_more.title": "ចង់ដឹងបន្ថែមអំពីសហគមខ្មែរ?",
     "learn_more.about_us": "អំពីយើង",
     "learn_more.statutes": "ជំពូក",
-    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_in": "ចូល",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
     "nav.profile": "ប្រវត្តិរូបផ្ទាល់ខ្លួន",

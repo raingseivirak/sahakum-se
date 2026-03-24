@@ -172,7 +172,7 @@ const translations = {
     "nav.living_in_sweden": "រស់នៅក្នុងស៊ុយអែត",
     "nav.community": "សហគមន៍",
     "nav.blog": "ប្លុក",
-    "nav.sign_in": "ចូលប្រើប្រាស់",
+    "nav.sign_in": "ចូល",
     "nav.sign_out": "ចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
     "nav.profile": "ប្រវត្តិរូប",
