@@ -71,31 +71,16 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Quick Links - Full width on mobile for compact vertical space */}
+          {/* Quick Links */}
           <div className="col-span-2 md:col-span-1">
-            <h4 className={`font-semibold text-gray-800 mb-1 md:mb-4 text-xs md:text-base ${fontClass}`}>{t('quick_links')}</h4>
-            <div className="text-xs md:text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 md:flex-col md:space-y-2">
-              <a href={`/${locale}/about-us`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('about_us')}
-              </a>
-              <a href={`/${locale}/board`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('board')}
-              </a>
-              <a href={`/${locale}/statutes`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('statutes')}
-              </a>
-              <a href={`/${locale}/events`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('events')}
-              </a>
-              <a href={`/${locale}/blog`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('blog')}
-              </a>
-              <a href={`/${locale}/pages`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('pages')}
-              </a>
-              <a href={`/${locale}/playlist`} className="hover:text-[var(--sahakum-gold)] transition-colors">
-                {t('playlist')}
-              </a>
+            <h4 className={`font-semibold text-gray-800 mb-2 text-xs md:text-base ${fontClass}`}>{t('quick_links')}</h4>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs md:text-sm text-gray-600">
+              <a href={`/${locale}/about-us`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('about_us')}</a>
+              <a href={`/${locale}/blog`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('blog')}</a>
+              <a href={`/${locale}/board`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('board')}</a>
+              <a href={`/${locale}/events`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('events')}</a>
+              <a href={`/${locale}/statutes`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('statutes')}</a>
+              <a href={`/${locale}/playlist`} className="hover:text-[var(--sahakum-gold)] transition-colors">{t('playlist')}</a>
             </div>
           </div>
 

@@ -7,7 +7,10 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { type Language } from '@/lib/constants'
 import { UserPlus, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 
 const RESIDENCE_STATUS_OPTIONS = [
@@ -289,14 +292,17 @@ function SignUpPageContent({ params }: SignUpPageProps) {
                 colorScheme="light"
               />
             </div>
-            <div className="absolute top-0 right-0 lg:hidden">
-              <Link
-                href={`/${locale}`}
-                className="group p-2 text-gray-500 hover:text-sahakum-gold-500 transition-colors duration-200"
-                title={t('home')}
-              >
-                <ArrowLeft className="h-4 w-4 transform rotate-45 group-hover:rotate-0 transition-transform duration-200" />
-              </Link>
+            <div className="absolute top-0 right-0 flex items-center gap-1">
+              <LanguageSwitcher currentLocale={locale as Language} variant="compact" />
+              <div className="lg:hidden">
+                <Link
+                  href={`/${locale}`}
+                  className="group p-2 text-gray-500 hover:text-sahakum-gold-500 transition-colors duration-200"
+                  title={t('home')}
+                >
+                  <ArrowLeft className="h-4 w-4 transform rotate-45 group-hover:rotate-0 transition-transform duration-200" />
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -333,18 +339,18 @@ function SignUpPageContent({ params }: SignUpPageProps) {
                   <Label className={`${fontClass} text-sahakum-navy-900 text-xs font-medium`}>
                     {t('residenceStatus')}
                   </Label>
-                  <select
-                    value={residenceStatus}
-                    onChange={(e) => setResidenceStatus(e.target.value)}
-                    className={`w-full h-10 border-2 border-gray-200 focus:border-sahakum-gold-500 focus:outline-none px-3 bg-white text-sm ${fontClass}`}
-                  >
-                    <option value="">{t('residenceStatusPlaceholder')}</option>
-                    {RESIDENCE_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label[locale as keyof typeof opt.label] || opt.label.en}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={residenceStatus} onValueChange={setResidenceStatus}>
+                    <SelectTrigger className={`h-10 border-2 border-gray-200 focus:border-sahakum-gold-500 rounded-none bg-white text-sm ${fontClass}`}>
+                      <SelectValue placeholder={t('residenceStatusPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RESIDENCE_STATUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value} className={fontClass}>
+                          {opt.label[locale as keyof typeof opt.label] || opt.label.en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             </div>

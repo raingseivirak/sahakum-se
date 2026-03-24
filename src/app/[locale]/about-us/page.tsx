@@ -4,7 +4,7 @@ import { Container } from '@/components/layout/grid';
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenBody } from '@/components/ui/sweden-typography';
 import { SwedenButton } from '@/components/ui/sweden-motion';
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header';
+import { StickyTitleBar } from '@/components/ui/sticky-title-bar';
 import { Footer } from '@/components/layout/footer';
 
 const translations = {
@@ -141,23 +141,7 @@ export default function AboutPage({ params }: AboutPageProps) {
     <div className={`min-h-screen bg-swedenBrand-neutral-white ${fontClass}`}>
       <SwedenSkipNav locale={params.locale} />
 
-      {/* Scroll-Aware Header */}
-      <ScrollAwareHeader
-        locale={params.locale}
-        showBlogLink={false}
-        stickyContent={{
-          title: t('page.title'),
-          excerpt: t('page.subtitle')
-        }}
-        translations={{
-          sign_in: t('nav.sign_in'),
-          sign_out: t('nav.sign_out'),
-          admin: t('nav.admin'),
-          profile: t('nav.profile'),
-          settings: t('nav.settings')
-        }}
-        currentUrl={`/${params.locale}/about-us`}
-      />
+      <StickyTitleBar locale={params.locale} title={t('page.title')} excerpt={t('page.subtitle')} />
 
       {/* Main Content */}
       <main id="main-content">

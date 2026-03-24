@@ -1022,6 +1022,44 @@
     animation: slide-down 0.3s ease-out forwards;
   }
 
+  /* Large header grow-in — smooths the size jump when navigating to homepage */
+  @keyframes header-grow {
+    from {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      opacity: 0.6;
+    }
+    to {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    @keyframes header-grow {
+      from {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+        opacity: 0.6;
+      }
+      to {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        opacity: 1;
+      }
+    }
+  }
+
+  .animate-header-grow {
+    animation: header-grow 0.25s ease-out forwards;
+  }
+
+  @keyframes scale-in {
+    from { transform: scale(0.88); opacity: 0.5; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+
   /* Blob animation for board page */
   @keyframes blob {
     0% {

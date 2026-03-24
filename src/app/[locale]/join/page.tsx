@@ -9,7 +9,6 @@ import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { PublicHeader } from '@/components/layout/public-header';
 
 const translations = {
   sv: {
@@ -147,7 +146,6 @@ export default async function JoinPage({ params }: JoinPageProps) {
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 
-      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/join`} />
 
       {/* Main Content - Swedish Design Layout */}
       <main id="main-content" className="bg-white">

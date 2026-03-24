@@ -6,7 +6,6 @@ import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } 
 import { Footer } from '@/components/layout/footer'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
-import { PublicHeader } from '@/components/layout/public-header'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -322,7 +321,6 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
       <SwedenSkipNav locale={params.locale} />
 
       {/* Header - Consistent with homepage Swedish Brand styling */}
-      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/blog`} />
 
       {/* Main Content */}
       <main id="main-content">

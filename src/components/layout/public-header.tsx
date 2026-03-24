@@ -55,13 +55,13 @@ export function PublicHeader({ locale, currentUrl, size = 'default' }: PublicHea
   return (
     <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
       <Container size="wide">
-        <nav className={`flex items-center justify-between ${size === 'large' ? 'py-6 lg:py-8' : 'py-4 lg:py-6'}`}>
+        <nav className={`flex items-center justify-between ${size === 'large' ? 'animate-header-grow py-6 lg:py-8' : 'py-4 lg:py-6'}`}>
           <Link href={`/${locale}`} className="block">
             <SwedenBrandLogo
               locale={locale}
               size={size === 'large' ? 'lg' : 'md'}
               variant="horizontal"
-              className="hover:opacity-90 transition-opacity duration-200"
+              className={`hover:opacity-90 transition-opacity duration-200 ${size === 'large' ? 'animate-[scale-in_0.25s_ease-out_forwards]' : ''}`}
             />
           </Link>
 

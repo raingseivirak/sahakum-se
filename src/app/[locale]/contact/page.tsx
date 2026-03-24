@@ -4,7 +4,6 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenH3, SwedenBody } from '@/components/ui/sweden-typography';
 import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
-import { PublicHeader } from '@/components/layout/public-header';
 
 const translations = {
   sv: {
@@ -132,7 +131,6 @@ export default function ContactPage({ params }: ContactPageProps) {
       <SwedenSkipNav locale={params.locale} />
 
       {/* Header - Consistent with homepage */}
-      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/contact`} />
 
       {/* Main Content */}
       <main id="main-content" className="py-16 lg:py-24">

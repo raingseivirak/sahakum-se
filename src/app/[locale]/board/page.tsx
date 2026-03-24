@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
+import { StickyTitleBar } from '@/components/ui/sticky-title-bar'
 import { Footer } from '@/components/layout/footer'
 
 export const revalidate = 3600 // Board members rarely change — revalidate once per hour
@@ -49,23 +49,7 @@ export default async function BoardPage({
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 
-      {/* Scroll-Aware Header */}
-      <ScrollAwareHeader
-        locale={params.locale}
-        showBlogLink={false}
-        stickyContent={{
-          title: t('board.boardOfDirectors'),
-          excerpt: t('board.boardLeadingDescription')
-        }}
-        translations={{
-          sign_in: params.locale === 'km' ? 'ចូលប្រើប្រាស់' : params.locale === 'sv' ? 'Logga in' : 'Sign In',
-          sign_out: params.locale === 'km' ? 'ចាកចេញ' : params.locale === 'sv' ? 'Logga ut' : 'Sign Out',
-          admin: params.locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : params.locale === 'sv' ? 'Administratörspanel' : 'Admin Dashboard',
-          profile: params.locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : params.locale === 'sv' ? 'Min profil' : 'Profile',
-          settings: params.locale === 'km' ? 'ការកំណត់' : params.locale === 'sv' ? 'Inställningar' : 'Settings'
-        }}
-        currentUrl={`/${params.locale}/board`}
-      />
+      <StickyTitleBar locale={params.locale} title={t('board.boardOfDirectors')} excerpt={t('board.boardLeadingDescription')} />
 
       {/* Hero Section - Clean, Flat Design */}
       <main id="main-content">

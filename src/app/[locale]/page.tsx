@@ -10,7 +10,6 @@ import { MembershipSection } from '@/components/homepage/membership-section';
 import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
 import { InitiativesSection } from '@/components/homepage/initiatives-section';
 import { JoinButton } from '@/components/homepage/join-button';
-import { PublicHeader } from '@/components/layout/public-header';
 import { Footer } from '@/components/layout/footer';
 import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
 
@@ -217,7 +216,6 @@ export default async function HomePage({ params }: Props) {
       <SwedenSkipNav locale={params.locale} />
 
       {/* Swedish Design Header - Simple, Consistent, Contextual */}
-      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}`} size="large" />
 
       {/* Main Content */}
       <main id="main-content">
