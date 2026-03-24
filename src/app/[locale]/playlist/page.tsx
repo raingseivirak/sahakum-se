@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
+import { StickyTitleBar } from '@/components/ui/sticky-title-bar'
 import { Footer } from '@/components/layout/footer'
 import { Container } from '@/components/layout/grid'
 import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
@@ -70,20 +70,10 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
 
   return (
     <>
-      <ScrollAwareHeader
+      <StickyTitleBar
         locale={params.locale}
-        stickyContent={{
-          title: t('title'),
-          excerpt: t('subtitle'),
-        }}
-        translations={{
-          sign_in: nav.sign_in,
-          sign_out: nav.sign_out,
-          admin: nav.admin,
-          profile: nav.profile,
-          settings: nav.settings,
-        }}
-        currentUrl={`/${params.locale}/playlist`}
+        title={t('title')}
+        excerpt={t('subtitle')}
       />
       <main className="min-h-screen bg-white">
         <section className="relative bg-[var(--sahakum-navy)] text-white py-16 overflow-hidden">

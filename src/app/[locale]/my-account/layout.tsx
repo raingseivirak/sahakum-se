@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { ScrollAwareHeader } from "@/components/ui/scroll-aware-header"
 import { Footer } from "@/components/layout/footer"
 import { SwedenSkipNav } from "@/components/ui/sweden-accessibility"
 import { MyAccountNav } from "@/components/layout/my-account-nav"
@@ -21,23 +20,9 @@ export default async function MyAccountLayout({ children, params }: MyAccountLay
     redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/my-account`)
   }
 
-  const translations = {
-    sign_in: locale === 'sv' ? 'Logga in' : locale === 'km' ? 'ចូល' : 'Sign In',
-    sign_out: locale === 'sv' ? 'Logga ut' : locale === 'km' ? 'ចេញ' : 'Sign Out',
-    admin: locale === 'sv' ? 'Admin' : locale === 'km' ? 'អ្នកគ្រប់គ្រង' : 'Admin Dashboard',
-    profile: locale === 'sv' ? 'Profil' : locale === 'km' ? 'ប្រវត្តិរូប' : 'Profile',
-    settings: locale === 'sv' ? 'Inställningar' : locale === 'km' ? 'ការកំណត់' : 'Settings',
-    my_account: locale === 'sv' ? 'Mitt Konto' : locale === 'km' ? 'គណនីរបស់ខ្ញុំ' : 'My Account',
-  }
-
   return (
     <div className={`min-h-screen bg-gradient-to-b from-white to-gray-50 ${fontClass}`}>
       <SwedenSkipNav locale={locale} />
-      <ScrollAwareHeader
-        locale={locale}
-        currentUrl={`/${locale}/my-account`}
-        translations={translations}
-      />
 
       <main>
         {/* Page Header */}

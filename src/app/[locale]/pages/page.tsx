@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card'
 import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
 import { Footer } from '@/components/layout/footer'
@@ -93,24 +92,6 @@ export default async function PagesListPage({ params }: PagesListProps) {
     <div className={`min-h-screen bg-swedenBrand-neutral-white ${fontClass}`}>
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
-
-      {/* Scroll-Aware Header */}
-      <ScrollAwareHeader
-        locale={params.locale}
-        showBlogLink={false}
-        stickyContent={{
-          title: t('pages.title'),
-          excerpt: t('pages.description')
-        }}
-        translations={{
-          sign_in: t('nav.sign_in'),
-          sign_out: t('nav.sign_out'),
-          admin: t('nav.admin'),
-          profile: t('nav.profile'),
-          settings: t('nav.settings')
-        }}
-        currentUrl={`/${params.locale}/pages`}
-      />
 
       {/* Hero Section - Clean Sophisticated Sahakum style */}
       <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">

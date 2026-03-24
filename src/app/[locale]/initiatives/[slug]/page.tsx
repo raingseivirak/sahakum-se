@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar, Users, CheckSquare, Lock, User } from "lucide-react"
 import { createSafeHTML } from "@/lib/sanitize"
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
 import { Footer } from '@/components/layout/footer'
 import { InitiativeSidebar } from './initiative-sidebar'
@@ -183,12 +182,6 @@ export default async function InitiativePage({ params }: InitiativePageProps) {
   return (
     <div className={`min-h-screen bg-gradient-to-b from-white to-gray-50 ${fontClass}`}>
       <SwedenSkipNav locale={locale} />
-      <ScrollAwareHeader
-        locale={locale}
-        currentUrl={`/${locale}/initiatives/${params.slug}`}
-        translations={headerTranslations}
-      />
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden py-16 lg:py-20">
         <Container size="wide" className="relative">

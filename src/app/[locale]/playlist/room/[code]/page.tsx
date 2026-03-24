@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { Footer } from '@/components/layout/footer'
 import { Container } from '@/components/layout/grid'
 import { PlaylistRoom } from '@/components/playlist/playlist-room'
@@ -77,17 +76,6 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
   return (
     <>
-      <ScrollAwareHeader
-        locale={params.locale}
-        translations={{
-          sign_in: nav.sign_in,
-          sign_out: nav.sign_out,
-          admin: nav.admin,
-          profile: nav.profile,
-          settings: nav.settings,
-        }}
-        currentUrl={`/${params.locale}/playlist/room/${params.code}`}
-      />
       <main className="min-h-screen bg-gray-50 overflow-x-hidden">
         <section className="bg-[var(--sahakum-navy)] text-white py-6">
           <Container size="wide">

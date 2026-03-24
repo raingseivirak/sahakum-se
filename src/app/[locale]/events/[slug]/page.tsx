@@ -24,7 +24,6 @@ import { EventRegistrationForm } from '@/components/events/event-registration-fo
 import { createSafeHTML } from '@/lib/sanitize'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { Footer } from '@/components/layout/footer'
@@ -216,8 +215,6 @@ export default async function EventPage({ params, searchParams }: EventPageProps
   return (
     <div className={`min-h-screen bg-gradient-to-b from-white to-gray-50 ${fontClass}`}>
       <SwedenSkipNav locale={locale} />
-      <ScrollAwareHeader locale={locale} currentUrl={`/${locale}/events/${slug}`} />
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-[var(--sahakum-navy)] via-[var(--sahakum-navy-800)] to-[var(--color-sweden-neutral-700)] text-white overflow-hidden">
         {event.featuredImg && (

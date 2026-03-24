@@ -24,10 +24,10 @@ export function LayoutHeader({ locale }: LayoutHeaderProps) {
   const fontClass = locale === 'km' ? 'font-khmer' : 'font-sweden'
   const isHome = pathname === `/${locale}` || pathname === `/${locale}/`
 
-  // Only show on pages that don't have their own header
+  // Hide only on admin and auth pages
   const segment = pathname.replace(`/${locale}`, '').split('/')[1] ?? ''
-  const SHOW_FOR = ['', 'join', 'contact', 'blog', 'about-us', 'board']
-  if (!SHOW_FOR.includes(segment)) return null
+  const HIDE_FOR = ['admin', 'auth']
+  if (HIDE_FOR.includes(segment)) return null
   const linkClass = `text-[var(--sahakum-gold)] hover:text-white transition-colors duration-200 text-sm font-medium hidden sm:block ${fontClass}`
 
   return (

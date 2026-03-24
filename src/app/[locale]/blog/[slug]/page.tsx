@@ -3,7 +3,7 @@ import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { ScrollAwareHeader } from '@/components/ui/scroll-aware-header'
+import { StickyTitleBar } from '@/components/ui/sticky-title-bar'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
@@ -197,23 +197,13 @@ export default async function BlogPostPage({ params, searchParams }: BlogPostPag
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 
-      {/* Scroll-Aware Header */}
-      <ScrollAwareHeader
+      <StickyTitleBar
         locale={params.locale}
-        showBlogLink={true}
-        stickyContent={{
-          title: post.translation.title,
-          author: post.author.name,
-          publishedAt: post.publishedAt!
-        }}
-        translations={{
-          sign_in: params.locale === 'km' ? 'ចូលប្រើប្រាស់' : params.locale === 'sv' ? 'Logga in' : 'Sign In',
-          sign_out: params.locale === 'km' ? 'ចាកចេញ' : params.locale === 'sv' ? 'Logga ut' : 'Sign Out',
-          admin: params.locale === 'km' ? 'ផ្ទាំងគ្រប់គ្រង' : params.locale === 'sv' ? 'Administratörspanel' : 'Admin Dashboard',
-          profile: params.locale === 'km' ? 'ប្រវត្តិរូបផ្ទាល់ខ្លួន' : params.locale === 'sv' ? 'Min profil' : 'Profile',
-          settings: params.locale === 'km' ? 'ការកំណត់' : params.locale === 'sv' ? 'Inställningar' : 'Settings'
-        }}
-        currentUrl={`/${params.locale}/blog/${params.slug}`}
+        title={post.translation.title}
+        author={post.author.name}
+        publishedAt={post.publishedAt!}
+        backHref={`/${params.locale}/blog`}
+        backLabel={params.locale === 'km' ? 'ប្លុក' : params.locale === 'sv' ? 'Blogg' : 'Blog'}
       />
 
       {/* Preview Banner */}
