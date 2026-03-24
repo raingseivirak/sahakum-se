@@ -290,7 +290,7 @@ model MembershipRequest {
   country             String           @default("Sweden")
   residenceStatus     ResidenceStatus?
   residenceSince      DateTime?
-  motivation          String
+  motivation          String?
   hearAboutUs         String?
   interests           String?
   skills              String?

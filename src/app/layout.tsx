@@ -3,6 +3,8 @@ import { Noto_Sans_Khmer } from 'next/font/google';
 import { Providers } from '@/components/providers/session-provider';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { CookieConsentBanner } from '@/components/gdpr/cookie-consent-banner';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import './[locale]/globals.css';
 
 const inter = Inter({
@@ -21,11 +23,13 @@ export const metadata = {
   description: 'Community • Culture • Integration',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions)
+
   return (
     <html>
       <head>
@@ -54,7 +58,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${notoSansKhmer.variable}`}>
         <GoogleAnalytics />
-        <Providers>
+        <Providers session={session}>
           {children}
         </Providers>
         <CookieConsentBanner />

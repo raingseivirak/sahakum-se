@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 const translations = {
   sv: {
@@ -109,6 +110,26 @@ interface JoinPageProps {
 export default async function JoinPage({ params }: JoinPageProps) {
   const session = await getServerSession(authOptions)
   const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key;
+
+  // Check membership status for logged-in users
+  let memberStatus: null | 'member' | 'pending' | 'under_review' = null
+  let requestNumber: string | null = null
+
+  if (session?.user?.email) {
+    const [member, pendingRequest] = await Promise.all([
+      prisma.member.findUnique({ where: { email: session.user.email }, select: { id: true, memberNumber: true } }),
+      prisma.membershipRequest.findFirst({
+        where: { email: session.user.email, status: { in: ['PENDING', 'UNDER_REVIEW'] } },
+        select: { requestNumber: true, status: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ])
+    if (member) memberStatus = 'member'
+    else if (pendingRequest) {
+      memberStatus = pendingRequest.status === 'UNDER_REVIEW' ? 'under_review' : 'pending'
+      requestNumber = pendingRequest.requestNumber
+    }
+  }
 
   // Determine font class based on locale
   const getFontClass = () => {
@@ -321,41 +342,108 @@ export default async function JoinPage({ params }: JoinPageProps) {
                   </div>
                 </div>
 
-                <div className="p-8 border border-[var(--sahakum-navy)]/20 bg-white">
-                  <SwedenH3 className="text-[var(--sahakum-navy)] mb-4" locale={params.locale}>
-                    {t('form.wizard_title')}
-                  </SwedenH3>
-                  <p className={`text-[var(--sahakum-navy)]/70 mb-6 ${getFontClass()}`}>
-                    {t('form.wizard_description')}
-                  </p>
-                  {session?.user ? (
-                    <div className={`mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800 ${getFontClass()}`}>
-                      {params.locale === 'sv'
-                        ? `Du ansöker som ${session.user.name || session.user.email}`
-                        : params.locale === 'km'
-                        ? `អ្នកកំពុងដាក់ពាក្យជា ${session.user.name || session.user.email}`
-                        : `Applying as ${session.user.name || session.user.email}`}
+                {memberStatus === 'member' ? (
+                  <div className="p-8 border-2 border-[var(--sahakum-gold)] bg-amber-50/30">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-[var(--sahakum-gold)] flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <SwedenH3 className="text-[var(--sahakum-navy)] mb-0" locale={params.locale}>
+                        {params.locale === 'sv' ? 'Du är redan medlem!' :
+                         params.locale === 'km' ? 'អ្នកជាសមាជិករួចហើយ!' :
+                         'You\'re already a member!'}
+                      </SwedenH3>
                     </div>
-                  ) : (
-                    <div className={`mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 ${getFontClass()}`}>
-                      {params.locale === 'sv' ? (
-                        <>Har du redan ett konto? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Logga in först</Link> för att koppla ditt medlemskap.</>
-                      ) : params.locale === 'km' ? (
-                        <>មានគណនីរួចហើយ? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">ចូលជាមុន</Link> ដើម្បីភ្ជាប់សមាជិកភាពរបស់អ្នក។</>
-                      ) : (
-                        <>Already have an account? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Sign in first</Link> to link your membership.</>
-                      )}
+                    <SwedenBody className="text-[var(--sahakum-navy)]/70 mb-6" locale={params.locale}>
+                      {params.locale === 'sv' ? 'Välkommen tillbaka. Du har ett aktivt medlemskap i Sahakum Khmer.' :
+                       params.locale === 'km' ? 'សូមស្វាគមន៍មកវិញ។ អ្នកមានសមាជិកភាពដំណើរការក្នុង Sahakum Khmer។' :
+                       'Welcome back. You have an active membership with Sahakum Khmer.'}
+                    </SwedenBody>
+                    <Link
+                      href={`/${params.locale}`}
+                      className={`inline-block px-6 py-2.5 bg-[var(--sahakum-navy)] text-white text-sm font-medium hover:bg-[var(--sahakum-navy)]/90 transition-colors ${getFontClass()}`}
+                    >
+                      {params.locale === 'sv' ? 'Gå till startsidan' :
+                       params.locale === 'km' ? 'ទៅទំព័រដើម' :
+                       'Go to homepage'}
+                    </Link>
+                  </div>
+                ) : memberStatus === 'pending' || memberStatus === 'under_review' ? (
+                  <div className="p-8 border-2 border-[var(--sahakum-navy)]/30 bg-blue-50/30">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-[var(--sahakum-navy)] flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <SwedenH3 className="text-[var(--sahakum-navy)] mb-0" locale={params.locale}>
+                        {params.locale === 'sv' ? 'Din ansökan behandlas' :
+                         params.locale === 'km' ? 'ពាក្យសុំរបស់អ្នកកំពុងត្រូវបានពិចារណា' :
+                         'Your application is being reviewed'}
+                      </SwedenH3>
                     </div>
-                  )}
-                  <SwedishWizard
-                    locale={params.locale}
-                    initialData={session?.user ? {
-                      firstName: (session.user as { firstName?: string }).firstName || session.user.name?.split(' ')[0] || '',
-                      lastName: (session.user as { lastName?: string }).lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
-                      email: session.user.email || '',
-                    } : undefined}
-                  />
-                </div>
+                    {requestNumber && (
+                      <p className={`text-xs text-[var(--sahakum-navy)]/50 mb-3 font-mono ${getFontClass()}`}>
+                        {requestNumber}
+                      </p>
+                    )}
+                    <SwedenBody className="text-[var(--sahakum-navy)]/70 mb-2" locale={params.locale}>
+                      {memberStatus === 'under_review'
+                        ? (params.locale === 'sv' ? 'Din ansökan granskas just nu av styrelsen.' :
+                           params.locale === 'km' ? 'ពាក្យសុំរបស់អ្នកកំពុងត្រូវបានពិនិត្យដោយក្រុមប្រឹក្សា។' :
+                           'Your application is currently being reviewed by the board.')
+                        : (params.locale === 'sv' ? 'Din ansökan väntar på granskning av styrelsen. Vi återkommer inom 5–7 arbetsdagar.' :
+                           params.locale === 'km' ? 'ពាក្យសុំរបស់អ្នកកំពុងរង់ចាំការពិនិត្យដោយក្រុមប្រឹក្សា។ យើងនឹងទំនាក់ទំនងក្នុងរយៈពេល ៥–៧ ថ្ងៃធ្វើការ។' :
+                           'Your application is awaiting review by the board. We\'ll be in touch within 5–7 business days.')}
+                    </SwedenBody>
+                    <Link
+                      href={`/${params.locale}`}
+                      className={`inline-block px-6 py-2.5 bg-[var(--sahakum-navy)] text-white text-sm font-medium hover:bg-[var(--sahakum-navy)]/90 transition-colors ${getFontClass()}`}
+                    >
+                      {params.locale === 'sv' ? 'Gå till startsidan' :
+                       params.locale === 'km' ? 'ទៅទំព័រដើម' :
+                       'Go to homepage'}
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="p-8 border border-[var(--sahakum-navy)]/20 bg-white">
+                    <SwedenH3 className="text-[var(--sahakum-navy)] mb-4" locale={params.locale}>
+                      {t('form.wizard_title')}
+                    </SwedenH3>
+                    <p className={`text-[var(--sahakum-navy)]/70 mb-6 ${getFontClass()}`}>
+                      {t('form.wizard_description')}
+                    </p>
+                    {session?.user ? (
+                      <div className={`mb-4 p-3 bg-green-50 border border-green-200 text-sm text-green-800 ${getFontClass()}`}>
+                        {params.locale === 'sv'
+                          ? `Du ansöker som ${session.user.name || session.user.email}`
+                          : params.locale === 'km'
+                          ? `អ្នកកំពុងដាក់ពាក្យជា ${session.user.name || session.user.email}`
+                          : `Applying as ${session.user.name || session.user.email}`}
+                      </div>
+                    ) : (
+                      <div className={`mb-4 p-3 bg-blue-50 border border-blue-200 text-sm text-blue-800 ${getFontClass()}`}>
+                        {params.locale === 'sv' ? (
+                          <>Har du redan ett konto? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Logga in först</Link> för att koppla ditt medlemskap.</>
+                        ) : params.locale === 'km' ? (
+                          <>មានគណនីរួចហើយ? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">ចូលជាមុន</Link> ដើម្បីភ្ជាប់សមាជិកភាពរបស់អ្នក។</>
+                        ) : (
+                          <>Already have an account? <Link href={`/${params.locale}/auth/signin?callbackUrl=/${params.locale}/join`} className="underline font-medium">Sign in first</Link> to link your membership.</>
+                        )}
+                      </div>
+                    )}
+                    <SwedishWizard
+                      locale={params.locale}
+                      initialData={session?.user ? {
+                        firstName: (session.user as { firstName?: string }).firstName || session.user.name?.split(' ')[0] || '',
+                        lastName: (session.user as { lastName?: string }).lastName || session.user.name?.split(' ').slice(1).join(' ') || '',
+                        email: session.user.email || '',
+                      } : undefined}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

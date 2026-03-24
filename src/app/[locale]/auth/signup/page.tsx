@@ -10,6 +10,16 @@ import { Label } from '@/components/ui/label'
 import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
 import { UserPlus, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 
+const RESIDENCE_STATUS_OPTIONS = [
+  { value: 'STUDENT', label: { en: 'Student', sv: 'Student', km: 'និស្សិត' } },
+  { value: 'WORK_PERMIT', label: { en: 'Work Permit', sv: 'Arbetstillstånd', km: 'អនុញ្ញាតការងារ' } },
+  { value: 'PERMANENT_RESIDENT', label: { en: 'Permanent Resident', sv: 'Permanent uppehållstillstånd', km: 'អ្នករស់នៅអចិន្ត្រៃយ៍' } },
+  { value: 'CITIZEN', label: { en: 'Citizen', sv: 'Medborgare', km: 'ពលរដ្ឋ' } },
+  { value: 'EU_CITIZEN', label: { en: 'EU Citizen', sv: 'EU-medborgare', km: 'ពលរដ្ឋអឺរ៉ុប' } },
+  { value: 'ASYLUM_SEEKER', label: { en: 'Asylum Seeker', sv: 'Asylsökande', km: 'អ្នកស្វែងរកសិទ្ធិជ្រកកោន' } },
+  { value: 'OTHER', label: { en: 'Other', sv: 'Annat', km: 'ផ្សេងទៀត' } },
+]
+
 const translations: Record<string, Record<string, string>> = {
   en: {
     'title': 'Create Account',
@@ -43,6 +53,11 @@ const translations: Record<string, Record<string, string>> = {
     'welcome': 'Welcome to',
     'orgName': 'Sahakum Khmer',
     'orgDesc': 'Connecting the Cambodian community in Sweden through culture, support, and shared experiences.',
+    'applyMembership': 'Apply for membership',
+    'applyMembershipDesc': 'Submit a membership application along with your account',
+    'residenceStatus': 'Residence Status in Sweden',
+    'residenceStatusPlaceholder': 'Select your residence status',
+    'membershipSubmitted': 'Your membership application has been submitted!',
   },
   sv: {
     'title': 'Skapa konto',
@@ -76,6 +91,11 @@ const translations: Record<string, Record<string, string>> = {
     'welcome': 'Välkommen till',
     'orgName': 'Sahakum Khmer',
     'orgDesc': 'Vi förenar den kambodjanska gemenskapen i Sverige genom kultur, stöd och delade upplevelser.',
+    'applyMembership': 'Ansök om medlemskap',
+    'applyMembershipDesc': 'Skicka in en medlemsansökan tillsammans med ditt konto',
+    'residenceStatus': 'Uppehållsstatus i Sverige',
+    'residenceStatusPlaceholder': 'Välj din uppehållsstatus',
+    'membershipSubmitted': 'Din medlemsansökan har skickats in!',
   },
   km: {
     'title': 'បង្កើតគណនី',
@@ -109,6 +129,11 @@ const translations: Record<string, Record<string, string>> = {
     'welcome': 'សូមស្វាគមន៍មកកាន់',
     'orgName': 'សហគមខ្មែរ',
     'orgDesc': 'ភ្ជាប់សហគមន៍ខ្មែរនៅស៊ុយអែតតាមរយៈវប្បធម៌ ការគាំទ្រ និងបទពិសោធន៍រួមគ្នា។',
+    'applyMembership': 'ដាក់ពាក្យសុំសមាជិកភាព',
+    'applyMembershipDesc': 'ដាក់ពាក្យសុំសមាជិកភាពរួមជាមួយគណនីរបស់អ្នក',
+    'residenceStatus': 'ស្ថានភាពលំនៅដ្ឋាននៅស៊ុយអែត',
+    'residenceStatusPlaceholder': 'ជ្រើសរើសស្ថានភាពលំនៅដ្ឋានរបស់អ្នក',
+    'membershipSubmitted': 'ពាក្យសុំសមាជិកភាពរបស់អ្នកត្រូវបានដាក់ស្នើ!',
   },
 }
 
@@ -129,6 +154,8 @@ function SignUpPageContent({ params }: SignUpPageProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [applyMembership, setApplyMembership] = useState(true)
+  const [residenceStatus, setResidenceStatus] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || `/${locale}`
@@ -189,9 +216,24 @@ function SignUpPageContent({ params }: SignUpPageProps) {
 
       if (result?.error) {
         setError(t('errorGeneric'))
-      } else {
-        router.push(callbackUrl)
+        return
       }
+
+      if (applyMembership) {
+        await fetch('/api/membership-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            residenceStatus: residenceStatus || undefined,
+            preferredLanguage: locale,
+          }),
+        })
+      }
+
+      router.push(callbackUrl)
     } catch {
       setError(t('errorGeneric'))
     } finally {
@@ -263,9 +305,49 @@ function SignUpPageContent({ params }: SignUpPageProps) {
             <h1 className={`text-xl font-bold text-sahakum-navy-900 mb-1 ${fontClass}`}>
               {t('title')}
             </h1>
-            <p className={`text-sm text-gray-500 mb-6 ${fontClass}`}>
+            <p className={`text-sm text-gray-500 mb-5 ${fontClass}`}>
               {t('subtitle')}
             </p>
+
+            {/* Membership opt-in — shown at the top so it applies to all signup methods */}
+            <div className="border-2 border-[var(--sahakum-gold)] bg-amber-50/40 p-4 mb-5 space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={applyMembership}
+                  onChange={(e) => setApplyMembership(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-[var(--sahakum-gold)] cursor-pointer flex-shrink-0"
+                />
+                <div>
+                  <span className={`text-sm font-semibold text-sahakum-navy-900 ${fontClass}`}>
+                    {t('applyMembership')}
+                  </span>
+                  <p className={`text-xs text-gray-500 mt-0.5 ${fontClass}`}>
+                    {t('applyMembershipDesc')}
+                  </p>
+                </div>
+              </label>
+
+              {applyMembership && (
+                <div className="space-y-1.5 pl-7">
+                  <Label className={`${fontClass} text-sahakum-navy-900 text-xs font-medium`}>
+                    {t('residenceStatus')}
+                  </Label>
+                  <select
+                    value={residenceStatus}
+                    onChange={(e) => setResidenceStatus(e.target.value)}
+                    className={`w-full h-10 border-2 border-gray-200 focus:border-sahakum-gold-500 focus:outline-none px-3 bg-white text-sm ${fontClass}`}
+                  >
+                    <option value="">{t('residenceStatusPlaceholder')}</option>
+                    {RESIDENCE_STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label[locale as keyof typeof opt.label] || opt.label.en}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
 
             {/* OAuth buttons */}
             {(process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED === 'true' ||
@@ -276,7 +358,12 @@ function SignUpPageContent({ params }: SignUpPageProps) {
                     type="button"
                     variant="outline"
                     className={`w-full h-12 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100 ${fontClass} rounded-none`}
-                    onClick={() => signIn('google', { callbackUrl })}
+                    onClick={() => {
+                      if (applyMembership) {
+                        localStorage.setItem('pendingMembership', JSON.stringify({ residenceStatus, preferredLanguage: locale }))
+                      }
+                      signIn('google', { callbackUrl })
+                    }}
                     disabled={loading}
                   >
                     <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -293,7 +380,12 @@ function SignUpPageContent({ params }: SignUpPageProps) {
                     type="button"
                     variant="outline"
                     className={`w-full h-12 border-2 border-gray-200 hover:border-[#1877F2] hover:bg-[#1877F2]/5 active:bg-[#1877F2]/10 ${fontClass} rounded-none`}
-                    onClick={() => signIn('facebook', { callbackUrl })}
+                    onClick={() => {
+                      if (applyMembership) {
+                        localStorage.setItem('pendingMembership', JSON.stringify({ residenceStatus, preferredLanguage: locale }))
+                      }
+                      signIn('facebook', { callbackUrl })
+                    }}
                     disabled={loading}
                   >
                     <svg className="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
@@ -448,15 +540,6 @@ function SignUpPageContent({ params }: SignUpPageProps) {
                   className="text-sahakum-gold-600 hover:underline font-medium"
                 >
                   {t('signIn')}
-                </Link>
-              </p>
-              <p className={`text-sm text-gray-500 ${fontClass}`}>
-                {t('wantMembership')}{' '}
-                <Link
-                  href={`/${locale}/join`}
-                  className="text-sahakum-gold-600 hover:underline font-medium"
-                >
-                  {t('applyHere')}
                 </Link>
               </p>
             </div>

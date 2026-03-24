@@ -21,16 +21,16 @@ const membershipRequestSchema = z.object({
   email: z.string().email("Valid email address is required"),
   phone: z.string().optional(),
   address: z.string().optional(), // Address is now optional
-  city: z.string().min(1, "City is required"),
-  postalCode: z.string().optional(), // Postal code is now optional
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
   country: z.string().default("Sweden"),
 
   // Residence Information
-  residenceStatus: z.enum(["STUDENT", "WORK_PERMIT", "PERMANENT_RESIDENT", "CITIZEN", "EU_CITIZEN", "ASYLUM_SEEKER", "OTHER"]),
+  residenceStatus: z.enum(["STUDENT", "WORK_PERMIT", "PERMANENT_RESIDENT", "CITIZEN", "EU_CITIZEN", "ASYLUM_SEEKER", "OTHER"]).optional(),
   residenceSince: z.string().optional().transform((str) => str ? new Date(str) : null),
 
   // Application Details
-  motivation: z.string().min(10, "Please tell us why you want to join (at least 10 characters)"),
+  motivation: z.string().optional(),
   hearAboutUs: z.string().optional(),
   interests: z.string().optional(),
   skills: z.string().optional(),
