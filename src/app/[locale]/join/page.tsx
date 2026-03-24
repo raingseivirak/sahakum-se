@@ -2,9 +2,6 @@ import { SwedishWizard } from "./swedish-wizard"
 import { Container } from '@/components/layout/grid';
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH3, SwedenLead, SwedenBody } from '@/components/ui/sweden-typography';
-import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
 import Link from 'next/link';
@@ -12,6 +9,7 @@ import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { PublicHeader } from '@/components/layout/public-header';
 
 const translations = {
   sv: {
@@ -149,60 +147,7 @@ export default async function JoinPage({ params }: JoinPageProps) {
       {/* Official Sweden Brand Skip Navigation */}
       <SwedenSkipNav locale={params.locale} />
 
-      {/* Sophisticated Header with Sahakum Colors - Consistent with Homepage */}
-      <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <nav className="flex items-center justify-between py-4 lg:py-6">
-            {/* Swedish Brand Logo - Consistent with Homepage */}
-            <Link href={`/${params.locale}`} className="block">
-              <SwedenBrandLogo
-                locale={params.locale}
-                size="md"
-                variant="horizontal"
-                className="hover:opacity-90 transition-opacity duration-200"
-              />
-            </Link>
-
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-4">
-              <Link
-                href={`/${params.locale}`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
-              >
-                {params.locale === 'sv' ? 'Hem' :
-                 params.locale === 'km' ? 'ទំព័រដើម' : 'Home'}
-              </Link>
-              <Link
-                href={`/${params.locale}/about-us`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
-              >
-                {t('learn_more.about_us')}
-              </Link>
-              <Link
-                href={`/${params.locale}/statutes`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
-              >
-                {t('learn_more.statutes')}
-              </Link>
-              <LanguageSwitcher
-                currentLocale={params.locale as Language}
-                variant="compact"
-              />
-              <UserMenu
-                locale={params.locale as Language}
-                translations={{
-                  sign_in: t('nav.sign_in'),
-                  sign_out: t('nav.sign_out'),
-                  admin: t('nav.admin'),
-                  profile: t('nav.profile'),
-                  settings: t('nav.settings')
-                }}
-                currentUrl={`/${params.locale}/join`}
-              />
-            </div>
-          </nav>
-        </Container>
-      </header>
+      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/join`} />
 
       {/* Main Content - Swedish Design Layout */}
       <main id="main-content" className="bg-white">

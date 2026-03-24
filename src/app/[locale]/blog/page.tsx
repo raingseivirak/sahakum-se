@@ -1,14 +1,12 @@
 import Link from 'next/link'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
-import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo'
 import { SwedenH1, SwedenH2, SwedenBody } from '@/components/ui/sweden-typography'
 import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } from '@/components/ui/swedish-card'
-import { LanguageSwitcher } from '@/components/ui/language-switcher'
-import { UserMenu } from '@/components/layout/user-menu'
 import { Footer } from '@/components/layout/footer'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
+import { PublicHeader } from '@/components/layout/public-header'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -324,47 +322,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
       <SwedenSkipNav locale={params.locale} />
 
       {/* Header - Consistent with homepage Swedish Brand styling */}
-      <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <nav className="flex items-center justify-between py-4 lg:py-6">
-            {/* Swedish Brand Logo */}
-            <Link href={`/${params.locale}`} className="block">
-              <SwedenBrandLogo
-                locale={params.locale}
-                size="md"
-                variant="horizontal"
-                className="hover:opacity-90 transition-opacity duration-200"
-              />
-            </Link>
-
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-4">
-              <Link
-                href={`/${params.locale}`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
-              >
-                {params.locale === 'sv' ? 'Hem' :
-                 params.locale === 'km' ? 'ទំព័រដើម' : 'Home'}
-              </Link>
-              <LanguageSwitcher
-                currentLocale={params.locale as Language}
-                variant="compact"
-              />
-              <UserMenu
-                locale={params.locale as Language}
-                translations={{
-                  sign_in: t('sign_in'),
-                  sign_out: t('sign_out'),
-                  admin: t('admin'),
-                  profile: t('profile'),
-                  settings: t('settings')
-                }}
-                currentUrl={`/${params.locale}/blog`}
-              />
-            </div>
-          </nav>
-        </Container>
-      </header>
+      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/blog`} />
 
       {/* Main Content */}
       <main id="main-content">

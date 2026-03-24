@@ -4,18 +4,15 @@ import { Container } from '@/components/layout/grid';
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenLead, SwedenBody } from '@/components/ui/sweden-typography';
 import { SwedenButton } from '@/components/ui/sweden-motion';
-import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
 import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid';
 import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
 import { InitiativesSection } from '@/components/homepage/initiatives-section';
 import { JoinButton } from '@/components/homepage/join-button';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { UserMenu } from '@/components/layout/user-menu';
+import { PublicHeader } from '@/components/layout/public-header';
 import { Footer } from '@/components/layout/footer';
 import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
-import { type Language } from '@/lib/constants';
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -220,39 +217,7 @@ export default async function HomePage({ params }: Props) {
       <SwedenSkipNav locale={params.locale} />
 
       {/* Swedish Design Header - Simple, Consistent, Contextual */}
-      <header className="bg-[var(--sahakum-navy)] text-white shadow-sm border-b border-[var(--sahakum-gold)]/15">
-        <Container size="wide">
-          <nav className="flex items-center justify-between py-6 lg:py-8">
-            {/* Swedish Brand Logo - Consistent */}
-            <SwedenBrandLogo
-              locale={params.locale}
-              size="lg"
-              variant="horizontal"
-              className="hover:opacity-90 transition-all duration-[var(--duration-sweden-base)] ease-[var(--easing-sweden-standard)]"
-            />
-
-            {/* Right side - Simple Layout with Enhanced Spacing */}
-            <div className="flex items-center gap-6">
-              <LanguageSwitcher
-                currentLocale={params.locale as Language}
-                variant="compact"
-                className="transition-all duration-[var(--duration-sweden-base)]"
-              />
-              <UserMenu
-                locale={params.locale as Language}
-                translations={{
-                  sign_in: t('nav.sign_in') || 'Sign In',
-                  sign_out: t('nav.sign_out') || 'Sign Out',
-                  admin: t('nav.admin') || 'Admin Dashboard',
-                  profile: t('nav.profile') || 'Profile',
-                  settings: t('nav.settings') || 'Settings'
-                }}
-                currentUrl={`/${params.locale}`}
-              />
-            </div>
-          </nav>
-        </Container>
-      </header>
+      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}`} size="large" />
 
       {/* Main Content */}
       <main id="main-content">

@@ -2,11 +2,9 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/grid';
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenH3, SwedenBody } from '@/components/ui/sweden-typography';
-import { SwedenBrandLogo } from '@/components/ui/sweden-brand-logo';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { UserMenu } from '@/components/layout/user-menu';
 import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
+import { PublicHeader } from '@/components/layout/public-header';
 
 const translations = {
   sv: {
@@ -134,44 +132,7 @@ export default function ContactPage({ params }: ContactPageProps) {
       <SwedenSkipNav locale={params.locale} />
 
       {/* Header - Consistent with homepage */}
-      <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
-        <Container size="wide">
-          <nav className="flex items-center justify-between py-4 lg:py-6">
-            <Link href={`/${params.locale}`} className="block">
-              <SwedenBrandLogo
-                locale={params.locale}
-                size="md"
-                variant="horizontal"
-                className="hover:opacity-90 transition-opacity duration-200"
-              />
-            </Link>
-
-            <div className="flex items-center space-x-4">
-              <Link
-                href={`/${params.locale}`}
-                className="text-white hover:text-[var(--sahakum-gold)] transition-colors duration-200 text-sm font-medium"
-              >
-                {params.locale === 'sv' ? 'Hem' :
-                 params.locale === 'km' ? 'ទំព័រដើម' : 'Home'}
-              </Link>
-              <LanguageSwitcher
-                currentLocale={params.locale as Language}
-                variant="compact"
-              />
-              <UserMenu
-                locale={params.locale as Language}
-                translations={{
-                  sign_in: t('nav.sign_in'),
-                  sign_out: t('nav.sign_out'),
-                  admin: t('nav.admin'),
-                  profile: t('nav.profile'),
-                  settings: t('nav.settings')
-                }}
-              />
-            </div>
-          </nav>
-        </Container>
-      </header>
+      <PublicHeader locale={params.locale} currentUrl={`/${params.locale}/contact`} />
 
       {/* Main Content */}
       <main id="main-content" className="py-16 lg:py-24">
