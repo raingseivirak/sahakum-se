@@ -34,9 +34,18 @@ export function LayoutHeader({ locale }: LayoutHeaderProps) {
     <header className="bg-[var(--sahakum-navy)] text-white shadow-lg border-b border-[var(--sahakum-gold)]/20">
       <Container size="wide">
         <nav className={`flex items-center justify-between transition-all duration-300 ease-in-out ${fontClass} ${isHome ? 'py-6 lg:py-8' : 'py-4 lg:py-6'}`}>
-          <Link href={`/${locale}`} className="block overflow-hidden">
-            {/* Always render lg logo, scale down with CSS when not on homepage */}
-            <div className={`transition-transform duration-300 ease-in-out origin-left ${isHome ? 'scale-100' : 'scale-[0.75]'}`}>
+          <Link href={`/${locale}`} className="block">
+            {/* Mobile: fixed sm size, no animation needed */}
+            <div className="block lg:hidden">
+              <SwedenBrandLogo
+                locale={locale}
+                size="sm"
+                variant="horizontal"
+                className="hover:opacity-90 transition-opacity duration-200"
+              />
+            </div>
+            {/* Desktop: lg size, scale down on non-home pages */}
+            <div className={`hidden lg:block transition-transform duration-300 ease-in-out origin-left overflow-hidden ${isHome ? 'scale-100' : 'scale-[0.75]'}`}>
               <SwedenBrandLogo
                 locale={locale}
                 size="lg"
