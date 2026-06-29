@@ -31,59 +31,53 @@ const SITE_NAMES: Record<string, string> = {
   km: 'សហគមខ្មែរ',
 }
 
-// Cache fetched fonts for the lifetime of the edge isolate.
-// We resolve URLs dynamically via the Google Fonts CSS endpoint so that font
-// version bumps (e.g. Inter v18 → v20) don't 404 our hardcoded blobs.
-let latinFontCache: ArrayBuffer | null = null
-let khmerFontCache: ArrayBuffer | null = null
-
-// Pretend to be Chrome so Google Fonts serves us modern font formats with
-// the latest versioned URLs (rather than ancient legacy fallbacks).
+// Pretend to be a modern desktop browser so Google Fonts serves the latest
+// woff2 / ttf URLs rather than ancient legacy fallbacks.
 const FONT_FETCH_HEADERS = {
   'User-Agent':
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
 }
 
-async function resolveGoogleFontUrl(cssUrl: string): Promise<string> {
+/**
+ * Resolve a Google Fonts file URL for *exactly* the characters we need.
+ *
+ * Using the `text=` query param sidesteps two problems with the default CSS
+ * endpoint:
+ *   1. The CSS contains one `@font-face` per Unicode subset (Cyrillic, Greek,
+ *      Vietnamese, Latin Extended, Latin…). If we naively grab the first
+ *      `url()` we may get a font that contains *zero* of our actual glyphs.
+ *   2. Full font files are ~100KB+ each; subsetting brings that down to a few
+ *      KB and makes the edge isolate snappier.
+ */
+async function fetchGoogleFontForText(family: string, weight: number, text: string): Promise<ArrayBuffer | null> {
+  // Dedupe characters so the request is stable + the smallest possible payload.
+  const uniqueChars = Array.from(new Set(text.split(''))).join('')
+  if (!uniqueChars) return null
+
+  const cssUrl =
+    `https://fonts.googleapis.com/css2` +
+    `?family=${encodeURIComponent(family)}:wght@${weight}` +
+    `&text=${encodeURIComponent(uniqueChars)}` +
+    `&display=swap`
+
   const cssRes = await fetch(cssUrl, { headers: FONT_FETCH_HEADERS })
   if (!cssRes.ok) {
-    throw new Error(`Failed to fetch Google Fonts CSS (${cssUrl}): ${cssRes.status}`)
+    throw new Error(`Failed to fetch Google Fonts CSS for ${family}: ${cssRes.status}`)
   }
   const css = await cssRes.text()
-  // Match the first `src: url(<https://fonts.gstatic.com/...>)`
   const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
   if (!match) {
-    throw new Error(`No font URL found in CSS payload for ${cssUrl}`)
+    throw new Error(`No gstatic font URL in CSS for ${family}`)
   }
-  return match[1]
-}
-
-async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`Failed to fetch font ${url}: ${res.status}`)
+  const fontRes = await fetch(match[1])
+  if (!fontRes.ok) {
+    throw new Error(`Failed to fetch font binary for ${family}: ${fontRes.status}`)
   }
-  return res.arrayBuffer()
+  return fontRes.arrayBuffer()
 }
 
-async function loadLatinFont(): Promise<ArrayBuffer> {
-  if (latinFontCache) return latinFontCache
-  // Inter — open licence, covers Latin Extended including Swedish diacritics.
-  const fontUrl = await resolveGoogleFontUrl(
-    'https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap'
-  )
-  latinFontCache = await fetchAsArrayBuffer(fontUrl)
-  return latinFontCache
-}
-
-async function loadKhmerFont(): Promise<ArrayBuffer> {
-  if (khmerFontCache) return khmerFontCache
-  const fontUrl = await resolveGoogleFontUrl(
-    'https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@700&display=swap'
-  )
-  khmerFontCache = await fetchAsArrayBuffer(fontUrl)
-  return khmerFontCache
-}
+const KHMER_CHAR_RE = /[\u1780-\u17FF\u19E0-\u19FF]/
+const LATIN_CHAR_RE = /[\u0020-\u024F\u2000-\u206F\u00B7\u2022]/
 
 export async function GET(req: NextRequest) {
   try {
@@ -100,12 +94,19 @@ export async function GET(req: NextRequest) {
     const siteName = SITE_NAMES[locale]
     const tagline = TAGLINES[locale]
 
-    // Fetching the fonts can fail (network glitch, Google Fonts hiccup) — we don't
-    // want a font outage to take down all our social previews, so absorb errors
-    // and let Satori fall back to its built-in font for that script.
+    // Compose the union of all characters that will appear on the card.
+    // We request only those glyphs from Google Fonts so we always get a font
+    // file that actually contains what we want to render.
+    const allText = `${siteName}${tagline}${title}${subtitle}sahakumkhmer.seENGLISHSVENSKAខ្មែរ`
+    const latinChars = Array.from(allText).filter((c) => LATIN_CHAR_RE.test(c)).join('')
+    const khmerChars = Array.from(allText).filter((c) => KHMER_CHAR_RE.test(c)).join('')
+
+    // Fetching the fonts can fail (network glitch, Google Fonts hiccup); we
+    // don't want a font outage to take down all our social previews, so
+    // absorb errors and skip that font — Satori falls back to its built-in.
     const [latinSettled, khmerSettled] = await Promise.allSettled([
-      loadLatinFont(),
-      loadKhmerFont(),
+      latinChars ? fetchGoogleFontForText('Inter', 700, latinChars) : Promise.resolve(null),
+      khmerChars ? fetchGoogleFontForText('Noto Sans Khmer', 700, khmerChars) : Promise.resolve(null),
     ])
     const latinFont = latinSettled.status === 'fulfilled' ? latinSettled.value : null
     const khmerFont = khmerSettled.status === 'fulfilled' ? khmerSettled.value : null
