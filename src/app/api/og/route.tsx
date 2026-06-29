@@ -178,6 +178,8 @@ export async function GET(req: NextRequest) {
 
     const titleSize = title.length > 60 ? 56 : title.length > 32 ? 68 : 84
 
+    const languageLabel = locale === 'km' ? 'ខ្មែរ' : locale === 'sv' ? 'SVENSKA' : 'ENGLISH'
+
     return new ImageResponse(
       (
         <div
@@ -185,120 +187,113 @@ export async function GET(req: NextRequest) {
             width: '100%',
             height: '100%',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
+            flexDirection: 'row',
             backgroundColor: SAHAKUM_NAVY,
-            backgroundImage: `linear-gradient(135deg, ${SAHAKUM_NAVY} 0%, #1a2547 70%, #2a3560 100%)`,
-            padding: '72px 80px',
             fontFamily: bodyFontFamily,
             color: '#ffffff',
-            position: 'relative',
           }}
         >
           {/* Gold accent bar on the left edge */}
           <div
             style={{
               display: 'flex',
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
               width: 16,
+              height: '100%',
               backgroundColor: SAHAKUM_GOLD,
             }}
           />
 
-          {/* Header: site name + tagline */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div
-              style={{
-                display: 'flex',
-                fontSize: 30,
-                fontWeight: 700,
-                color: SAHAKUM_GOLD,
-                fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
-                letterSpacing: locale === 'km' ? 0 : 1,
-              }}
-            >
-              {siteName}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                marginTop: 8,
-                fontSize: 22,
-                color: 'rgba(255,255,255,0.7)',
-                fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
-              }}
-            >
-              {tagline}
-            </div>
-          </div>
-
-          {/* Title + subtitle */}
-          <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 1040 }}>
-            <div
-              style={{
-                display: 'flex',
-                fontSize: titleSize,
-                fontWeight: 700,
-                lineHeight: locale === 'km' ? 1.35 : 1.15,
-                color: '#ffffff',
-                fontFamily: titleFontFamily,
-                letterSpacing: locale === 'km' ? 0 : -1,
-              }}
-            >
-              {title}
-            </div>
-            {subtitle ? (
-              <div
-                style={{
-                  display: 'flex',
-                  marginTop: 24,
-                  fontSize: 28,
-                  lineHeight: 1.4,
-                  color: 'rgba(255,255,255,0.85)',
-                  fontFamily: bodyFontFamily,
-                }}
-              >
-                {subtitle}
-              </div>
-            ) : null}
-          </div>
-
-          {/* Footer: domain */}
+          {/* Main content column */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
+              flexDirection: 'column',
+              flexGrow: 1,
               justifyContent: 'space-between',
-              borderTop: '1px solid rgba(255,255,255,0.15)',
-              paddingTop: 24,
+              padding: '72px 80px',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                fontSize: 22,
-                color: 'rgba(255,255,255,0.65)',
-                fontFamily: 'Inter, NotoKhmer',
-              }}
-            >
-              sahakumkhmer.se
+            {/* Header: site name + tagline */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: SAHAKUM_GOLD,
+                }}
+              >
+                {siteName}
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  marginTop: 12,
+                  fontSize: 22,
+                  color: '#c8cad2',
+                }}
+              >
+                {tagline}
+              </div>
             </div>
+
+            {/* Title + subtitle */}
+            <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 1040 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: titleSize,
+                  fontWeight: 700,
+                  lineHeight: locale === 'km' ? 1.35 : 1.15,
+                  color: '#ffffff',
+                  fontFamily: titleFontFamily,
+                }}
+              >
+                {title}
+              </div>
+              {subtitle ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    marginTop: 24,
+                    fontSize: 28,
+                    lineHeight: 1.4,
+                    color: '#d9dbe2',
+                  }}
+                >
+                  {subtitle}
+                </div>
+              ) : null}
+            </div>
+
+            {/* Footer: domain + locale */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: 20,
-                color: SAHAKUM_GOLD,
-                fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
-                fontWeight: 700,
-                textTransform: locale === 'km' ? 'none' : 'uppercase',
-                letterSpacing: locale === 'km' ? 0 : 2,
+                justifyContent: 'space-between',
               }}
             >
-              {locale === 'km' ? 'ខ្មែរ' : locale === 'sv' ? 'Svenska' : 'English'}
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 22,
+                  color: '#9aa0b0',
+                }}
+              >
+                sahakumkhmer.se
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 20,
+                  color: SAHAKUM_GOLD,
+                  fontWeight: 700,
+                  fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
+                }}
+              >
+                {languageLabel}
+              </div>
             </div>
           </div>
         </div>
