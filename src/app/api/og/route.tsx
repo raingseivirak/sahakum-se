@@ -105,12 +105,20 @@ export async function GET(req: NextRequest) {
     // Fetching the fonts can fail (network glitch, Google Fonts hiccup); we
     // don't want a font outage to take down all our social previews, so
     // absorb errors and skip that font — Satori falls back to its built-in.
-    const [latinSettled, khmerSettled] = await Promise.allSettled([
-      latinChars ? fetchGoogleFontForText('Inter', 700, latinChars) : Promise.resolve(null),
-      khmerChars ? fetchGoogleFontForText('Noto Sans Khmer', 700, khmerChars) : Promise.resolve(null),
-    ])
-    const latinFont = latinSettled.status === 'fulfilled' ? latinSettled.value : null
-    const khmerFont = khmerSettled.status === 'fulfilled' ? khmerSettled.value : null
+    //
+    // Load both 400 (regular) and 700 (bold) — the card mixes the two and
+    // Satori may refuse to render text in a weight it doesn't have on hand.
+    const [latinRegSettled, latinBoldSettled, khmerRegSettled, khmerBoldSettled] =
+      await Promise.allSettled([
+        latinChars ? fetchGoogleFontForText('Inter', 400, latinChars) : Promise.resolve(null),
+        latinChars ? fetchGoogleFontForText('Inter', 700, latinChars) : Promise.resolve(null),
+        khmerChars ? fetchGoogleFontForText('Noto Sans Khmer', 400, khmerChars) : Promise.resolve(null),
+        khmerChars ? fetchGoogleFontForText('Noto Sans Khmer', 700, khmerChars) : Promise.resolve(null),
+      ])
+    const latinRegular = latinRegSettled.status === 'fulfilled' ? latinRegSettled.value : null
+    const latinBold = latinBoldSettled.status === 'fulfilled' ? latinBoldSettled.value : null
+    const khmerRegular = khmerRegSettled.status === 'fulfilled' ? khmerRegSettled.value : null
+    const khmerBold = khmerBoldSettled.status === 'fulfilled' ? khmerBoldSettled.value : null
 
     if (debug) {
       return new Response(
@@ -121,14 +129,10 @@ export async function GET(req: NextRequest) {
             subtitle,
             latinChars,
             khmerChars,
-            latinStatus: latinSettled.status,
-            latinByteLength: latinFont?.byteLength ?? null,
-            latinReason:
-              latinSettled.status === 'rejected' ? String(latinSettled.reason) : null,
-            khmerStatus: khmerSettled.status,
-            khmerByteLength: khmerFont?.byteLength ?? null,
-            khmerReason:
-              khmerSettled.status === 'rejected' ? String(khmerSettled.reason) : null,
+            latinRegular: { status: latinRegSettled.status, bytes: latinRegular?.byteLength ?? null },
+            latinBold: { status: latinBoldSettled.status, bytes: latinBold?.byteLength ?? null },
+            khmerRegular: { status: khmerRegSettled.status, bytes: khmerRegular?.byteLength ?? null },
+            khmerBold: { status: khmerBoldSettled.status, bytes: khmerBold?.byteLength ?? null },
           },
           null,
           2
@@ -137,11 +141,10 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    if (latinSettled.status === 'rejected') {
-      console.warn('[og] Latin font fetch failed:', latinSettled.reason)
-    }
-    if (khmerSettled.status === 'rejected') {
-      console.warn('[og] Khmer font fetch failed:', khmerSettled.reason)
+    for (const settled of [latinRegSettled, latinBoldSettled, khmerRegSettled, khmerBoldSettled]) {
+      if (settled.status === 'rejected') {
+        console.warn('[og] font fetch failed:', settled.reason)
+      }
     }
 
     const titleFontFamily = locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer'
@@ -271,11 +274,17 @@ export async function GET(req: NextRequest) {
         width: 1200,
         height: 630,
         fonts: [
-          ...(latinFont
-            ? [{ name: 'Inter', data: latinFont, style: 'normal' as const, weight: 700 as const }]
+          ...(latinRegular
+            ? [{ name: 'Inter', data: latinRegular, style: 'normal' as const, weight: 400 as const }]
             : []),
-          ...(khmerFont
-            ? [{ name: 'NotoKhmer', data: khmerFont, style: 'normal' as const, weight: 700 as const }]
+          ...(latinBold
+            ? [{ name: 'Inter', data: latinBold, style: 'normal' as const, weight: 700 as const }]
+            : []),
+          ...(khmerRegular
+            ? [{ name: 'NotoKhmer', data: khmerRegular, style: 'normal' as const, weight: 400 as const }]
+            : []),
+          ...(khmerBold
+            ? [{ name: 'NotoKhmer', data: khmerBold, style: 'normal' as const, weight: 700 as const }]
             : []),
         ],
         headers: {
