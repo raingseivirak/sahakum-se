@@ -5,6 +5,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { StickyTitleBar } from '@/components/ui/sticky-title-bar'
 import { Footer } from '@/components/layout/footer'
+import { buildPageMetadata } from '@/lib/metadata'
 
 export const revalidate = 3600 // Board members rarely change — revalidate once per hour
 
@@ -15,10 +16,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const t = await getTranslations({ locale: params.locale })
 
-  return {
-    title: `${t('board.boardOfDirectors')} | Sahakum Khmer`,
+  return buildPageMetadata({
+    locale: params.locale,
+    title: t('board.boardOfDirectors'),
     description: t('board.boardDescription'),
-  }
+    path: '/board',
+  })
 }
 
 export default async function BoardPage({
@@ -155,7 +158,7 @@ export default async function BoardPage({
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }

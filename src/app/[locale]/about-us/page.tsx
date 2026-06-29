@@ -6,6 +6,7 @@ import { SwedenH1, SwedenH2, SwedenBody } from '@/components/ui/sweden-typograph
 import { SwedenButton } from '@/components/ui/sweden-motion';
 import { StickyTitleBar } from '@/components/ui/sticky-title-bar';
 import { Footer } from '@/components/layout/footer';
+import { buildPageMetadata } from '@/lib/metadata';
 
 const translations = {
   sv: {
@@ -108,29 +109,12 @@ export async function generateMetadata({ params }: AboutPageProps) {
   const locale = params.locale
   const t = (key: string) => translations[locale]?.[key] || translations.en[key] || key
 
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
-  const canonicalUrl = `${baseUrl}/${locale}/about-us`
-
-  return {
+  return buildPageMetadata({
+    locale,
     title: t('page.title'),
     description: t('page.subtitle'),
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'sv': `${baseUrl}/sv/about-us`,
-        'en': `${baseUrl}/en/about-us`,
-        'km': `${baseUrl}/km/about-us`,
-      }
-    },
-    openGraph: {
-      title: t('page.title'),
-      description: t('page.subtitle'),
-      url: canonicalUrl,
-      siteName: 'Sahakum Khmer',
-      locale: locale,
-      type: 'website',
-    },
-  }
+    path: '/about-us',
+  })
 }
 
 export default function AboutPage({ params }: AboutPageProps) {
@@ -318,7 +302,7 @@ export default function AboutPage({ params }: AboutPageProps) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   );
 }

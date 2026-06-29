@@ -6,6 +6,7 @@ import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
 import { Footer } from '@/components/layout/footer'
 import Link from 'next/link'
 import Image from 'next/image'
+import { buildPageMetadata } from '@/lib/metadata'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -164,7 +165,7 @@ export default async function PagesListPage({ params }: PagesListProps) {
       </section>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }
@@ -180,13 +181,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PagesListProps) {
   const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key
 
-  return {
+  return buildPageMetadata({
+    locale: params.locale,
     title: t('pages.title'),
     description: t('pages.description'),
-    openGraph: {
-      title: t('pages.title'),
-      description: t('pages.description'),
-      locale: params.locale
-    }
-  }
+    path: '/pages',
+  })
 }

@@ -9,6 +9,7 @@ import { LanguageAvailabilityNotice } from '@/components/ui/language-availabilit
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { createSafeHTML } from '@/lib/sanitize'
 import { Footer } from '@/components/layout/footer'
+import { buildPageMetadata } from '@/lib/metadata'
 
 // Dynamically import PDFViewer to avoid SSR issues (pdfjs requires browser APIs)
 const PDFViewer = dynamic(
@@ -178,7 +179,7 @@ export default async function DynamicPage({ params }: PageProps) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }
@@ -218,7 +219,8 @@ export async function generateMetadata({ params }: PageProps) {
 
   if (!page) {
     return {
-      title: 'Page Not Found'
+      title: 'Page Not Found',
+      robots: { index: false, follow: false },
     }
   }
 
@@ -235,88 +237,14 @@ export async function generateMetadata({ params }: PageProps) {
                      page.translation.excerpt ||
                      generateExcerpt(page.translation.content)
 
-  // Site info with multilingual support
-  const siteInfo = {
-    sv: { name: 'Sahakum Khmer', tagline: 'Kambodjanernas gemenskap i Sverige' },
-    en: { name: 'Sahakum Khmer', tagline: 'Cambodian Community in Sweden' },
-    km: { name: 'សហគមខ្មែរ', tagline: 'សហគមន៍ខ្មែរនៅស៊ុយអែត' }
-  }
-
-  const currentSite = siteInfo[params.locale as keyof typeof siteInfo] || siteInfo.en
-  const fullTitle = `${title} | ${currentSite.name}`
-
-  // Canonical URL
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
-  const canonicalUrl = `${baseUrl}/${params.locale}/${params.slug}`
-
-  // Enhanced image handling with fallbacks
-  const getImageUrl = (imagePath?: string | null): string => {
-    if (imagePath) {
-      if (imagePath.startsWith('http')) return imagePath
-      return imagePath.startsWith('/') ? `${baseUrl}${imagePath}` : `${baseUrl}/${imagePath}`
-    }
-    return `${baseUrl}/media/images/sahakum-social-share.jpg`
-  }
-
-  const imageUrl = getImageUrl(page.featuredImg)
-
-  return {
-    title: fullTitle,
+  return buildPageMetadata({
+    locale: params.locale,
+    title,
     description,
-
-    // Canonical URL
-    alternates: {
-      canonical: canonicalUrl,
-    },
-
-    // Open Graph tags
-    openGraph: {
-      title: fullTitle,
-      description,
-      url: canonicalUrl,
-      siteName: currentSite.name,
-      locale: params.locale,
-      type: 'article',
-      publishedTime: page.publishedAt || undefined,
-      modifiedTime: page.updatedAt || undefined,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: title,
-          type: 'image/jpeg',
-        }
-      ],
-    },
-
-    // Twitter Card
-    twitter: {
-      card: 'summary_large_image',
-      title: title.length > 70 ? title.substring(0, 67) + '...' : title,
-      description: description.length > 200 ? description.substring(0, 197) + '...' : description,
-      creator: '@sahakumkhmer',
-      site: '@sahakumkhmer',
-      images: [imageUrl],
-    },
-
-    // SEO
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-
-    // Additional metadata
-    other: {
-      'theme-color': '#0D1931',
-      'msapplication-TileColor': '#0D1931',
-    }
-  }
+    path: `/${params.slug}`,
+    image: page.featuredImg ?? null,
+    type: 'article',
+    publishedTime: page.publishedAt ?? null,
+    modifiedTime: page.updatedAt ?? null,
+  })
 }

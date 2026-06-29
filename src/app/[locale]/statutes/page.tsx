@@ -3,6 +3,7 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH3, SwedenBody } from '@/components/ui/sweden-typography';
 import { StickyTitleBar } from '@/components/ui/sticky-title-bar';
 import { Footer } from '@/components/layout/footer';
+import { buildPageMetadata } from '@/lib/metadata';
 
 const translations = {
   sv: {
@@ -45,29 +46,12 @@ export async function generateMetadata({ params }: StatutesPageProps) {
   const locale = params.locale
   const t = (key: string) => translations[locale]?.[key] || translations.en[key] || key
 
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
-  const canonicalUrl = `${baseUrl}/${locale}/statutes`
-
-  return {
+  return buildPageMetadata({
+    locale,
     title: t('page.title'),
     description: t('page.subtitle'),
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'sv': `${baseUrl}/sv/statutes`,
-        'en': `${baseUrl}/en/statutes`,
-        'km': `${baseUrl}/km/statutes`,
-      }
-    },
-    openGraph: {
-      title: t('page.title'),
-      description: t('page.subtitle'),
-      url: canonicalUrl,
-      siteName: 'Sahakum Khmer',
-      locale: locale,
-      type: 'article',
-    },
-  }
+    path: '/statutes',
+  })
 }
 
 export default function StatutesPage({ params }: StatutesPageProps) {
@@ -125,7 +109,7 @@ export default function StatutesPage({ params }: StatutesPageProps) {
         </section>
       </main>
 
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   );
 }

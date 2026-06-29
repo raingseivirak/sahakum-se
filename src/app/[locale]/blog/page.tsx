@@ -6,6 +6,7 @@ import { SwedishCard, SwedishCardHeader, SwedishCardContent, SwedishCardTitle } 
 import { Footer } from '@/components/layout/footer'
 import { type Language } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
+import { buildPageMetadata } from '@/lib/metadata'
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 300 // Revalidate every 5 minutes
@@ -13,6 +14,17 @@ export const revalidate = 300 // Revalidate every 5 minutes
 interface BlogPageProps {
   params: { locale: string }
   searchParams: { page?: string; category?: string; tag?: string }
+}
+
+export async function generateMetadata({ params }: BlogPageProps) {
+  const locale = params.locale as keyof typeof blogTranslations
+  const t = blogTranslations[locale] || blogTranslations.en
+  return buildPageMetadata({
+    locale: params.locale,
+    title: t.title,
+    description: t.subtitle,
+    path: '/blog',
+  })
 }
 
 // Translations for blog
@@ -706,7 +718,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }

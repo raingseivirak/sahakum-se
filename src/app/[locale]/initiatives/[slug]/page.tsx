@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { buildPageMetadata } from '@/lib/metadata'
 import { Container } from "@/components/layout/grid"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Users, CheckSquare, Lock, User } from "lucide-react"
@@ -115,13 +116,30 @@ export async function generateMetadata({ params }: InitiativePageProps): Promise
   if (!initiative || !initiative.translation) {
     return {
       title: 'Initiative Not Found',
+      robots: { index: false, follow: false },
     }
   }
 
-  return {
-    title: `${initiative.translation.title} | Sahakum Khmer`,
-    description: initiative.translation.shortDescription || initiative.translation.title,
-  }
+  const description =
+    initiative.translation.shortDescription ||
+    initiative.translation.title
+
+  // `Initiative` has a `featuredImage` field on some records; fall back to dynamic OG otherwise.
+  const featuredImage =
+    (initiative as any).featuredImage ||
+    (initiative as any).featuredImg ||
+    null
+
+  return buildPageMetadata({
+    locale: params.locale,
+    title: initiative.translation.title,
+    description,
+    path: `/initiatives/${params.slug}`,
+    image: featuredImage,
+    type: 'article',
+    publishedTime: (initiative as any).publishedAt ?? null,
+    modifiedTime: (initiative as any).updatedAt ?? null,
+  })
 }
 
 export default async function InitiativePage({ params }: InitiativePageProps) {

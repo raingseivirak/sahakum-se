@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { Lightbulb } from 'lucide-react'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
 import { Footer } from '@/components/layout/footer'
+import { buildPageMetadata } from '@/lib/metadata'
 
 interface InitiativesPageProps {
   params: { locale: string }
@@ -13,9 +14,9 @@ export async function generateMetadata({ params }: InitiativesPageProps): Promis
   const locale = params.locale
 
   const titles = {
-    sv: "Initiativ & Projekt | Sahakum Khmer",
-    en: "Initiatives & Projects | Sahakum Khmer",
-    km: "គម្រោង និង សកម្មភាព | Sahakum Khmer"
+    sv: "Initiativ & Projekt",
+    en: "Initiatives & Projects",
+    km: "គម្រោង និង សកម្មភាព"
   }
 
   const descriptions = {
@@ -24,10 +25,12 @@ export async function generateMetadata({ params }: InitiativesPageProps): Promis
     km: "ស្វែងយល់អំពីគម្រោង និង សកម្មភាពសម្រាប់សហគមន៍ខ្មែរនៅស៊ុយអែត"
   }
 
-  return {
+  return buildPageMetadata({
+    locale,
     title: titles[locale as keyof typeof titles] || titles.en,
     description: descriptions[locale as keyof typeof descriptions] || descriptions.en,
-  }
+    path: '/initiatives',
+  })
 }
 
 export default async function InitiativesPage({ params }: InitiativesPageProps) {

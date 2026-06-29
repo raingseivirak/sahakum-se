@@ -4,6 +4,8 @@ import { SwedenSkipNav } from '@/components/ui/sweden-accessibility';
 import { SwedenH1, SwedenH2, SwedenH3, SwedenBody } from '@/components/ui/sweden-typography';
 import { Footer } from '@/components/layout/footer';
 import { type Language } from '@/lib/constants';
+import { buildPageMetadata } from '@/lib/metadata';
+import { getPublicSettings, getSocialUrls } from '@/lib/public-settings';
 
 const translations = {
   sv: {
@@ -33,6 +35,7 @@ const translations = {
     "services.culture_desc": "Delta i kambodjanska kulturella evenemang",
     "emergency.title": "Akut hjälp",
     "emergency.description": "För akuta situationer, kontakta alltid nödnumret 112 först.",
+    "follow_us.title": "Följ oss på sociala medier",
     "nav.sign_in": "Logga in",
     "nav.sign_out": "Logga ut",
     "nav.admin": "Administratörspanel",
@@ -66,6 +69,7 @@ const translations = {
     "services.culture_desc": "Participate in Cambodian cultural events",
     "emergency.title": "Emergency Help",
     "emergency.description": "For emergency situations, always contact emergency number 112 first.",
+    "follow_us.title": "Follow us on social media",
     "nav.sign_in": "Sign In",
     "nav.sign_out": "Sign Out",
     "nav.admin": "Admin Dashboard",
@@ -99,6 +103,7 @@ const translations = {
     "services.culture_desc": "ចូលរួមក្នុងព្រឹត្តិការណ៍វប្បធម៌កម្ពុជា",
     "emergency.title": "ជំនួយបន្ទាន់",
     "emergency.description": "សម្រាប់ស្ថានការណ៍បន្ទាន់ សូមទាក់ទងលេខបន្ទាន់ ១១២ ជាមុនសិន។",
+    "follow_us.title": "តាមដានយើងនៅលើបណ្តាញសង្គម",
     "nav.sign_in": "ចូល",
     "nav.sign_out": "ចាកចេញ",
     "nav.admin": "ផ្ទាំងគ្រប់គ្រង",
@@ -111,8 +116,21 @@ interface ContactPageProps {
   params: { locale: keyof typeof translations }
 }
 
-export default function ContactPage({ params }: ContactPageProps) {
+export async function generateMetadata({ params }: ContactPageProps) {
+  const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key
+  return buildPageMetadata({
+    locale: params.locale,
+    title: t('page.title'),
+    description: t('page.subtitle'),
+    path: '/contact',
+  })
+}
+
+export default async function ContactPage({ params }: ContactPageProps) {
   const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key;
+  const settings = await getPublicSettings()
+  const socialUrls = getSocialUrls(settings.social)
+  const officeHours = settings.contact.officeHours || t('office.hours_detail')
 
   const getFontClass = () => {
     switch (params.locale) {
@@ -154,48 +172,78 @@ export default function ContactPage({ params }: ContactPageProps) {
               </SwedenH2>
 
               <div className="space-y-4">
-                <div>
-                  <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
-                    {t('office.address')}
-                  </h4>
-                  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
-                    Sahakum Khmer<br />
-                    [Street Address]<br />
-                    [Postal Code] [City]<br />
-                    Sverige
-                  </SwedenBody>
-                </div>
+                {settings.contact.address && (
+                  <div>
+                    <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
+                      {t('office.address')}
+                    </h4>
+                    <SwedenBody className="text-[var(--sahakum-navy)]/80 whitespace-pre-line" locale={params.locale}>
+                      {settings.contact.address}
+                    </SwedenBody>
+                  </div>
+                )}
 
-                {/*<div>*/}
-                {/*  <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>*/}
-                {/*    {t('office.phone')}*/}
-                {/*  </h4>*/}
-                {/*  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>*/}
-                {/*    <a href="tel:+46XXXXXXXXX" className="hover:text-[var(--sahakum-gold)] transition-colors">*/}
-                {/*      +46 XX XXX XX XX*/}
-                {/*    </a>*/}
-                {/*  </SwedenBody>*/}
-                {/*</div>*/}
+                {settings.contact.phone && (
+                  <div>
+                    <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
+                      {t('office.phone')}
+                    </h4>
+                    <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
+                      <a
+                        href={`tel:${settings.contact.phone.replace(/\s+/g, '')}`}
+                        className="hover:text-[var(--sahakum-gold)] transition-colors"
+                      >
+                        {settings.contact.phone}
+                      </a>
+                    </SwedenBody>
+                  </div>
+                )}
 
-                <div>
-                  <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
-                    {t('office.email')}
-                  </h4>
-                  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
-                    <a href="mailto:contact.sahakumkhmer.se@gmail.com" className="hover:text-[var(--sahakum-gold)] transition-colors">
-                      contact.sahakumkhmer.se@gmail.com
-                    </a>
-                  </SwedenBody>
-                </div>
+                {settings.contact.email && (
+                  <div>
+                    <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
+                      {t('office.email')}
+                    </h4>
+                    <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
+                      <a
+                        href={`mailto:${settings.contact.email}`}
+                        className="hover:text-[var(--sahakum-gold)] transition-colors break-all"
+                      >
+                        {settings.contact.email}
+                      </a>
+                    </SwedenBody>
+                  </div>
+                )}
 
                 <div>
                   <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-2 ${getFontClass()}`}>
                     {t('office.hours')}
                   </h4>
-                  <SwedenBody className="text-[var(--sahakum-navy)]/80" locale={params.locale}>
-                    {t('office.hours_detail')}
+                  <SwedenBody className="text-[var(--sahakum-navy)]/80 whitespace-pre-line" locale={params.locale}>
+                    {officeHours}
                   </SwedenBody>
                 </div>
+
+                {socialUrls.length > 0 && (
+                  <div className="pt-4 border-t border-[var(--sahakum-navy)]/10">
+                    <h4 className={`font-semibold text-[var(--sahakum-navy)] mb-3 ${getFontClass()}`}>
+                      {t('follow_us.title')}
+                    </h4>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                      {socialUrls.map(({ platform, url }) => (
+                        <a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[var(--sahakum-navy)] hover:text-[var(--sahakum-gold)] transition-colors capitalize"
+                        >
+                          {platform === 'youtube' ? 'YouTube' : platform === 'linkedin' ? 'LinkedIn' : platform.charAt(0).toUpperCase() + platform.slice(1)}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -276,7 +324,7 @@ export default function ContactPage({ params }: ContactPageProps) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }

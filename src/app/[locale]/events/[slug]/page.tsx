@@ -24,6 +24,7 @@ import { EventRegistrationForm } from '@/components/events/event-registration-fo
 import { createSafeHTML } from '@/lib/sanitize'
 import { Container } from '@/components/layout/grid'
 import { SwedenSkipNav } from '@/components/ui/sweden-accessibility'
+import { buildPageMetadata } from '@/lib/metadata'
 import { LanguageAvailabilityNotice } from '@/components/ui/language-availability-notice'
 import { CopyLinkButton } from '@/components/ui/copy-link-button'
 import { Footer } from '@/components/layout/footer'
@@ -40,23 +41,31 @@ export async function generateMetadata({ params, searchParams }: EventPageProps)
   if (!event) {
     return {
       title: 'Event Not Found',
+      robots: { index: false, follow: false },
     }
   }
 
   // Handle both single translation and translations array
-  const translation = event.translation ||
+  const translation =
+    event.translation ||
     (event.translations?.find((t: any) => t.language === locale)) ||
     (event.translations?.[0])
 
-  return {
-    title: translation?.seoTitle || translation?.title || 'Event',
-    description: translation?.metaDescription || translation?.excerpt || '',
-    openGraph: {
-      title: translation?.title || 'Event',
-      description: translation?.excerpt || '',
-      images: event.featuredImg ? [{ url: event.featuredImg }] : [],
-    },
-  }
+  const title = translation?.seoTitle || translation?.title || 'Event'
+  const description = translation?.metaDescription || translation?.excerpt || ''
+
+  return buildPageMetadata({
+    locale,
+    title,
+    description,
+    path: `/events/${slug}`,
+    image: event.featuredImg ?? null,
+    type: 'article',
+    publishedTime: event.publishedAt ?? null,
+    modifiedTime: event.updatedAt ?? null,
+    // Don't index preview pages
+    index: !searchParams.preview,
+  })
 }
 
 async function getEvent(slug: string, locale: string, previewId?: string) {

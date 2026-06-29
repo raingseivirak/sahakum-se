@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
-import { generateApplicantWelcomeEmail, generateApprovalEmail } from '@/lib/email-templates'
+import { generateApplicantWelcomeEmail, generateApprovalEmail, getEmailBaseUrl } from '@/lib/email-templates'
 
 // POST /api/membership-requests/[id]/resend-email
 export async function POST(
@@ -53,7 +53,7 @@ export async function POST(
       return NextResponse.json({ error: 'Membership request not found' }, { status: 404 })
     }
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+    const baseUrl = getEmailBaseUrl()
     const language = (membershipRequest.preferredLanguage || 'en') as 'en' | 'sv' | 'km'
 
     let emailTemplate: { subject: string; html: string; text: string }

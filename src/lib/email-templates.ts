@@ -3,12 +3,78 @@
 const SAHAKUM_NAVY = '#0D1931'
 const SAHAKUM_GOLD = '#D4932F'
 
-// Get the logo URL from the app URL environment variable
-// Falls back to relative path if env var is not set (works in development)
-const getLogoUrl = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sahakumkhmer.se'
-  return `${baseUrl}/media/images/logo-email.png`
+/**
+ * Canonical site URL used in all outgoing emails.
+ *
+ * Emails are durable artefacts — they keep working for months in someone's inbox —
+ * so we *never* want them to embed an ephemeral host (Vercel preview URL, localhost, etc).
+ * If an env var accidentally points at one of those, we ignore it and fall back to the
+ * canonical domain.
+ */
+export const CANONICAL_SITE_URL = 'https://www.sahakumkhmer.se'
+
+const EPHEMERAL_HOST_PATTERNS: RegExp[] = [
+  /\.vercel\.app$/i,
+  /\.vercel\.sh$/i,
+  /\.ngrok(?:-free)?\.app$/i,
+  /\.ngrok\.io$/i,
+]
+
+function isEphemeralHost(hostname: string): boolean {
+  if (!hostname) return true
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') return true
+  if (hostname.endsWith('.local')) return true
+  return EPHEMERAL_HOST_PATTERNS.some((re) => re.test(hostname))
 }
+
+function sanitizeBaseUrl(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  try {
+    const url = new URL(trimmed)
+    if (isEphemeralHost(url.hostname)) return null
+    // Strip trailing slash, drop query/hash to keep things clean.
+    return `${url.protocol}//${url.host}`
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Resolve the base URL used to build links + image references in outgoing emails.
+ *
+ * Priority:
+ *   1. `EMAIL_BASE_URL`        — explicit override, intended for production
+ *   2. `NEXT_PUBLIC_SITE_URL`  — public site URL used by the rest of the app
+ *   3. `NEXTAUTH_URL`          — already configured for auth
+ *   4. `NEXT_PUBLIC_APP_URL`   — legacy variable, kept for back-compat
+ *   5. `CANONICAL_SITE_URL`    — `https://www.sahakumkhmer.se`
+ *
+ * Any candidate that resolves to an ephemeral host (`*.vercel.app`, localhost, ngrok…)
+ * is skipped — emails should never link to a deploy preview that may disappear.
+ *
+ * Pass an optional caller-supplied base URL (e.g. extracted from the request) and the
+ * same sanitisation rules apply.
+ */
+export function getEmailBaseUrl(callerProvided?: string | null): string {
+  const candidates = [
+    callerProvided,
+    process.env.EMAIL_BASE_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXTAUTH_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+  ]
+  for (const candidate of candidates) {
+    const sanitised = sanitizeBaseUrl(candidate)
+    if (sanitised) return sanitised
+  }
+  return CANONICAL_SITE_URL
+}
+
+// Get the logo URL — always anchored on the canonical site so the image keeps
+// working when forwarded / archived outside the original mail client.
+const getLogoUrl = () => `${getEmailBaseUrl()}/media/images/logo-email.png`
 
 const LOGO_URL = getLogoUrl()
 
@@ -307,7 +373,8 @@ export interface MembershipRequestEmailData {
 export function generateNewMembershipRequestEmail(data: MembershipRequestEmailData): { subject: string; html: string; text: string } {
   const fullName = `${data.firstName} ${data.lastName}`
   const khmerName = data.khmerFirstName && data.khmerLastName ? `${data.khmerFirstName} ${data.khmerLastName}` : null
-  const baseUrl = data.adminUrl ? data.adminUrl.split('/en/admin')[0] : 'https://www.sahakumkhmer.se'
+  const callerBase = data.adminUrl ? data.adminUrl.split('/en/admin')[0] : undefined
+  const baseUrl = getEmailBaseUrl(callerBase)
 
   const subject = `New Membership Request: ${fullName}`
 
@@ -505,7 +572,7 @@ export function generateApplicantWelcomeEmail(data: ApplicantWelcomeEmailData): 
   const content = EMAIL_CONTENT[lang].welcome
   const fullName = `${data.firstName} ${data.lastName}`
   const khmerName = data.khmerFirstName && data.khmerLastName ? `${data.khmerFirstName} ${data.khmerLastName}` : null
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
 
   // Determine which name to display based on language
   const displayName = lang === 'km' && khmerName ? khmerName : fullName
@@ -704,7 +771,7 @@ export function generateApprovalEmail(data: ApprovalEmailData): { subject: strin
   const content = EMAIL_CONTENT[lang].approval
   const fullName = `${data.firstName} ${data.lastName}`
   const khmerName = data.khmerFirstName && data.khmerLastName ? `${data.khmerFirstName} ${data.khmerLastName}` : null
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
 
   // Determine which name to display based on language
   const displayName = lang === 'km' && khmerName ? khmerName : fullName
@@ -826,7 +893,7 @@ export function generateMemberCredentialsEmail(data: MemberCredentialsEmailData)
   const content = EMAIL_CONTENT[lang].credentials
   const fullName = `${data.firstName} ${data.lastName}`
   const khmerName = data.khmerFirstName && data.khmerLastName ? `${data.khmerFirstName} ${data.khmerLastName}` : null
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
   const loginUrl = `${baseUrl}/${lang}/auth/signin`
 
   // Determine which name to display based on language
@@ -1031,7 +1098,7 @@ export interface UserAccountCredentialsEmailData {
 
 // Generate user account credentials email for admin-created accounts
 export function generateUserAccountCredentialsEmail(data: UserAccountCredentialsEmailData): { subject: string; html: string; text: string } {
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
   const loginUrl = `${baseUrl}/auth/signin`
 
   const subject = 'Your Sahakum Khmer Account - Login Credentials'
@@ -1237,7 +1304,7 @@ export function generateBoardVotingNotificationEmail(data: BoardVotingNotificati
   const khmerName = data.applicantKhmerFirstName && data.applicantKhmerLastName
     ? `${data.applicantKhmerFirstName} ${data.applicantKhmerLastName}`
     : null
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
 
   // Format threshold description
   const thresholdDescription = (() => {
@@ -1457,7 +1524,7 @@ export function generateRegistrationWelcomeEmail(data: RegistrationWelcomeEmailD
   const lang = data.language || 'en'
   const content = EMAIL_CONTENT[lang].registration
   const fullName = `${data.firstName} ${data.lastName}`
-  const baseUrl = data.baseUrl || 'https://www.sahakumkhmer.se'
+  const baseUrl = getEmailBaseUrl(data.baseUrl)
   const loginUrl = `${baseUrl}/${lang}/auth/signin`
   const joinUrl = `${baseUrl}/${lang}/join`
 

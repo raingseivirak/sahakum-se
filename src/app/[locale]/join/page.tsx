@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { buildPageMetadata } from '@/lib/metadata';
 
 const translations = {
   sv: {
@@ -102,6 +103,16 @@ const translations = {
 
 interface JoinPageProps {
   params: { locale: keyof typeof translations }
+}
+
+export async function generateMetadata({ params }: JoinPageProps) {
+  const t = (key: string) => translations[params.locale]?.[key] || translations.en[key] || key
+  return buildPageMetadata({
+    locale: params.locale,
+    title: t('page.title'),
+    description: t('page.description'),
+    path: '/join',
+  })
 }
 
 export default async function JoinPage({ params }: JoinPageProps) {
@@ -394,7 +405,7 @@ export default async function JoinPage({ params }: JoinPageProps) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer locale={params.locale} />
     </div>
   )
 }

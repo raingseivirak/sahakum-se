@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateTemporaryPassword, hashPassword } from '@/lib/password'
-import { generateMemberCredentialsEmail } from '@/lib/email-templates'
+import { generateMemberCredentialsEmail, getEmailBaseUrl } from '@/lib/email-templates'
 import { sendEmail } from '@/lib/email'
 import { ActivityLogger } from '@/lib/activity-logger'
 
@@ -151,7 +151,7 @@ export async function POST(
 
     // Send credentials email only for newly created accounts
     const language = (membershipRequest.preferredLanguage || 'en') as 'en' | 'sv' | 'km'
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+    const baseUrl = getEmailBaseUrl()
 
     if (temporaryPassword) {
       try {

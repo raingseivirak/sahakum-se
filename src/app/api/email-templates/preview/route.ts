@@ -3,6 +3,7 @@ import {
   generateApplicantWelcomeEmail,
   generateApprovalEmail,
   generateNewMembershipRequestEmail,
+  getEmailBaseUrl,
   type ApplicantWelcomeEmailData,
   type ApprovalEmailData,
   type MembershipRequestEmailData
@@ -16,8 +17,7 @@ const SAMPLE_APPLICANT_DATA: ApplicantWelcomeEmailData = {
   khmerLastName: 'ចាន់',
   email: 'sopheak.chan@example.com',
   requestNumber: 'REQ-2025-001',
-  language: 'en',
-  baseUrl: process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+  language: 'en'
 }
 
 const SAMPLE_APPROVAL_DATA: ApprovalEmailData = {
@@ -28,11 +28,10 @@ const SAMPLE_APPROVAL_DATA: ApprovalEmailData = {
   email: 'sopheak.chan@example.com',
   requestNumber: 'REQ-2025-001',
   memberNumber: 'MEM-2025-042',
-  language: 'en',
-  baseUrl: process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+  language: 'en'
 }
 
-const SAMPLE_BOARD_DATA: MembershipRequestEmailData = {
+const SAMPLE_BOARD_DATA: Omit<MembershipRequestEmailData, 'adminUrl'> = {
   firstName: 'Sopheak',
   lastName: 'Chan',
   khmerFirstName: 'សូភាគ',
@@ -44,8 +43,7 @@ const SAMPLE_BOARD_DATA: MembershipRequestEmailData = {
   postalCode: '111 20',
   residenceStatus: 'PERMANENT_RESIDENT',
   motivation: 'I would like to join Sahakum Khmer to connect with the Swedish-Cambodian community, participate in cultural events, and contribute to preserving Cambodian heritage in Sweden. I have been living in Stockholm for 5 years and am passionate about building bridges between our communities.',
-  requestId: 'cmfky6vpn0000l08j4i3a0751',
-  adminUrl: `${process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'}/en/admin/membership-requests/cmfky6vpn0000l08j4i3a0751`
+  requestId: 'cmfky6vpn0000l08j4i3a0751'
 }
 
 export async function GET(request: NextRequest) {
@@ -54,10 +52,10 @@ export async function GET(request: NextRequest) {
     const template = searchParams.get('template') || 'welcome'
     const language = searchParams.get('language') || 'en'
 
-    // Get the correct base URL from the request (handles dynamic ports in dev)
-    const host = request.headers.get('host') || 'localhost:3000'
-    const protocol = host.includes('localhost') ? 'http' : 'https'
-    const baseUrl = `${protocol}://${host}`
+    // Resolve through the canonical helper. This intentionally ignores the request host
+    // so previewing from a Vercel preview deployment doesn't bake `*.vercel.app` URLs
+    // into rendered emails — admins should always see exactly what real recipients get.
+    const baseUrl = getEmailBaseUrl()
 
     let emailHtml: string
 

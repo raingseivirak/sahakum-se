@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/password'
 import { sendEmail } from '@/lib/email'
-import { generateRegistrationWelcomeEmail } from '@/lib/email-templates'
+import { generateRegistrationWelcomeEmail, getEmailBaseUrl } from '@/lib/email-templates'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     // Send welcome email (non-blocking — don't fail registration if email fails)
     const validLang = ['en', 'sv', 'km'].includes(language) ? language : 'en'
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+    const baseUrl = getEmailBaseUrl()
 
     try {
       const welcomeEmail = generateRegistrationWelcomeEmail({

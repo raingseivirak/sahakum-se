@@ -6,7 +6,7 @@ import { ActivityLogger } from '@/lib/activity-logger'
 import { z } from 'zod'
 import bcryptjs from 'bcryptjs'
 import { sendEmail } from '@/lib/email'
-import { generateUserAccountCredentialsEmail } from '@/lib/email-templates'
+import { generateUserAccountCredentialsEmail, getEmailBaseUrl } from '@/lib/email-templates'
 
 // Validation schema for User creation
 const userCreateSchema = z.object({
@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
         email: newUser.email,
         password: validatedData.password, // Send the plain text password (before hashing)
         role: newUser.role,
-        baseUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://www.sahakumkhmer.se'
+        baseUrl: getEmailBaseUrl()
       })
 
       await sendEmail({

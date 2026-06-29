@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ActivityLogger } from '@/lib/activity-logger'
+import { invalidatePublicSettingsCache } from '@/lib/public-settings'
 
 export async function GET() {
   try {
@@ -62,6 +63,9 @@ export async function POST(request: NextRequest) {
       update: { value, type, category },
       create: { key, value, type, category }
     })
+
+    // Drop the in-memory public-settings cache so the change is visible immediately on the public site.
+    invalidatePublicSettingsCache()
 
     // Log setting activity
     const action = existingSetting ? 'updated' : 'created'
@@ -146,6 +150,11 @@ export async function PUT(request: NextRequest) {
           })
         }
       }
+    }
+
+    // Drop the in-memory public-settings cache so the change is visible immediately on the public site.
+    if (updatedSettings.length > 0) {
+      invalidatePublicSettingsCache()
     }
 
     // Log bulk settings update activity

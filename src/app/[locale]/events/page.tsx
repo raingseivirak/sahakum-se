@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import { buildPageMetadata } from '@/lib/metadata'
 import { Calendar, MapPin, Users, Clock, Globe, Monitor } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,9 +27,9 @@ export async function generateMetadata({ params }: EventsPageProps): Promise<Met
   const { locale } = params
 
   const titles: { [key: string]: string } = {
-    sv: 'Evenemang | Sahakum Khmer',
-    en: 'Events | Sahakum Khmer',
-    km: 'ព្រឹត្តិការណ៍ | Sahakum Khmer',
+    sv: 'Evenemang',
+    en: 'Events',
+    km: 'ព្រឹត្តិការណ៍',
   }
 
   const descriptions: { [key: string]: string } = {
@@ -37,10 +38,12 @@ export async function generateMetadata({ params }: EventsPageProps): Promise<Met
     km: 'រកឃើញ និងចូលរួមព្រឹត្តិការណ៍ ប្រជុំ និងសិក្ខាសាលារបស់យើងខាងមុខ',
   }
 
-  return {
+  return buildPageMetadata({
+    locale,
     title: titles[locale] || titles.en,
     description: descriptions[locale] || descriptions.en,
-  }
+    path: '/events',
+  })
 }
 
 async function getEvents(locale: string, category?: string, time: string = 'upcoming', page: number = 1) {

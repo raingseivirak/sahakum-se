@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { withModeratorAccess } from '@/lib/admin-auth-middleware'
 import { ActivityLogger } from '@/lib/activity-logger'
 import { sendEmail } from '@/lib/email'
-import { generateNewMembershipRequestEmail, generateApplicantWelcomeEmail } from '@/lib/email-templates'
+import { generateNewMembershipRequestEmail, generateApplicantWelcomeEmail, getEmailBaseUrl } from '@/lib/email-templates'
 
 // Validation schema for Membership Request
 const membershipRequestSchema = z.object({
@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
 
       // Send notification if we have recipients
       if (boardMembers.length > 0) {
-        const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+        const baseUrl = getEmailBaseUrl()
         const adminUrl = `${baseUrl}/en/admin/membership-requests/${membershipRequest.id}`
 
         // Get approval threshold from settings
@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email to applicant
     try {
-      const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+      const baseUrl = getEmailBaseUrl()
       const language = validatedData.preferredLanguage || 'en'
 
       const welcomeEmailTemplate = generateApplicantWelcomeEmail({

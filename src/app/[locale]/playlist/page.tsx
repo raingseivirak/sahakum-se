@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/grid'
 import { SwedenH1, SwedenBody } from '@/components/ui/sweden-typography'
 import { PlaylistLanding } from '@/components/playlist/playlist-landing'
 import { prisma } from '@/lib/prisma'
+import { buildPageMetadata } from '@/lib/metadata'
 
 interface PlaylistPageProps {
   params: { locale: string }
@@ -21,10 +22,12 @@ const navTranslations: Record<string, Record<string, string>> = {
 export async function generateMetadata({ params }: PlaylistPageProps): Promise<Metadata> {
   const t = await getTranslations({ locale: params.locale, namespace: 'playlist' })
 
-  return {
-    title: `${t('title')} | Sahakum Khmer`,
+  return buildPageMetadata({
+    locale: params.locale,
+    title: t('title'),
     description: t('subtitle'),
-  }
+    path: '/playlist',
+  })
 }
 
 export default async function PlaylistPage({ params }: PlaylistPageProps) {
@@ -103,7 +106,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
           </Container>
         </section>
       </main>
-      <Footer />
+      <Footer locale={params.locale} />
     </>
   )
 }

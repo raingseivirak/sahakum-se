@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 import { ActivityLogger } from '@/lib/activity-logger'
 import { VoteDecision, ApprovalThreshold } from '@prisma/client'
 import { sendEmail } from '@/lib/email'
-import { generateApprovalEmail, generateMemberCredentialsEmail } from '@/lib/email-templates'
+import { generateApprovalEmail, generateMemberCredentialsEmail, getEmailBaseUrl } from '@/lib/email-templates'
 import { generateTemporaryPassword, hashPassword } from '@/lib/password'
 
 // Helper function to get approval threshold from settings
@@ -330,7 +330,7 @@ export async function POST(
 
       // Send both approval email and credentials email
       try {
-        const baseUrl = process.env.NEXTAUTH_URL || 'https://www.sahakumkhmer.se'
+        const baseUrl = getEmailBaseUrl()
         const language = (membershipRequest.preferredLanguage || 'en') as 'en' | 'sv' | 'km'
 
         // 1. Send approval email

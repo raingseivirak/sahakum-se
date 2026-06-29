@@ -96,7 +96,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         </section>
         <PlaylistRoom locale={params.locale} roomCode={params.code} t={translations} />
       </main>
-      <Footer />
+      <Footer locale={params.locale} />
     </>
   )
 }
