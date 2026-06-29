@@ -198,6 +198,7 @@ export async function GET(req: NextRequest) {
           {/* Gold accent bar on the left edge */}
           <div
             style={{
+              display: 'flex',
               position: 'absolute',
               left: 0,
               top: 0,
@@ -208,9 +209,10 @@ export async function GET(req: NextRequest) {
           />
 
           {/* Header: site name + tagline */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div
               style={{
+                display: 'flex',
                 fontSize: 30,
                 fontWeight: 700,
                 color: SAHAKUM_GOLD,
@@ -222,6 +224,8 @@ export async function GET(req: NextRequest) {
             </div>
             <div
               style={{
+                display: 'flex',
+                marginTop: 8,
                 fontSize: 22,
                 color: 'rgba(255,255,255,0.7)',
                 fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
@@ -232,9 +236,10 @@ export async function GET(req: NextRequest) {
           </div>
 
           {/* Title + subtitle */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 1040 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 1040 }}>
             <div
               style={{
+                display: 'flex',
                 fontSize: titleSize,
                 fontWeight: 700,
                 lineHeight: locale === 'km' ? 1.35 : 1.15,
@@ -248,6 +253,8 @@ export async function GET(req: NextRequest) {
             {subtitle ? (
               <div
                 style={{
+                  display: 'flex',
+                  marginTop: 24,
                   fontSize: 28,
                   lineHeight: 1.4,
                   color: 'rgba(255,255,255,0.85)',
@@ -271,6 +278,7 @@ export async function GET(req: NextRequest) {
           >
             <div
               style={{
+                display: 'flex',
                 fontSize: 22,
                 color: 'rgba(255,255,255,0.65)',
                 fontFamily: 'Inter, NotoKhmer',
@@ -282,11 +290,10 @@ export async function GET(req: NextRequest) {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
                 fontSize: 20,
                 color: SAHAKUM_GOLD,
                 fontFamily: locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer',
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: locale === 'km' ? 'none' : 'uppercase',
                 letterSpacing: locale === 'km' ? 0 : 2,
               }}
