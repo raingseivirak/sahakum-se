@@ -85,6 +85,7 @@ export async function GET(req: NextRequest) {
     const rawTitle = searchParams.get('title')?.trim() || 'Sahakum Khmer'
     const rawSubtitle = searchParams.get('subtitle')?.trim() || ''
     const rawLocale = searchParams.get('locale') || 'en'
+    const debug = searchParams.get('debug') === '1'
     const locale = rawLocale === 'sv' || rawLocale === 'km' ? rawLocale : 'en'
 
     const title = rawTitle.length > 100 ? `${rawTitle.slice(0, 97)}...` : rawTitle
@@ -110,6 +111,32 @@ export async function GET(req: NextRequest) {
     ])
     const latinFont = latinSettled.status === 'fulfilled' ? latinSettled.value : null
     const khmerFont = khmerSettled.status === 'fulfilled' ? khmerSettled.value : null
+
+    if (debug) {
+      return new Response(
+        JSON.stringify(
+          {
+            locale,
+            title,
+            subtitle,
+            latinChars,
+            khmerChars,
+            latinStatus: latinSettled.status,
+            latinByteLength: latinFont?.byteLength ?? null,
+            latinReason:
+              latinSettled.status === 'rejected' ? String(latinSettled.reason) : null,
+            khmerStatus: khmerSettled.status,
+            khmerByteLength: khmerFont?.byteLength ?? null,
+            khmerReason:
+              khmerSettled.status === 'rejected' ? String(khmerSettled.reason) : null,
+          },
+          null,
+          2
+        ),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
     if (latinSettled.status === 'rejected') {
       console.warn('[og] Latin font fetch failed:', latinSettled.reason)
     }
