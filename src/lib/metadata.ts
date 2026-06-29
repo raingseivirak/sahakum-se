@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pickCanonicalBaseUrl } from '@/lib/url-sanitize'
 
 /**
  * Centralised metadata builder for the public site.
@@ -29,13 +30,19 @@ const SITE_INFO: Record<AppLocale, { name: string; tagline: string }> = {
   km: { name: 'សហគមខ្មែរ', tagline: 'សហគមន៍ខ្មែរនៅស៊ុយអែត' },
 }
 
-/** Resolve the canonical site base URL — production domain in prod, env override otherwise. */
+/**
+ * Resolve the canonical site base URL — production domain in prod, env override otherwise.
+ *
+ * Any env value pointing at an ephemeral host (`*.vercel.app`, ngrok, localhost…) is
+ * skipped so that `og:image`, canonical, and alternate URLs embedded in HTML always
+ * point at `www.sahakumkhmer.se`, not at whichever Vercel preview rendered the page.
+ */
 export function getBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    'https://www.sahakumkhmer.se'
-  )
+  return pickCanonicalBaseUrl([
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXTAUTH_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+  ])
 }
 
 export function normalizeLocale(locale: string | undefined | null): AppLocale {

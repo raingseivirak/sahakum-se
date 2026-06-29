@@ -1,75 +1,35 @@
 // Email templates using Swedish Brand colors and design
 
+import { pickCanonicalBaseUrl, CANONICAL_SITE_URL } from '@/lib/url-sanitize'
+
 const SAHAKUM_NAVY = '#0D1931'
 const SAHAKUM_GOLD = '#D4932F'
 
-/**
- * Canonical site URL used in all outgoing emails.
- *
- * Emails are durable artefacts — they keep working for months in someone's inbox —
- * so we *never* want them to embed an ephemeral host (Vercel preview URL, localhost, etc).
- * If an env var accidentally points at one of those, we ignore it and fall back to the
- * canonical domain.
- */
-export const CANONICAL_SITE_URL = 'https://www.sahakumkhmer.se'
-
-const EPHEMERAL_HOST_PATTERNS: RegExp[] = [
-  /\.vercel\.app$/i,
-  /\.vercel\.sh$/i,
-  /\.ngrok(?:-free)?\.app$/i,
-  /\.ngrok\.io$/i,
-]
-
-function isEphemeralHost(hostname: string): boolean {
-  if (!hostname) return true
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') return true
-  if (hostname.endsWith('.local')) return true
-  return EPHEMERAL_HOST_PATTERNS.some((re) => re.test(hostname))
-}
-
-function sanitizeBaseUrl(raw: string | null | undefined): string | null {
-  if (!raw) return null
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  try {
-    const url = new URL(trimmed)
-    if (isEphemeralHost(url.hostname)) return null
-    // Strip trailing slash, drop query/hash to keep things clean.
-    return `${url.protocol}//${url.host}`
-  } catch {
-    return null
-  }
-}
+export { CANONICAL_SITE_URL }
 
 /**
  * Resolve the base URL used to build links + image references in outgoing emails.
  *
  * Priority:
- *   1. `EMAIL_BASE_URL`        — explicit override, intended for production
- *   2. `NEXT_PUBLIC_SITE_URL`  — public site URL used by the rest of the app
- *   3. `NEXTAUTH_URL`          — already configured for auth
- *   4. `NEXT_PUBLIC_APP_URL`   — legacy variable, kept for back-compat
- *   5. `CANONICAL_SITE_URL`    — `https://www.sahakumkhmer.se`
+ *   1. caller-provided base (e.g. extracted from a request) — same sanitisation rules apply
+ *   2. `EMAIL_BASE_URL`        — explicit override, intended for production
+ *   3. `NEXT_PUBLIC_SITE_URL`  — public site URL used by the rest of the app
+ *   4. `NEXTAUTH_URL`          — already configured for auth
+ *   5. `NEXT_PUBLIC_APP_URL`   — legacy variable, kept for back-compat
+ *   6. `CANONICAL_SITE_URL`    — `https://www.sahakumkhmer.se`
  *
  * Any candidate that resolves to an ephemeral host (`*.vercel.app`, localhost, ngrok…)
- * is skipped — emails should never link to a deploy preview that may disappear.
- *
- * Pass an optional caller-supplied base URL (e.g. extracted from the request) and the
- * same sanitisation rules apply.
+ * is skipped — emails are durable artefacts in inboxes and must never link to a deploy
+ * preview that may disappear.
  */
 export function getEmailBaseUrl(callerProvided?: string | null): string {
-  const candidates = [
+  return pickCanonicalBaseUrl([
     callerProvided,
     process.env.EMAIL_BASE_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
     process.env.NEXTAUTH_URL,
     process.env.NEXT_PUBLIC_APP_URL,
-  ]
-  for (const candidate of candidates) {
-    const sanitised = sanitizeBaseUrl(candidate)
-    if (sanitised) return sanitised
-  }
-  return CANONICAL_SITE_URL
+  ])
 }
 
 // Get the logo URL — always anchored on the canonical site so the image keeps

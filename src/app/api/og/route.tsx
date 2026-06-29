@@ -31,33 +31,57 @@ const SITE_NAMES: Record<string, string> = {
   km: 'សហគមខ្មែរ',
 }
 
-// Cache fetched fonts for the lifetime of the edge isolate
+// Cache fetched fonts for the lifetime of the edge isolate.
+// We resolve URLs dynamically via the Google Fonts CSS endpoint so that font
+// version bumps (e.g. Inter v18 → v20) don't 404 our hardcoded blobs.
 let latinFontCache: ArrayBuffer | null = null
 let khmerFontCache: ArrayBuffer | null = null
 
+// Pretend to be Chrome so Google Fonts serves us modern font formats with
+// the latest versioned URLs (rather than ancient legacy fallbacks).
+const FONT_FETCH_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+}
+
+async function resolveGoogleFontUrl(cssUrl: string): Promise<string> {
+  const cssRes = await fetch(cssUrl, { headers: FONT_FETCH_HEADERS })
+  if (!cssRes.ok) {
+    throw new Error(`Failed to fetch Google Fonts CSS (${cssUrl}): ${cssRes.status}`)
+  }
+  const css = await cssRes.text()
+  // Match the first `src: url(<https://fonts.gstatic.com/...>)`
+  const match = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
+  if (!match) {
+    throw new Error(`No font URL found in CSS payload for ${cssUrl}`)
+  }
+  return match[1]
+}
+
+async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`Failed to fetch font ${url}: ${res.status}`)
+  }
+  return res.arrayBuffer()
+}
+
 async function loadLatinFont(): Promise<ArrayBuffer> {
   if (latinFontCache) return latinFontCache
-  // Inter (open licence, supports Latin extended incl. Swedish diacritics)
-  const res = await fetch(
-    'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50ojIw2-cBrn4.woff'
+  // Inter — open licence, covers Latin Extended including Swedish diacritics.
+  const fontUrl = await resolveGoogleFontUrl(
+    'https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap'
   )
-  if (!res.ok) {
-    throw new Error(`Failed to fetch Latin font: ${res.status}`)
-  }
-  latinFontCache = await res.arrayBuffer()
+  latinFontCache = await fetchAsArrayBuffer(fontUrl)
   return latinFontCache
 }
 
 async function loadKhmerFont(): Promise<ArrayBuffer> {
   if (khmerFontCache) return khmerFontCache
-  // Noto Sans Khmer (Google Fonts) — covers the Khmer script
-  const res = await fetch(
-    'https://fonts.gstatic.com/s/notosanskhmer/v32/ijw9s4roRME5LLRxjsRb-gssOenAyendxrgV2c-Zw-9vbVUti_Z_dWgtWYuNAJz4kAbrddiAcasGw9EWdkBdQ.ttf'
+  const fontUrl = await resolveGoogleFontUrl(
+    'https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@700&display=swap'
   )
-  if (!res.ok) {
-    throw new Error(`Failed to fetch Khmer font: ${res.status}`)
-  }
-  khmerFontCache = await res.arrayBuffer()
+  khmerFontCache = await fetchAsArrayBuffer(fontUrl)
   return khmerFontCache
 }
 
@@ -76,10 +100,21 @@ export async function GET(req: NextRequest) {
     const siteName = SITE_NAMES[locale]
     const tagline = TAGLINES[locale]
 
-    const [latinFont, khmerFont] = await Promise.all([
+    // Fetching the fonts can fail (network glitch, Google Fonts hiccup) — we don't
+    // want a font outage to take down all our social previews, so absorb errors
+    // and let Satori fall back to its built-in font for that script.
+    const [latinSettled, khmerSettled] = await Promise.allSettled([
       loadLatinFont(),
       loadKhmerFont(),
     ])
+    const latinFont = latinSettled.status === 'fulfilled' ? latinSettled.value : null
+    const khmerFont = khmerSettled.status === 'fulfilled' ? khmerSettled.value : null
+    if (latinSettled.status === 'rejected') {
+      console.warn('[og] Latin font fetch failed:', latinSettled.reason)
+    }
+    if (khmerSettled.status === 'rejected') {
+      console.warn('[og] Khmer font fetch failed:', khmerSettled.reason)
+    }
 
     const titleFontFamily = locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer'
     const bodyFontFamily = locale === 'km' ? 'NotoKhmer, Inter' : 'Inter, NotoKhmer'
@@ -208,18 +243,12 @@ export async function GET(req: NextRequest) {
         width: 1200,
         height: 630,
         fonts: [
-          {
-            name: 'Inter',
-            data: latinFont,
-            style: 'normal',
-            weight: 400,
-          },
-          {
-            name: 'NotoKhmer',
-            data: khmerFont,
-            style: 'normal',
-            weight: 400,
-          },
+          ...(latinFont
+            ? [{ name: 'Inter', data: latinFont, style: 'normal' as const, weight: 700 as const }]
+            : []),
+          ...(khmerFont
+            ? [{ name: 'NotoKhmer', data: khmerFont, style: 'normal' as const, weight: 700 as const }]
+            : []),
         ],
         headers: {
           // Cache for 24h at the CDN edge; stale-while-revalidate for a week
