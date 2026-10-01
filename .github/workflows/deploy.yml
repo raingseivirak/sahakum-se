@@ -9,6 +9,7 @@ on:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
 
 jobs:
   lint-and-test:
@@ -25,8 +26,12 @@ jobs:
           node-version: '20.19.5'
           cache: 'npm'
 
+      - name: Verify public npm registry
+        run: |
+          node -e "const lock = require('node:fs').readFileSync('package-lock.json', 'utf8'); const privateRegistry = 'artifactory.' + 'spotify.net'; if (lock.includes(privateRegistry)) { console.error('Private package registry URL found in package-lock.json'); process.exit(1) }"
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit
 
       - name: Generate Prisma Client
         run: npx prisma generate
