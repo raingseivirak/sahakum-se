@@ -3,6 +3,7 @@ import { Building2, MapPin, UserRound } from 'lucide-react'
 import { categoryName } from '@/lib/business-directory'
 import type { BusinessWithDetails } from '@/lib/business-directory'
 import Image from 'next/image'
+import { businessCountryName, businessTagName, getBusinessTranslations } from '@/lib/business-translations'
 
 interface BusinessCardProps {
   business: BusinessWithDetails
@@ -10,6 +11,7 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ business, locale }: BusinessCardProps) {
+  const text = getBusinessTranslations(locale)
   const ownerName = locale === 'km' && business.owner.firstNameKhmer
     ? `${business.owner.firstNameKhmer} ${business.owner.lastNameKhmer || ''}`.trim()
     : `${business.owner.firstName} ${business.owner.lastName}`
@@ -36,11 +38,11 @@ export function BusinessCard({ business, locale }: BusinessCardProps) {
         <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-sahakum-navy-600">{business.summary}</p>
         <div className="mb-4 flex flex-wrap gap-2">
           {business.tags.slice(0, 3).map(({ tag }) => (
-            <span key={tag.id} className="bg-sahakum-gold-50 px-2 py-1 text-xs text-sahakum-navy-800">{tag.name}</span>
+            <span key={tag.id} className="bg-sahakum-gold-50 px-2 py-1 text-xs text-sahakum-navy-800">{businessTagName(tag, locale)}</span>
           ))}
         </div>
         <div className="mt-auto space-y-2 border-t border-sweden-neutral-200 pt-4 text-sm text-sahakum-navy-600">
-          <span className="flex items-center gap-2"><MapPin className="h-4 w-4" />{business.city}, {business.country}</span>
+          <span className="flex items-center gap-2"><MapPin className="h-4 w-4" />{business.locationVisibility === 'ONLINE_ONLY' ? text.online : `${business.city}, ${businessCountryName(business.country, locale)}`}</span>
           {business.displayOwnerName && <span className="flex items-center gap-2"><UserRound className="h-4 w-4" />{ownerName}</span>}
         </div>
       </div>

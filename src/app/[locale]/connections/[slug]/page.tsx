@@ -8,8 +8,10 @@ import { SafeBusinessDescription } from '@/components/business/safe-business-des
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Image from 'next/image'
+import { businessCountryName, businessStatusLabel, businessTagName, getBusinessTranslations, serviceAreaLabel } from '@/lib/business-translations'
 
 export default async function BusinessPage({ params }: { params: { locale: string; slug: string } }) {
+  const text = getBusinessTranslations(params.locale)
   const [business, session] = await Promise.all([prisma.business.findUnique({
     where: { slug: params.slug },
     include: businessInclude,
@@ -23,16 +25,16 @@ export default async function BusinessPage({ params }: { params: { locale: strin
   const ownerName = params.locale === 'km' && business.owner.firstNameKhmer
     ? `${business.owner.firstNameKhmer} ${business.owner.lastNameKhmer || ''}`.trim()
     : `${business.owner.firstName} ${business.owner.lastName}`
-  const fullAddress = [business.address, business.postalCode, business.city, business.country].filter(Boolean).join(', ')
+  const fullAddress = [business.address, business.postalCode, business.city, businessCountryName(business.country, params.locale)].filter(Boolean).join(', ')
   const visibleLocation = business.locationVisibility === 'ONLINE_ONLY'
-    ? (params.locale === 'sv' ? 'Online' : params.locale === 'km' ? 'អនឡាញ' : 'Online')
-    : business.locationVisibility === 'EXACT' ? fullAddress : `${business.city}, ${business.country}`
+    ? text.online
+    : business.locationVisibility === 'EXACT' ? fullAddress : `${business.city}, ${businessCountryName(business.country, params.locale)}`
 
   return (
     <main className={`bg-sahakum-navy-50 py-12 ${params.locale === 'km' ? 'font-khmer' : 'font-sweden'}`}>
       <Container size="wide">
-        {business.status !== 'APPROVED' && <div className="mb-5 border-l-4 border-amber-500 bg-amber-50 p-4 text-amber-900">Preview: this listing is currently {business.status.replaceAll('_', ' ').toLowerCase()} and is not public.</div>}
-        <Link href={`/${params.locale}/connections`} className="mb-6 inline-block text-sweden-blue-600 underline underline-offset-4">← Khmer Connections</Link>
+        {business.status !== 'APPROVED' && <div className="mb-5 border-l-4 border-amber-500 bg-amber-50 p-4 text-amber-900">{text.previewNotice.replace('{status}', businessStatusLabel(business.status, params.locale).toLocaleLowerCase(params.locale))}</div>}
+        <Link href={`/${params.locale}/connections`} className="mb-6 inline-flex items-center text-sweden-blue-700 underline underline-offset-4">← {text.backToDirectory}</Link>
         <article className="overflow-hidden border border-sweden-neutral-200 bg-white shadow-sweden-sm">
           <header className="grid gap-8 bg-sahakum-navy-900 p-8 text-white md:grid-cols-[180px_1fr] md:p-12">
             <div className="flex h-40 items-center justify-center bg-white/10 p-5">
@@ -43,15 +45,17 @@ export default async function BusinessPage({ params }: { params: { locale: strin
               <h1 className="mb-4 text-3xl font-semibold md:text-5xl">{business.name}</h1>
               <p className="max-w-3xl text-lg leading-relaxed text-white/85">{business.summary}</p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {business.tags.map(({ tag }) => <span key={tag.id} className="bg-white/10 px-3 py-1 text-sm">{tag.name}</span>)}
+                {business.tags.map(({ tag }) => <span key={tag.id} className="bg-white/10 px-3 py-1 text-sm">{businessTagName(tag, params.locale)}</span>)}
               </div>
             </div>
           </header>
           <div className="grid gap-10 p-8 md:grid-cols-[1fr_300px] md:p-12">
             <SafeBusinessDescription html={business.description} />
             <aside className="space-y-5 border-l-4 border-sahakum-gold-500 bg-sahakum-navy-50 p-6">
+              <h2 className="text-lg font-semibold text-sahakum-navy-900">{text.contactAndLocation}</h2>
               <div className="flex gap-3"><MapPin className="mt-0.5 h-5 w-5 shrink-0 text-sweden-blue-600" /><span>{visibleLocation}</span></div>
-              {business.displayOwnerName && <div className="flex gap-3"><UserRound className="mt-0.5 h-5 w-5 shrink-0 text-sweden-blue-600" /><span>{ownerName}</span></div>}
+              <div className="flex gap-3"><Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-sweden-blue-600" /><span><span className="sr-only">{text.serviceArea}: </span>{serviceAreaLabel(business.serviceArea, params.locale)}</span></div>
+              {business.displayOwnerName && <div className="flex gap-3"><UserRound className="mt-0.5 h-5 w-5 shrink-0 text-sweden-blue-600" /><span><span className="sr-only">{text.owner}: </span>{ownerName}</span></div>}
               {business.phone && <a className="flex gap-3 text-sweden-blue-700 hover:underline" href={`tel:${business.phone}`}><Phone className="mt-0.5 h-5 w-5 shrink-0" />{business.phone}</a>}
               {business.email && <a className="flex gap-3 break-all text-sweden-blue-700 hover:underline" href={`mailto:${business.email}`}><Mail className="mt-0.5 h-5 w-5 shrink-0" />{business.email}</a>}
               {business.website && <a className="flex gap-3 break-all text-sweden-blue-700 hover:underline" href={business.website} target="_blank" rel="noreferrer"><Globe2 className="mt-0.5 h-5 w-5 shrink-0" />{business.website.replace(/^https?:\/\//, '')}</a>}

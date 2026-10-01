@@ -118,12 +118,6 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy Project Artifacts to Vercel
-        id: deploy
-        run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "production_url=$url" >> $GITHUB_OUTPUT
-
       - name: Run Database Migrations
         run: |
           npm run db:migrate
@@ -131,6 +125,12 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
           NODE_ENV: production
+
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "production_url=$url" >> $GITHUB_OUTPUT
 
       - name: Notification
         run: |
