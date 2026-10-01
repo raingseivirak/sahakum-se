@@ -4,6 +4,7 @@ import { pickCanonicalBaseUrl, CANONICAL_SITE_URL } from '@/lib/url-sanitize'
 
 const SAHAKUM_NAVY = '#0D1931'
 const SAHAKUM_GOLD = '#D4932F'
+const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61580379945977'
 
 export { CANONICAL_SITE_URL }
 
@@ -57,6 +58,7 @@ interface EmailTranslations {
       exploreWebsite: string
       readBlog: string
       checkEvents: string
+      facebook: string
     }
     closing: string
     footer: string
@@ -94,6 +96,7 @@ interface EmailTranslations {
     loginButton: string
     needHelp: string
     closing: string
+    facebook: string
     footer: string
   }
 }
@@ -119,7 +122,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       links: {
         exploreWebsite: 'Visit Our Website',
         readBlog: 'Read Our Blog',
-        checkEvents: 'View Events'
+        checkEvents: 'View Events',
+        facebook: 'Follow Us on Facebook'
       },
       closing: 'We look forward to welcoming you to the Sahakum Khmer community!',
       footer: 'This is an automated confirmation from Sahakum Khmer.'
@@ -167,6 +171,7 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'Login to Your Account',
       needHelp: 'Need help? Contact us at',
       closing: 'We are happy to have you here!',
+      facebook: 'Follow Us on Facebook',
       footer: 'This is an automated message from Sahakum Khmer.',
     }
   },
@@ -190,7 +195,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       links: {
         exploreWebsite: 'Besök vår webbplats',
         readBlog: 'Läs vår blogg',
-        checkEvents: 'Se evenemang'
+        checkEvents: 'Se evenemang',
+        facebook: 'Följ oss på Facebook'
       },
       closing: 'Vi ser fram emot att välkomna dig till Sahakum Khmer-gemenskapen!',
       footer: 'Detta är en automatisk bekräftelse från Sahakum Khmer.'
@@ -238,6 +244,7 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'Logga in på ditt konto',
       needHelp: 'Behöver du hjälp? Kontakta oss på',
       closing: 'Vi är glada att ha dig här!',
+      facebook: 'Följ oss på Facebook',
       footer: 'Detta är ett automatiskt meddelande från Sahakum Khmer.',
     }
   },
@@ -261,7 +268,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       links: {
         exploreWebsite: 'ទស្សនាគេហទំព័ររបស់យើង',
         readBlog: 'អានប្លុករបស់យើង',
-        checkEvents: 'មើលព្រឹត្តិការណ៍'
+        checkEvents: 'មើលព្រឹត្តិការណ៍',
+        facebook: 'តាមដានយើងនៅលើ Facebook'
       },
       closing: 'យើងរំពឹងថានឹងស្វាគមន៍អ្នកមកកាន់សហគមន៍ Sahakum Khmer!',
       footer: 'នេះជាការបញ្ជាក់ដោយស្វ័យប្រវត្តិពី Sahakum Khmer។'
@@ -309,6 +317,7 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       loginButton: 'ចូលគណនីរបស់អ្នក',
       needHelp: 'ត្រូវការជំនួយ? ទាក់ទងយើងខ្ញុំតាម',
       closing: 'យើងរីករាយដែលមានអ្នកនៅទីនេះ!',
+      facebook: 'តាមដានយើងនៅលើ Facebook',
       footer: 'នេះជាសារស្វ័យប្រវត្តិពី Sahakum Khmer។',
     }
   }
@@ -560,6 +569,7 @@ ${content.nextSteps.items.map((item, i) => `${i + 1}. ${item}`).join('\n')}
 ${content.links.exploreWebsite}: ${baseUrl}/${lang}
 ${content.links.readBlog}: ${baseUrl}/${lang}/blog
 ${content.links.checkEvents}: ${baseUrl}/${lang}/pages
+${content.links.facebook}: ${FACEBOOK_URL}
 
 ${content.closing}
 
@@ -675,6 +685,10 @@ www.sahakumkhmer.se
                   </td>
                 </tr>
               </table>
+
+              <p style="margin: 0 0 32px 0; text-align: center; font-size: 15px;">
+                <a href="${FACEBOOK_URL}" style="color: ${SAHAKUM_NAVY}; font-weight: 600;">${content.links.facebook} →</a>
+              </p>
 
               <!-- Closing Message -->
               <p style="margin: 0; color: #333; font-size: 16px; line-height: 1.6; text-align: center; padding: 24px 0; border-top: 1px solid #e5e5e5;">
@@ -1507,6 +1521,7 @@ ${content.membershipDesc}
 ${content.applyButton}: ${joinUrl}
 
 ${content.loginButton}: ${loginUrl}
+${content.facebook}: ${FACEBOOK_URL}
 
 ${content.closing}
 
@@ -1581,6 +1596,10 @@ www.sahakumkhmer.se
                   ${content.applyButton}
                 </a>
               </div>
+
+              <p style="margin: 0 0 24px; text-align: center; font-size: 15px;">
+                <a href="${FACEBOOK_URL}" style="color: ${SAHAKUM_NAVY}; font-weight: 600;">${content.facebook} →</a>
+              </p>
 
               <p style="margin: 0 0 8px; color: #333; font-size: 16px; line-height: 1.6;">
                 ${content.closing}
