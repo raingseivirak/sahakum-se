@@ -192,6 +192,10 @@ export default async function EventPage({ params, searchParams }: EventPageProps
   }
 
   const t = translations[locale] || translations.en
+  // The public API returns flattened category/tag objects, while preview data
+  // may contain the nested Prisma relation shape. Support both response forms.
+  const eventCategories = Array.isArray(event.categories) ? event.categories : []
+  const eventTags = Array.isArray(event.tags) ? event.tags : []
 
   const getLocationTypeLabel = () => {
     switch (event.locationType) {
@@ -386,42 +390,42 @@ export default async function EventPage({ params, searchParams }: EventPageProps
             )}
 
             {/* Categories & Tags - Swedish Design System */}
-            {(event.categories.length > 0 || event.tags.length > 0) && (
+            {(eventCategories.length > 0 || eventTags.length > 0) && (
               <div className="mt-8 pt-8 border-t-2 border-[var(--sahakum-navy)] space-y-6">
-                {event.categories.length > 0 && (
+                {eventCategories.length > 0 && (
                   <div>
                     <h3 className={`text-base font-bold uppercase tracking-wide text-[var(--sahakum-navy)] mb-4 ${fontClass}`}>
                       {locale === 'km' ? 'ប្រភេទ' : locale === 'sv' ? 'Kategorier' : 'Categories'}
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {event.categories.map((cat: any) => {
-                        const catTranslation = cat.category.translations.find((t: any) => t.language === locale)
+                      {eventCategories.map((cat: any) => {
+                        const catTranslation = cat.category?.translations?.find((t: any) => t.language === locale)
                         return (
                           <span
-                            key={cat.categoryId}
+                            key={cat.categoryId || cat.slug}
                             className={`text-sm bg-[var(--sahakum-navy)] text-white px-4 py-2 font-semibold uppercase tracking-wide ${fontClass}`}
                           >
-                            {catTranslation?.name || cat.category.slug}
+                            {catTranslation?.name || cat.name || cat.category?.slug || cat.slug}
                           </span>
                         )
                       })}
                     </div>
                   </div>
                 )}
-                {event.tags.length > 0 && (
+                {eventTags.length > 0 && (
                   <div>
                     <h3 className={`text-base font-bold uppercase tracking-wide text-[var(--sahakum-navy)] mb-4 ${fontClass}`}>
                       {locale === 'km' ? 'ស្លាក' : locale === 'sv' ? 'Taggar' : 'Tags'}
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {event.tags.map((tag: any) => {
-                        const tagTranslation = tag.tag.translations.find((t: any) => t.language === locale)
+                      {eventTags.map((tag: any) => {
+                        const tagTranslation = tag.tag?.translations?.find((t: any) => t.language === locale)
                         return (
                           <span
-                            key={tag.tagId}
+                            key={tag.tagId || tag.slug}
                             className={`text-sm border-2 border-[var(--sahakum-navy)] text-[var(--sahakum-navy)] px-4 py-2 font-semibold ${fontClass}`}
                           >
-                            #{tagTranslation?.name || tag.tag.slug}
+                            #{tagTranslation?.name || tag.name || tag.tag?.slug || tag.slug}
                           </span>
                         )
                       })}

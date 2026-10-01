@@ -33,6 +33,21 @@ const swedishContent = `<p>Sahakumkhmer – Khmeriska Samfundet i Sverige har ä
 </ul>
 <p>Tack!</p>`
 
+const englishContent = `<p>Sahakumkhmer – the Khmer Association in Sweden warmly invites Buddhists, families, friends and the wider community to this year's Pchum Ben ceremony, held according to Khmer tradition.</p>
+<p>The ceremony is held to dedicate merit and good karma to our ancestors, parents, grandparents and relatives across the seven generations who have passed away. Everyone is welcome to attend and share in the merit created in a spirit of respect and devotion.</p>
+<h2>Ceremony programme</h2>
+<p><strong>Saturday, 17 October 2026</strong></p>
+<p><strong>Location:</strong> Kvarnvägen 4, 177 64 Järfälla, Stockholm</p>
+<ul>
+<li><strong>10:00</strong> — Gathering with Buddhists, families and friends</li>
+<li><strong>10:30</strong> — Opening prayers, taking the precepts, alms round and food offerings to the monks</li>
+<li><strong>12:30</strong> — Lunch</li>
+<li><strong>14:00</strong> — Bangsokul ceremony, dedication of merit, blessings and Dharma sermon</li>
+<li><strong>15:00</strong> — Ceremony ends</li>
+<li><strong>15:15</strong> — Special 30-minute meeting for Sahakumkhmer members only</li>
+</ul>
+<p>Thank you!</p>`
+
 async function main() {
   const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } })
   if (!admin) throw new Error('Admin user not found. Please run seed-admin.ts first.')
@@ -56,6 +71,7 @@ async function main() {
       isFree: true,
       organizer: 'Sahakumkhmer – Khmeriska Samfundet i Sverige',
       contactEmail: 'contact.sahakumkhmer.se@gmail.com',
+      featuredImg: '/media/images/pchum-ben-2026.png',
       status: 'PUBLISHED',
       publishedAt: new Date(),
     },
@@ -74,6 +90,7 @@ async function main() {
       isFree: true,
       organizer: 'Sahakumkhmer – Khmeriska Samfundet i Sverige',
       contactEmail: 'contact.sahakumkhmer.se@gmail.com',
+      featuredImg: '/media/images/pchum-ben-2026.png',
       status: 'PUBLISHED',
       publishedAt: new Date(),
       authorId: admin.id,
@@ -81,6 +98,14 @@ async function main() {
   })
 
   for (const translation of [
+    {
+      language: 'en',
+      title: 'Pchum Ben Ceremony 2026',
+      content: englishContent,
+      excerpt: 'Everyone is welcome to Sahakumkhmer\'s Pchum Ben ceremony in Järfälla on Saturday, 17 October 2026.',
+      seoTitle: 'Pchum Ben Ceremony 2026 | Sahakumkhmer',
+      metaDescription: 'Sahakumkhmer\'s Pchum Ben ceremony takes place on Saturday, 17 October 2026 at Kvarnvägen 4 in Järfälla.',
+    },
     {
       language: 'km',
       title: 'ពិធីបុណ្យភ្ជុំបិណ្ឌ ២០២៦',
