@@ -12,6 +12,7 @@ import { InitiativesSection } from '@/components/homepage/initiatives-section';
 import { JoinButton } from '@/components/homepage/join-button';
 import { Footer } from '@/components/layout/footer';
 import { OrganizationStructuredData } from '@/components/seo/organization-structured-data';
+import { KhmerConnectionsSection } from '@/components/homepage/khmer-connections-section';
 import { buildPageMetadata } from '@/lib/metadata';
 
 // Enable ISR (Incremental Static Regeneration)
@@ -245,6 +246,10 @@ export default async function HomePage({ params }: Props) {
         {/* Dynamic Services Section */}
         <Suspense fallback={<div className="py-16 lg:py-24 animate-pulse bg-gray-50" style={{minHeight: '400px'}} />}>
           <ServicesSection locale={params.locale} />
+        </Suspense>
+
+        <Suspense fallback={<div className="py-16 animate-pulse bg-gray-50" style={{minHeight: '300px'}} />}>
+          <KhmerConnectionsSection locale={params.locale} />
         </Suspense>
 
         {/* Membership Section - Call to Action */}

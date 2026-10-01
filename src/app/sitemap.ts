@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   // Static routes for each locale
-  const staticRoutes = ['join', 'contact', 'blog', 'pages', 'events']
+  const staticRoutes = ['join', 'contact', 'blog', 'pages', 'events', 'connections']
   locales.forEach((locale) => {
     staticRoutes.forEach((route) => {
       sitemap.push({
@@ -92,6 +92,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: event.updatedAt || event.createdAt,
           changeFrequency: 'weekly',
           priority: 0.8,
+        })
+      })
+    })
+
+    // Khmer Connections businesses
+    const businesses = await prisma.business.findMany({
+      where: { status: 'APPROVED' },
+      select: { slug: true, updatedAt: true },
+    })
+
+    businesses.forEach((business) => {
+      locales.forEach((locale) => {
+        sitemap.push({
+          url: `${baseUrl}/${locale}/connections/${encodeURIComponent(business.slug)}`,
+          lastModified: business.updatedAt,
+          changeFrequency: 'weekly',
+          priority: 0.7,
         })
       })
     })

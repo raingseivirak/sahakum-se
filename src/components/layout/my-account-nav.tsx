@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Home, FolderKanban, Calendar, User, LucideIcon, Menu, X } from 'lucide-react'
+import { Home, FolderKanban, Calendar, User, LucideIcon, Menu, Store } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 
@@ -37,6 +37,11 @@ export function MyAccountNav({ locale, fontClass }: MyAccountNavProps) {
       name: { en: 'My Events', sv: 'Mina Evenemang', km: 'ព្រឹត្តិការណ៍របស់ខ្ញុំ' }[locale] || 'My Events',
       href: `/${locale}/my-account/events`,
       icon: Calendar,
+    },
+    {
+      name: { en: 'Khmer Connections', sv: 'Khmer Connections', km: 'Khmer Connections' }[locale] || 'Khmer Connections',
+      href: `/${locale}/my-account/connections`,
+      icon: Store,
     },
     {
       name: { en: 'Profile', sv: 'Profil', km: 'ប្រវត្តិរូប' }[locale] || 'Profile',

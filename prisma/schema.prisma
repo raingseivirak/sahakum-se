@@ -9,43 +9,44 @@ datasource db {
 }
 
 model User {
-  id                         String              @id @default(cuid())
-  email                      String              @unique
+  id                         String                           @id @default(cuid())
+  email                      String                           @unique
   name                       String?
   firstName                  String?
   lastName                   String?
-  role                       Role                @default(USER)
+  role                       Role                             @default(USER)
   password                   String?
   profileImage               String?
-  image                      String?             // OAuth profile image (Google/Facebook) - NextAuth adapter uses this
-  emailVerified              DateTime?           // OAuth email verification - NextAuth adapter uses this
-  isActive                   Boolean             @default(true)
-  createdAt                  DateTime            @default(now())
-  updatedAt                  DateTime            @updatedAt
+  image                      String? // OAuth profile image (Google/Facebook) - NextAuth adapter uses this
+  emailVerified              DateTime? // OAuth email verification - NextAuth adapter uses this
+  isActive                   Boolean                          @default(true)
+  createdAt                  DateTime                         @default(now())
+  updatedAt                  DateTime                         @updatedAt
   accounts                   Account[]
   contentItems               ContentItem[]
-  uploadedFiles              MediaFile[]         @relation("MediaFileUploader")
-  approvedMembershipRequests MembershipRequest[] @relation("MembershipRequestApprover")
-  reviewedMembershipRequests MembershipRequest[] @relation("MembershipRequestReviewer")
+  uploadedFiles              MediaFile[]                      @relation("MediaFileUploader")
+  approvedMembershipRequests MembershipRequest[]              @relation("MembershipRequestApprover")
+  reviewedMembershipRequests MembershipRequest[]              @relation("MembershipRequestReviewer")
   statusHistoryChanges       MembershipRequestStatusHistory[]
-  boardMemberVotes           BoardMemberVote[]   @relation("BoardMemberVotes")
+  boardMemberVotes           BoardMemberVote[]                @relation("BoardMemberVotes")
   sessions                   Session[]
   activityLogs               ActivityLog[]
   events                     Event[]
   eventRegistrations         EventRegistration[]
-  initiativesLed             Initiative[]              @relation("InitiativeProjectLead")
-  initiativeMemberships      InitiativeMember[]        @relation("InitiativeMemberUser")
-  assignedTasks              Task[]                    @relation("TaskAssignedTo")
-  initiativeUpdates          InitiativeUpdate[]        @relation("InitiativeUpdateAuthor")
-  initiativeJoinRequests     InitiativeJoinRequest[]   @relation("InitiativeJoinRequestUser")
-  reviewedJoinRequests       InitiativeJoinRequest[]   @relation("InitiativeJoinRequestReviewer")
-  member                     Member?                   @relation("UserMember")
+  initiativesLed             Initiative[]                     @relation("InitiativeProjectLead")
+  initiativeMemberships      InitiativeMember[]               @relation("InitiativeMemberUser")
+  assignedTasks              Task[]                           @relation("TaskAssignedTo")
+  initiativeUpdates          InitiativeUpdate[]               @relation("InitiativeUpdateAuthor")
+  initiativeJoinRequests     InitiativeJoinRequest[]          @relation("InitiativeJoinRequestUser")
+  reviewedJoinRequests       InitiativeJoinRequest[]          @relation("InitiativeJoinRequestReviewer")
+  member                     Member?                          @relation("UserMember")
+  reviewedBusinesses         Business[]                       @relation("BusinessReviewer")
 
   // Playlist Service Relations
-  ownedPlaylistRooms         PlaylistRoom[]            @relation("PlaylistRoomOwner")
-  extendedPlaylistRooms      PlaylistRoom[]            @relation("PlaylistRoomExtender")
-  playlistParticipation      PlaylistParticipant[]     @relation("PlaylistParticipants")
-  playlistSettingsUpdates    PlaylistServiceSettings[] @relation("PlaylistSettingsUpdater")
+  ownedPlaylistRooms      PlaylistRoom[]            @relation("PlaylistRoomOwner")
+  extendedPlaylistRooms   PlaylistRoom[]            @relation("PlaylistRoomExtender")
+  playlistParticipation   PlaylistParticipant[]     @relation("PlaylistParticipants")
+  playlistSettingsUpdates PlaylistServiceSettings[] @relation("PlaylistSettingsUpdater")
 
   @@map("users")
 }
@@ -270,13 +271,118 @@ model Member {
   updatedAt          DateTime            @updatedAt
   user               User?               @relation("UserMember", fields: [userId], references: [id])
   membershipRequests MembershipRequest[]
+  businesses         Business[]
 
   @@map("members")
 }
 
+// ============================================
+// Khmer Connections business directory
+// ============================================
+
+model Business {
+  id                 String                     @id @default(cuid())
+  ownerId            String
+  categoryId         String
+  slug               String                     @unique
+  name               String
+  summary            String
+  description        String                     @db.Text
+  logoUrl            String?
+  images             String[]
+  phone              String?
+  email              String?
+  website            String?
+  facebookUrl        String?
+  instagramUrl       String?
+  address            String?
+  city               String
+  region             String?
+  postalCode         String?
+  country            String                     @default("Sweden")
+  serviceArea        BusinessServiceArea        @default(LOCAL)
+  locationVisibility BusinessLocationVisibility @default(CITY_ONLY)
+  displayOwnerName   Boolean                    @default(false)
+  status             BusinessStatus             @default(DRAFT)
+  reviewNote         String?                    @db.Text
+  reviewedAt         DateTime?
+  reviewedById       String?
+  featured           Boolean                    @default(false)
+  publishedAt        DateTime?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  owner              Member                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  category           BusinessCategory           @relation(fields: [categoryId], references: [id])
+  reviewer           User?                      @relation("BusinessReviewer", fields: [reviewedById], references: [id])
+  tags               BusinessTagAssignment[]
+
+  @@index([ownerId])
+  @@index([categoryId])
+  @@index([status, featured])
+  @@index([country, city])
+  @@map("businesses")
+}
+
+model BusinessCategory {
+  id         String     @id @default(cuid())
+  slug       String     @unique
+  nameEn     String
+  nameSv     String
+  nameKm     String
+  active     Boolean    @default(true)
+  order      Int        @default(0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  businesses Business[]
+
+  @@map("business_categories")
+}
+
+model BusinessTag {
+  id          String                  @id @default(cuid())
+  slug        String                  @unique
+  name        String
+  assignments BusinessTagAssignment[]
+  createdAt   DateTime                @default(now())
+
+  @@map("business_tags")
+}
+
+model BusinessTagAssignment {
+  businessId String
+  tagId      String
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  tag        BusinessTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([businessId, tagId])
+  @@index([tagId])
+  @@map("business_tag_assignments")
+}
+
+enum BusinessStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+  SUSPENDED
+}
+
+enum BusinessServiceArea {
+  LOCAL
+  NATIONWIDE
+  ONLINE
+  INTERNATIONAL
+}
+
+enum BusinessLocationVisibility {
+  EXACT
+  CITY_ONLY
+  ONLINE_ONLY
+}
+
 model MembershipRequest {
-  id                  String           @id @default(cuid())
-  requestNumber       String           @unique
+  id                  String                           @id @default(cuid())
+  requestNumber       String                           @unique
   firstName           String
   lastName            String
   firstNameKhmer      String?
@@ -287,31 +393,31 @@ model MembershipRequest {
   address             String?
   city                String?
   postalCode          String?
-  country             String           @default("Sweden")
+  country             String                           @default("Sweden")
   residenceStatus     ResidenceStatus?
   residenceSince      DateTime?
   motivation          String?
   hearAboutUs         String?
   interests           String?
   skills              String?
-  requestedMemberType MembershipType   @default(REGULAR)
-  status              RequestStatus    @default(PENDING)
-  submittedAt         DateTime         @default(now())
+  requestedMemberType MembershipType                   @default(REGULAR)
+  status              RequestStatus                    @default(PENDING)
+  submittedAt         DateTime                         @default(now())
   reviewedBy          String?
   reviewedAt          DateTime?
   reviewNotes         String?
   approvedBy          String?
   approvedAt          DateTime?
   createdMemberId     String?
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  createdAt           DateTime                         @default(now())
+  updatedAt           DateTime                         @updatedAt
   adminNotes          String?
   rejectionReason     String?
-  preferredLanguage   String?          @default("en")
-  approvalSystem      ApprovalSystem   @default(SINGLE)
-  approver            User?            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
-  createdMember       Member?          @relation(fields: [createdMemberId], references: [id])
-  reviewer            User?            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
+  preferredLanguage   String?                          @default("en")
+  approvalSystem      ApprovalSystem                   @default(SINGLE)
+  approver            User?                            @relation("MembershipRequestApprover", fields: [approvedBy], references: [id])
+  createdMember       Member?                          @relation(fields: [createdMemberId], references: [id])
+  reviewer            User?                            @relation("MembershipRequestReviewer", fields: [reviewedBy], references: [id])
   statusHistory       MembershipRequestStatusHistory[]
   boardVotes          BoardMemberVote[]
 
@@ -321,33 +427,32 @@ model MembershipRequest {
 }
 
 model MembershipRequestStatusHistory {
-  id                    String           @id @default(cuid())
-  membershipRequestId   String
-  fromStatus            RequestStatus?
-  toStatus              RequestStatus
-  changedBy             String?
-  changedAt             DateTime         @default(now())
-  notes                 String?
-  membershipRequest     MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
-  changedByUser         User?            @relation(fields: [changedBy], references: [id])
+  id                  String            @id @default(cuid())
+  membershipRequestId String
+  fromStatus          RequestStatus?
+  toStatus            RequestStatus
+  changedBy           String?
+  changedAt           DateTime          @default(now())
+  notes               String?
+  membershipRequest   MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
+  changedByUser       User?             @relation(fields: [changedBy], references: [id])
 
   @@map("membership_request_status_history")
 }
 
 model BoardMemberVote {
-  id                    String            @id @default(cuid())
-  membershipRequestId   String
-  boardMemberId         String
-  vote                  VoteDecision
-  votedAt               DateTime          @default(now())
-  notes                 String?
-  membershipRequest     MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
-  boardMember           User              @relation("BoardMemberVotes", fields: [boardMemberId], references: [id])
+  id                  String            @id @default(cuid())
+  membershipRequestId String
+  boardMemberId       String
+  vote                VoteDecision
+  votedAt             DateTime          @default(now())
+  notes               String?
+  membershipRequest   MembershipRequest @relation(fields: [membershipRequestId], references: [id], onDelete: Cascade)
+  boardMember         User              @relation("BoardMemberVotes", fields: [boardMemberId], references: [id])
 
   @@unique([membershipRequestId, boardMemberId])
   @@map("board_member_votes")
 }
-
 
 enum Role {
   USER
@@ -398,16 +503,16 @@ enum RequestStatus {
 }
 
 enum ApprovalSystem {
-  SINGLE          // Legacy: Single approver (backward compatibility)
-  MULTI_BOARD     // New: Multiple board member votes required
+  SINGLE // Legacy: Single approver (backward compatibility)
+  MULTI_BOARD // New: Multiple board member votes required
 }
 
 enum ApprovalThreshold {
-  UNANIMOUS        // All board members must approve
-  MAJORITY         // More than 50% (handles odd numbers naturally)
-  SIMPLE_MAJORITY  // At least 50%, rounded up
-  ANY_TWO          // Minimum 2 approvals
-  SINGLE           // Just 1 approval (for legacy/testing)
+  UNANIMOUS // All board members must approve
+  MAJORITY // More than 50% (handles odd numbers naturally)
+  SIMPLE_MAJORITY // At least 50%, rounded up
+  ANY_TWO // Minimum 2 approvals
+  SINGLE // Just 1 approval (for legacy/testing)
 }
 
 enum VoteDecision {
@@ -434,13 +539,13 @@ enum RegistrationStatus {
 }
 
 model Setting {
-  id        String   @id @default(cuid())
-  key       String   @unique
+  id        String      @id @default(cuid())
+  key       String      @unique
   value     String?
   type      SettingType @default(TEXT)
-  category  String   @default("general")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  category  String      @default("general")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@map("settings")
 }
@@ -458,19 +563,19 @@ enum SettingType {
 model ActivityLog {
   id           String   @id @default(cuid())
   userId       String
-  action       String   // e.g., "page.created", "user.updated", "auth.login"
-  resourceType String   // e.g., "PAGE", "USER", "POST", "MEDIA"
-  resourceId   String?  // ID of the affected resource
-  description  String   // Human-readable description
-  oldValues    Json?    // Previous state (for updates)
-  newValues    Json?    // New state (for updates)
-  metadata     Json?    // Additional context (e.g., changed fields, file sizes)
+  action       String // e.g., "page.created", "user.updated", "auth.login"
+  resourceType String // e.g., "PAGE", "USER", "POST", "MEDIA"
+  resourceId   String? // ID of the affected resource
+  description  String // Human-readable description
+  oldValues    Json? // Previous state (for updates)
+  newValues    Json? // New state (for updates)
+  metadata     Json? // Additional context (e.g., changed fields, file sizes)
   ipAddress    String?
   userAgent    String?
   createdAt    DateTime @default(now())
 
   // Relations
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Indexes for performance
   @@index([userId])
@@ -482,55 +587,55 @@ model ActivityLog {
 }
 
 model Event {
-  id                    String                @id @default(cuid())
-  slug                  String                @unique
+  id   String @id @default(cuid())
+  slug String @unique
 
   // Event Details
-  startDate             DateTime
-  endDate               DateTime
-  allDay                Boolean               @default(false)
+  startDate DateTime
+  endDate   DateTime
+  allDay    Boolean  @default(false)
 
   // Location
-  locationType          EventLocationType
-  venueName             String?
-  address               String?
-  postalCode            String?
-  city                  String?
-  country               String?               @default("Sweden")
-  virtualUrl            String?
+  locationType EventLocationType
+  venueName    String?
+  address      String?
+  postalCode   String?
+  city         String?
+  country      String?           @default("Sweden")
+  virtualUrl   String?
 
   // Registration Settings
-  registrationEnabled   Boolean               @default(false)
-  registrationType      RegistrationType?
-  registrationDeadline  DateTime?
-  maxCapacity           Int?
-  currentAttendees      Int                   @default(0)
+  registrationEnabled  Boolean           @default(false)
+  registrationType     RegistrationType?
+  registrationDeadline DateTime?
+  maxCapacity          Int?
+  currentAttendees     Int               @default(0)
 
   // Pricing
-  isFree                Boolean               @default(true)
-  price                 Decimal?
-  currency              String                @default("SEK")
+  isFree   Boolean  @default(true)
+  price    Decimal?
+  currency String   @default("SEK")
 
   // Additional Info
-  organizer             String?
-  contactEmail          String?
-  externalUrl           String?
+  organizer    String?
+  contactEmail String?
+  externalUrl  String?
 
   // Content
-  featuredImg           String?
-  status                Status                @default(DRAFT)
-  authorId              String
-  publishedAt           DateTime?
+  featuredImg String?
+  status      Status    @default(DRAFT)
+  authorId    String
+  publishedAt DateTime?
 
   // Relations
-  author                User                  @relation(fields: [authorId], references: [id])
-  translations          EventTranslation[]
-  categories            EventCategory[]
-  tags                  EventTag[]
-  registrations         EventRegistration[]
+  author        User                @relation(fields: [authorId], references: [id])
+  translations  EventTranslation[]
+  categories    EventCategory[]
+  tags          EventTag[]
+  registrations EventRegistration[]
 
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status, endDate])
   @@index([startDate])
@@ -539,50 +644,50 @@ model Event {
 }
 
 model EventTranslation {
-  id              String   @id @default(cuid())
-  eventId         String
-  language        String   // sv | en | km
+  id       String @id @default(cuid())
+  eventId  String
+  language String // sv | en | km
 
   title           String
-  content         String   @db.Text
-  excerpt         String?  @db.Text
+  content         String  @db.Text
+  excerpt         String? @db.Text
   seoTitle        String?
   metaDescription String?
 
-  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([eventId, language])
   @@map("event_translations")
 }
 
 model EventRegistration {
-  id              String             @id @default(cuid())
-  eventId         String
+  id      String @id @default(cuid())
+  eventId String
 
   // User info (if logged in)
-  userId          String?
+  userId String?
 
   // Guest info (if not logged in, for PUBLIC events)
-  guestFirstName  String?
-  guestLastName   String?
-  guestEmail      String?
-  guestPhone      String?
+  guestFirstName String?
+  guestLastName  String?
+  guestEmail     String?
+  guestPhone     String?
 
   // Registration details
-  registeredAt    DateTime           @default(now())
-  status          RegistrationStatus @default(CONFIRMED)
-  numberOfGuests  Int                @default(1)
-  notes           String?            @db.Text
+  registeredAt   DateTime           @default(now())
+  status         RegistrationStatus @default(CONFIRMED)
+  numberOfGuests Int                @default(1)
+  notes          String?            @db.Text
 
   // Relations
-  event           Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user            User?              @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User? @relation(fields: [userId], references: [id])
 
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([eventId])
   @@index([userId])
@@ -593,8 +698,8 @@ model EventCategory {
   eventId    String
   categoryId String
 
-  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([eventId, categoryId])
   @@map("event_categories")
@@ -604,16 +709,16 @@ model EventTag {
   eventId String
   tagId   String
 
-  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([eventId, tagId])
   @@map("event_tags")
 }
 
 model BoardMember {
-  id             String                    @id @default(cuid())
-  slug           String                    @unique
+  id             String                   @id @default(cuid())
+  slug           String                   @unique
   firstName      String
   lastName       String
   firstNameKhmer String?
@@ -621,12 +726,12 @@ model BoardMember {
   profileImage   String?
   email          String?
   phone          String?
-  order          Int                       @default(0)
-  isChairman     Boolean                   @default(false)
-  active         Boolean                   @default(true)
+  order          Int                      @default(0)
+  isChairman     Boolean                  @default(false)
+  active         Boolean                  @default(true)
   joinedBoard    DateTime?
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
   translations   BoardMemberTranslation[]
 
   @@map("board_members")
@@ -635,8 +740,8 @@ model BoardMember {
 model BoardMemberTranslation {
   id            String      @id @default(cuid())
   boardMemberId String
-  language      String      // sv | en | km
-  position      String      // "Chairman", "Board Member", "Vice Chairman"
+  language      String // sv | en | km
+  position      String // "Chairman", "Board Member", "Vice Chairman"
   education     String      @db.Text
   vision        String      @db.Text
   bio           String?     @db.Text
@@ -653,34 +758,34 @@ model BoardMemberTranslation {
 // ============================================
 
 model Initiative {
-  id                String                 @id @default(cuid())
-  slug              String                 @unique
+  id   String @id @default(cuid())
+  slug String @unique
 
   // Publishing workflow (like pages/posts)
-  status            InitiativeStatus       @default(DRAFT)
-  visibility        Visibility             @default(PUBLIC)
+  status     InitiativeStatus @default(DRAFT)
+  visibility Visibility       @default(PUBLIC)
 
   // Project info
-  category          InitiativeCategory
-  startDate         DateTime
-  endDate           DateTime?              // null = ongoing
+  category  InitiativeCategory
+  startDate DateTime
+  endDate   DateTime? // null = ongoing
 
   // Media
-  featuredImage     String?
+  featuredImage String?
 
   // Team
-  projectLeadId     String
-  projectLead       User                   @relation("InitiativeProjectLead", fields: [projectLeadId], references: [id])
+  projectLeadId String
+  projectLead   User   @relation("InitiativeProjectLead", fields: [projectLeadId], references: [id])
 
   // Relations
-  translations      InitiativeTranslation[]
-  members           InitiativeMember[]
-  tasks             Task[]
-  updates           InitiativeUpdate[]
-  joinRequests      InitiativeJoinRequest[]
+  translations InitiativeTranslation[]
+  members      InitiativeMember[]
+  tasks        Task[]
+  updates      InitiativeUpdate[]
+  joinRequests InitiativeJoinRequest[]
 
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([visibility])
@@ -690,39 +795,39 @@ model Initiative {
 }
 
 model InitiativeTranslation {
-  id                String     @id @default(cuid())
-  initiativeId      String
-  language          String     // sv | en | km
+  id           String @id @default(cuid())
+  initiativeId String
+  language     String // sv | en | km
 
-  title             String
-  shortDescription  String     // For cards (160 chars)
-  description       String     @db.Text  // Rich text, full details
+  title            String
+  shortDescription String // For cards (160 chars)
+  description      String @db.Text // Rich text, full details
 
-  seoTitle          String?
-  metaDescription   String?
+  seoTitle        String?
+  metaDescription String?
 
-  initiative        Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
 
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([initiativeId, language])
   @@map("initiative_translations")
 }
 
 model InitiativeMember {
-  id                String      @id @default(cuid())
-  initiativeId      String
-  userId            String
+  id           String @id @default(cuid())
+  initiativeId String
+  userId       String
 
-  role              MemberRole  @default(MEMBER)
-  joinedAt          DateTime    @default(now())
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
 
   // What they're helping with (optional note)
-  contributionNote  String?     @db.Text
+  contributionNote String? @db.Text
 
-  initiative        Initiative  @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
-  user              User        @relation("InitiativeMemberUser", fields: [userId], references: [id])
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  user       User       @relation("InitiativeMemberUser", fields: [userId], references: [id])
 
   @@unique([initiativeId, userId])
   @@index([userId])
@@ -730,31 +835,31 @@ model InitiativeMember {
 }
 
 model Task {
-  id              String       @id @default(cuid())
-  initiativeId    String
+  id           String @id @default(cuid())
+  initiativeId String
 
   // Multilingual (show what's available - not all required)
-  titleEn         String?
-  titleSv         String?
-  titleKm         String?
-  descriptionEn   String?      @db.Text
-  descriptionSv   String?      @db.Text
-  descriptionKm   String?      @db.Text
+  titleEn       String?
+  titleSv       String?
+  titleKm       String?
+  descriptionEn String? @db.Text
+  descriptionSv String? @db.Text
+  descriptionKm String? @db.Text
 
   // Assignment
-  assignedToId    String?
-  assignedTo      User?        @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+  assignedToId String?
+  assignedTo   User?   @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
 
-  status          TaskStatus   @default(TODO)
-  priority        TaskPriority @default(MEDIUM)
-  dueDate         DateTime?
-  completedAt     DateTime?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
 
-  order           Int          @default(0)  // For sorting
+  order Int @default(0) // For sorting
 
-  initiative      Initiative   @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@index([initiativeId])
   @@index([assignedToId])
@@ -763,22 +868,22 @@ model Task {
 }
 
 model InitiativeUpdate {
-  id            String      @id @default(cuid())
-  initiativeId  String
-  userId        String      // Who posted
+  id           String @id @default(cuid())
+  initiativeId String
+  userId       String // Who posted
 
-  title         String
-  content       String      @db.Text
-  type          UpdateType  @default(UPDATE)
-  images        String[]    // Array of image URLs
+  title   String
+  content String     @db.Text
+  type    UpdateType @default(UPDATE)
+  images  String[] // Array of image URLs
 
-  publishedAt   DateTime    @default(now())
+  publishedAt DateTime @default(now())
 
-  initiative    Initiative  @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
-  author        User        @relation("InitiativeUpdateAuthor", fields: [userId], references: [id])
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  author     User       @relation("InitiativeUpdateAuthor", fields: [userId], references: [id])
 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([initiativeId])
   @@index([userId])
@@ -786,24 +891,24 @@ model InitiativeUpdate {
 }
 
 model InitiativeJoinRequest {
-  id            String            @id @default(cuid())
-  initiativeId  String
-  userId        String
-  status        JoinRequestStatus @default(PENDING)
-  message       String?           @db.Text  // Optional message from the requester
+  id           String            @id @default(cuid())
+  initiativeId String
+  userId       String
+  status       JoinRequestStatus @default(PENDING)
+  message      String?           @db.Text // Optional message from the requester
 
-  reviewedAt    DateTime?
-  reviewedBy    String?
-  reviewNote    String?           @db.Text  // Optional note from reviewer
+  reviewedAt DateTime?
+  reviewedBy String?
+  reviewNote String?   @db.Text // Optional note from reviewer
 
-  initiative    Initiative        @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
-  user          User              @relation("InitiativeJoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
-  reviewer      User?             @relation("InitiativeJoinRequestReviewer", fields: [reviewedBy], references: [id])
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  user       User       @relation("InitiativeJoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer   User?      @relation("InitiativeJoinRequestReviewer", fields: [reviewedBy], references: [id])
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([initiativeId, userId])  // One request per user per initiative
+  @@unique([initiativeId, userId]) // One request per user per initiative
   @@index([status])
   @@index([initiativeId])
   @@index([userId])
@@ -885,22 +990,22 @@ model PlaylistServiceSettings {
 }
 
 model PlaylistRoom {
-  id                String                @id @default(cuid())
-  roomCode          String                @unique
-  ownerType         RoomOwnerType         @default(ANON)
+  id                String                 @id @default(cuid())
+  roomCode          String                 @unique
+  ownerType         RoomOwnerType          @default(ANON)
   ownerId           String?
-  owner             User?                 @relation("PlaylistRoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  adminSessionToken String                @unique
-  createdAt         DateTime              @default(now())
+  owner             User?                  @relation("PlaylistRoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  adminSessionToken String                 @unique
+  createdAt         DateTime               @default(now())
   expiresAt         DateTime
   extendedUntil     DateTime?
   extendedBy        String?
-  extendedByUser    User?                 @relation("PlaylistRoomExtender", fields: [extendedBy], references: [id])
-  karaokeEnabled    Boolean               @default(false)
-  allowGuestsAdd    Boolean               @default(true)
-  autoplay          Boolean               @default(true)
-  loopQueue         Boolean               @default(false)
-  timezone          String                @default("Europe/Stockholm")
+  extendedByUser    User?                  @relation("PlaylistRoomExtender", fields: [extendedBy], references: [id])
+  karaokeEnabled    Boolean                @default(false)
+  allowGuestsAdd    Boolean                @default(true)
+  autoplay          Boolean                @default(true)
+  loopQueue         Boolean                @default(false)
+  timezone          String                 @default("Europe/Stockholm")
   participants      PlaylistParticipant[]
   queueItems        PlaylistQueueItem[]
   playbackState     PlaylistPlaybackState?

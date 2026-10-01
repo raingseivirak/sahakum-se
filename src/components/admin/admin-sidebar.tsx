@@ -27,6 +27,7 @@ import {
   Lightbulb,
   Mail,
   Music,
+  Store,
 } from "lucide-react"
 
 import {
@@ -201,6 +202,12 @@ const getNavigationItems = (locale: string, permissions: any) => {
             requiresPermission: 'canManageServices',
           },
         ],
+      },
+      {
+        title: 'Khmer Connections',
+        url: `/${locale}/admin/businesses`,
+        icon: Store,
+        requiresPermission: 'canManageServices',
       },
       {
         title: locale === 'km' ? 'ប្រភេទ' : locale === 'sv' ? 'Kategorier' : 'Categories',

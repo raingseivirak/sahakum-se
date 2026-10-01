@@ -37,13 +37,13 @@ fi
 # Start development server
 echo "🌟 Starting Next.js development server..."
 echo "📊 Project: Sahakum Khmer CMS (Trilingual)"
-echo "🌐 URL: http://localhost:3000"
+echo "🌐 URL: http://localhost:3100"
 echo ""
 echo "Available routes:"
-echo "  • http://localhost:3000/sv (Swedish - Default)"
-echo "  • http://localhost:3000/en (English)"
-echo "  • http://localhost:3000/km (Khmer)"
-echo "  • http://localhost:3000/sv/admin (Admin Dashboard)"
+echo "  • http://localhost:3100/sv (Swedish - Default)"
+echo "  • http://localhost:3100/en (English)"
+echo "  • http://localhost:3100/km (Khmer)"
+echo "  • http://localhost:3100/sv/admin (Admin Dashboard)"
 echo ""
 
 npm run dev

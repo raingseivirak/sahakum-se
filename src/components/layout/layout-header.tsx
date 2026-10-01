@@ -9,9 +9,9 @@ import { UserMenu } from '@/components/layout/user-menu'
 import { type Language } from '@/lib/constants'
 
 const translations = {
-  en: { aboutUs: 'About Us', blog: 'Blog', contact: 'Contact', signIn: 'Sign In', signOut: 'Sign Out', admin: 'Admin Dashboard', profile: 'Profile', settings: 'Settings', myAccount: 'My Account' },
-  sv: { aboutUs: 'Om oss', blog: 'Blogg', contact: 'Kontakt', signIn: 'Logga in', signOut: 'Logga ut', admin: 'Administratörspanel', profile: 'Min profil', settings: 'Inställningar', myAccount: 'Mitt konto' },
-  km: { aboutUs: 'អំពីយើង', blog: 'ប្លុក', contact: 'ទំនាក់ទំនង', signIn: 'ចូលប្រើប្រាស់', signOut: 'ចាកចេញ', admin: 'ផ្ទាំងគ្រប់គ្រង', profile: 'ប្រវត្តិរូប', settings: 'ការកំណត់', myAccount: 'គណនីរបស់ខ្ញុំ' },
+  en: { aboutUs: 'About Us', connections: 'Connections', blog: 'Blog', contact: 'Contact', signIn: 'Sign In', signOut: 'Sign Out', admin: 'Admin Dashboard', profile: 'Profile', settings: 'Settings', myAccount: 'My Account' },
+  sv: { aboutUs: 'Om oss', connections: 'Företag', blog: 'Blogg', contact: 'Kontakt', signIn: 'Logga in', signOut: 'Logga ut', admin: 'Administratörspanel', profile: 'Min profil', settings: 'Inställningar', myAccount: 'Mitt konto' },
+  km: { aboutUs: 'អំពីយើង', connections: 'អាជីវកម្ម', blog: 'ប្លុក', contact: 'ទំនាក់ទំនង', signIn: 'ចូលប្រើប្រាស់', signOut: 'ចាកចេញ', admin: 'ផ្ទាំងគ្រប់គ្រង', profile: 'ប្រវត្តិរូប', settings: 'ការកំណត់', myAccount: 'គណនីរបស់ខ្ញុំ' },
 }
 
 interface LayoutHeaderProps {
@@ -57,6 +57,7 @@ export function LayoutHeader({ locale }: LayoutHeaderProps) {
 
           <div className="flex items-center space-x-4">
             <Link href={`/${locale}/about-us`} className={linkClass}>{tr.aboutUs}</Link>
+            <Link href={`/${locale}/connections`} className={linkClass}>{tr.connections}</Link>
             <Link href={`/${locale}/blog`} className={linkClass}>{tr.blog}</Link>
             <Link href={`/${locale}/contact`} className={linkClass}>{tr.contact}</Link>
             <LanguageSwitcher currentLocale={locale as Language} variant="compact" />
