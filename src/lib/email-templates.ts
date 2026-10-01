@@ -68,6 +68,7 @@ interface EmailTranslations {
     congratulations: string
     approved: string
     nextSteps: string
+    facebook: string
   }
   credentials: {
     subject: string
@@ -132,7 +133,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       subject: 'Congratulations! Your Membership Has Been Approved',
       congratulations: 'Congratulations',
       approved: 'Your membership application has been approved!',
-      nextSteps: 'Welcome to the Sahakum Khmer community. We will contact you soon with more details.'
+      nextSteps: 'Welcome to the Sahakum Khmer community. We will contact you soon with more details.',
+      facebook: 'Follow Us on Facebook'
     },
     credentials: {
       subject: 'Your Sahakum Khmer Member Account - Login Credentials',
@@ -205,7 +207,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       subject: 'Grattis! Ditt medlemskap har godkänts',
       congratulations: 'Grattis',
       approved: 'Din medlemsansökan har godkänts!',
-      nextSteps: 'Välkommen till Sahakum Khmer-gemenskapen. Vi kommer att kontakta dig snart med mer information.'
+      nextSteps: 'Välkommen till Sahakum Khmer-gemenskapen. Vi kommer att kontakta dig snart med mer information.',
+      facebook: 'Följ oss på Facebook'
     },
     credentials: {
       subject: 'Ditt Sahakum Khmer medlemskonto - Inloggningsuppgifter',
@@ -278,7 +281,8 @@ const EMAIL_CONTENT: Record<Language, EmailTranslations> = {
       subject: 'អបអរសាទរ! សមាជិកភាពរបស់អ្នកត្រូវបានអនុម័ត',
       congratulations: 'អបអរសាទរ',
       approved: 'ពាក្យសុំសមាជិកភាពរបស់អ្នកត្រូវបានអនុម័ត!',
-      nextSteps: 'សូមស្វាគមន៍មកកាន់សហគមន៍ Sahakum Khmer។ យើងនឹងទាក់ទងអ្នកឆាប់ៗនេះជាមួយព័ត៌មានលម្អិតបន្ថែម។'
+      nextSteps: 'សូមស្វាគមន៍មកកាន់សហគមន៍ Sahakum Khmer។ យើងនឹងទាក់ទងអ្នកឆាប់ៗនេះជាមួយព័ត៌មានលម្អិតបន្ថែម។',
+      facebook: 'តាមដានយើងនៅលើ Facebook'
     },
     credentials: {
       subject: 'គណនីសមាជិក Sahakum Khmer របស់អ្នក - ព័ត៌មានចូល',
@@ -766,6 +770,8 @@ ${lang === 'sv' ? 'Referensnummer' : lang === 'km' ? 'លេខយោង' : 'Ref
 
 ${content.nextSteps}
 
+${content.facebook}: ${FACEBOOK_URL}
+
 Sahakum Khmer
 www.sahakumkhmer.se
   `.trim()
@@ -830,6 +836,9 @@ www.sahakumkhmer.se
                   </td>
                 </tr>
               </table>
+              <p style="margin: 0; text-align: center; font-size: 15px;">
+                <a href="${FACEBOOK_URL}" style="color: ${SAHAKUM_NAVY}; font-weight: 600;">${content.facebook} →</a>
+              </p>
             </td>
           </tr>
           <tr>
