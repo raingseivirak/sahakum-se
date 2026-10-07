@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { writeFile } from "fs/promises"
-import { join } from "path"
-import { randomUUID } from "crypto"
 import { ActivityLogger } from "@/lib/activity-logger"
+import { storageService } from "@/lib/storage"
 
 const ALLOWED_TYPES = {
   images: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -44,31 +42,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File type not allowed" }, { status: 400 })
     }
 
-    // Generate unique filename
-    const fileExtension = file.name.split('.').pop()
-    const uniqueFilename = `${randomUUID()}.${fileExtension}`
+    const uploadedFile = await storageService.uploadFile(file, session.user.id, {
+      category,
+      allowedTypes: ALLOWED_TYPES[category as keyof typeof ALLOWED_TYPES],
+      maxSize: MAX_FILE_SIZE,
+    })
 
-    // Convert File to Buffer
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    // Save file to public directory
-    const uploadPath = join(process.cwd(), 'public', 'media', category, uniqueFilename)
-    await writeFile(uploadPath, buffer)
-
-    // Create database record
-    const mediaFile = await prisma.mediaFile.create({
+    // Store post-image metadata after the storage service creates the media record.
+    const mediaFile = await prisma.mediaFile.update({
+      where: { id: uploadedFile.id },
       data: {
-        filename: uniqueFilename,
-        originalName: file.name,
-        url: `/media/${category}/${uniqueFilename}`,
-        mimeType: file.type,
-        fileSize: file.size,
-        category: category,
-        uploaderId: session.user.id,
         altText: formData.get("altText") as string || null,
         caption: formData.get("caption") as string || null,
-      }
+      },
     })
 
     // Log media upload activity
@@ -93,7 +79,7 @@ export async function POST(request: NextRequest) {
         mimeType: mediaFile.mimeType,
         fileSize: mediaFile.fileSize,
         originalName: mediaFile.originalName,
-        uploadPath: `/media/${category}/${uniqueFilename}`
+        uploadPath: mediaFile.url
       }
     })
 

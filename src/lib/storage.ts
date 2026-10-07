@@ -101,7 +101,11 @@ export class StorageService {
     let url: string
     let sizes: ImageSize[] = []
 
-    if (this.isProduction && this.bucket) {
+    if (this.isProduction) {
+      if (!this.bucket) {
+        throw new Error('Google Cloud Storage is not configured for production')
+      }
+
       // Upload to Google Cloud Storage
       url = await this.uploadToGoogleCloud(buffer, filename, category, file.type)
 
