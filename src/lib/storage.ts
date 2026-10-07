@@ -137,16 +137,43 @@ export class StorageService {
       },
     })
 
+    // Keep bucket objects private in production. The stable application URL
+    // below generates a short-lived signed URL when the image is requested.
+    const publicUrl = this.isProduction
+      ? `/api/media/file/${mediaFile.id}`
+      : mediaFile.url
+    const storedMediaFile = publicUrl === mediaFile.url
+      ? mediaFile
+      : await prisma.mediaFile.update({
+          where: { id: mediaFile.id },
+          data: { url: publicUrl },
+        })
+
     return {
-      id: mediaFile.id,
-      filename: mediaFile.filename,
-      originalName: mediaFile.originalName,
-      url: mediaFile.url,
-      mimeType: mediaFile.mimeType,
-      fileSize: mediaFile.fileSize,
-      category: mediaFile.category,
+      id: storedMediaFile.id,
+      filename: storedMediaFile.filename,
+      originalName: storedMediaFile.originalName,
+      url: storedMediaFile.url,
+      mimeType: storedMediaFile.mimeType,
+      fileSize: storedMediaFile.fileSize,
+      category: storedMediaFile.category,
       ...(sizes.length > 0 && { sizes })
     }
+  }
+
+  /** Generate a short-lived read URL for a private cloud object. */
+  async getSignedReadUrl(filename: string, category: string, expiresInMinutes = 15): Promise<string> {
+    if (!this.bucket) {
+      throw new Error('Google Cloud Storage not configured')
+    }
+
+    const [signedUrl] = await this.bucket.file(`${category}/${filename}`).getSignedUrl({
+      version: 'v4',
+      action: 'read',
+      expires: Date.now() + expiresInMinutes * 60 * 1000,
+    })
+
+    return signedUrl
   }
 
   /**

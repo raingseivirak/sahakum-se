@@ -55,8 +55,17 @@ export async function GET(request: NextRequest) {
       prisma.mediaFile.count({ where })
     ])
 
+    const responseFiles = files.map(file => ({
+      ...file,
+      // Existing records may still contain direct private GCS URLs. Return
+      // the stable signed-URL proxy for browser previews.
+      url: process.env.NODE_ENV === 'production' && file.url.startsWith('https://storage.googleapis.com/')
+        ? `/api/media/file/${file.id}`
+        : file.url,
+    }))
+
     return NextResponse.json({
-      files,
+      files: responseFiles,
       pagination: {
         page,
         limit,
