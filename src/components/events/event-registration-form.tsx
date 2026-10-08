@@ -30,7 +30,7 @@ export function EventRegistrationForm({
     guestLastName: '',
     guestEmail: '',
     guestPhone: '',
-    numberOfGuests: 1,
+    numberOfGuests: '1',
     notes: '',
   })
 
@@ -58,6 +58,7 @@ export function EventRegistrationForm({
       includesYourself: 'Inkluderar dig själv',
       alreadyRegistered: 'Du har redan anmält dig till detta evenemang',
       fillThisField: 'Vänligen fyll i detta fält',
+      invalidGuestCount: 'Ange ett heltal mellan 1 och 10',
     },
     en: {
       firstName: 'First Name',
@@ -78,6 +79,7 @@ export function EventRegistrationForm({
       includesYourself: 'Includes yourself',
       alreadyRegistered: 'You have already registered for this event',
       fillThisField: 'Please fill in this field',
+      invalidGuestCount: 'Enter a whole number between 1 and 10',
     },
     km: {
       firstName: 'នាមខ្លួន',
@@ -98,6 +100,7 @@ export function EventRegistrationForm({
       includesYourself: 'រួមបញ្ចូលអ្នក',
       alreadyRegistered: 'អ្នកបានចុះឈ្មោះសម្រាប់ព្រឹត្តិការណ៍នេះរួចហើយ',
       fillThisField: 'សូមបំពេញវាលនេះ',
+      invalidGuestCount: 'សូមបញ្ចូលចំនួនគត់ពី 1 ដល់ 10',
     },
   }
 
@@ -110,7 +113,7 @@ export function EventRegistrationForm({
 
     try {
       const registrationData: any = {
-        numberOfGuests: parseInt(formData.numberOfGuests.toString()),
+        numberOfGuests: Number(formData.numberOfGuests),
         notes: formData.notes || undefined,
       }
 
@@ -145,7 +148,7 @@ export function EventRegistrationForm({
         guestLastName: '',
         guestEmail: '',
         guestPhone: '',
-        numberOfGuests: 1,
+        numberOfGuests: '1',
         notes: '',
       })
     } catch (err) {
@@ -322,17 +325,21 @@ export function EventRegistrationForm({
         </label>
         <input
           id="numberOfGuests"
-          type="number"
-          min="1"
-          max="10"
+          type="text"
+          pattern="(?:[1-9]|10)"
+          inputMode="numeric"
           required
           value={formData.numberOfGuests}
           onChange={(e) => {
-            setFormData({ ...formData, numberOfGuests: parseInt(e.target.value) || 1 })
+            setFormData({ ...formData, numberOfGuests: e.target.value })
             e.target.setCustomValidity('')
           }}
           onInvalid={(e) => {
-            e.currentTarget.setCustomValidity(t.fillThisField)
+            if (e.currentTarget.validity.valueMissing) {
+              e.currentTarget.setCustomValidity(t.fillThisField)
+            } else if (e.currentTarget.validity.patternMismatch) {
+              e.currentTarget.setCustomValidity(t.invalidGuestCount)
+            }
           }}
           className={`w-full px-3 py-2 border border-[var(--sahakum-navy)]/30 focus:border-[var(--sahakum-gold)] focus:outline-none transition-colors ${locale === 'km' ? 'font-khmer text-khmer-body' : 'font-sweden text-sweden-body'}`}
         />

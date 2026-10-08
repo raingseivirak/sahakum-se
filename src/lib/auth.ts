@@ -121,7 +121,9 @@ const providers = [
         ]
       : []
   })(),
-  ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
+  ...(process.env.NEXT_PUBLIC_OAUTH_FACEBOOK_ENABLED === "true" &&
+    process.env.FACEBOOK_CLIENT_ID &&
+    process.env.FACEBOOK_CLIENT_SECRET
     ? [
         FacebookProvider({
           clientId: process.env.FACEBOOK_CLIENT_ID,
