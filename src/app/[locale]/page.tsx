@@ -8,6 +8,7 @@ import { FeaturedContentGrid } from '@/components/homepage/featured-content-grid
 import { ServicesSection } from '@/components/homepage/services-section';
 import { MembershipSection } from '@/components/homepage/membership-section';
 import { UpcomingEventsSection } from '@/components/homepage/upcoming-events-section';
+import { RecentBlogSection } from '@/components/homepage/recent-blog-section';
 import { InitiativesSection } from '@/components/homepage/initiatives-section';
 import { JoinButton } from '@/components/homepage/join-button';
 import { Footer } from '@/components/layout/footer';
@@ -236,6 +237,11 @@ export default async function HomePage({ params }: Props) {
         {/* Upcoming Events Section */}
         <Suspense fallback={<div className="py-16 animate-pulse bg-white" style={{minHeight: '300px'}} />}>
           <UpcomingEventsSection locale={params.locale} />
+        </Suspense>
+
+        {/* Recent blog articles from the last 90 days */}
+        <Suspense fallback={<div className="py-10 animate-pulse bg-gray-50" style={{minHeight: '250px'}} />}>
+          <RecentBlogSection locale={params.locale} />
         </Suspense>
 
         {/* Initiatives Section */}

@@ -267,3 +267,6 @@ public/mockServiceWorker.js
 .netlify/
 
 cred.txt
+
+# Microsoft Office temporary lock files
+~$*
